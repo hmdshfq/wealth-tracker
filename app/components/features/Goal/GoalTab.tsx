@@ -80,6 +80,16 @@ export const GoalTab: React.FC<GoalTabProps> = ({
               }
               style={{ width: '140px' }}
             />
+            <Input
+              type="number"
+              label="Annual Deposit Increase (%)"
+              value={(tempGoal.depositIncreasePercentage ?? 0) * 100}
+              onChange={(e) =>
+                onTempGoalChange({ depositIncreasePercentage: (parseFloat(e.target.value) || 0) / 100 })
+              }
+              step="0.1"
+              style={{ width: '100px' }}
+            />
             <Button onClick={onEditSave}>Calculate & Save</Button>
             <Button variant="secondary" onClick={onEditCancel}>
               Cancel
@@ -102,6 +112,10 @@ export const GoalTab: React.FC<GoalTabProps> = ({
             <div>
               <p className={styles.statLabel}>Monthly Deposits</p>
               <p className={styles.statValueYellow}>{formatPLN(goal.monthlyDeposits)}</p>
+            </div>
+            <div>
+              <p className={styles.statLabel}>Annual Deposit Increase</p>
+              <p className={styles.statValueWhite}>{(goal.depositIncreasePercentage * 100).toFixed(1)}%</p>
             </div>
           </div>
         )}

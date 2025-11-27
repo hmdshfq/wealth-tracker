@@ -164,6 +164,17 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             stackId="portfolio"
           />
 
+          {/* Actual Investments line */}
+          <Line
+            type="stepAfter"
+            dataKey="actualInvestedAmount"
+            name="Actual Investments"
+            stroke="var(--accent-yellow)"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+
           {/* Goal line */}
           <Line
             type="monotone"

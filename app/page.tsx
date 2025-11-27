@@ -59,6 +59,7 @@ const INITIAL_GOAL: Goal = {
   monthlyDeposits: 0,
   amount: 0,
   targetYear: 2050,
+  depositIncreasePercentage: 0,
 };
 
 // ============================================================================
@@ -282,18 +283,35 @@ export default function InvestmentTracker() {
     return { year, month };
   }, [transactions]);
 
+  const getActualInvestedByDate = useCallback((date: string) => {
+    let totalInvested = 0;
+    transactions.forEach((tx) => {
+      // Only count Buy transactions and only up to the specified date
+      if (tx.action === 'Buy' && tx.date <= date) {
+        totalInvested += tx.shares * tx.price;
+      }
+    });
+    return totalInvested;
+  }, [transactions]);
+
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
     const { year, month } = getFirstTransactionDate();
-    return calculateMonthlyProjection(
+    const baseProjection = calculateMonthlyProjection(
       totalNetWorth,
       goal.retirementYear,
       goal.annualReturn,
       goal.monthlyDeposits,
       year,
       month,
-      goal.amount
+      goal.amount,
+      goal.depositIncreasePercentage
     );
-  }, [totalNetWorth, goal, getFirstTransactionDate]);
+    // Add actual invested amounts to each projection point
+    return baseProjection.map((point) => ({
+      ...point,
+      actualInvestedAmount: getActualInvestedByDate(point.date),
+    }));
+  }, [totalNetWorth, goal, getFirstTransactionDate, getActualInvestedByDate]);
 
   // ---------------------------------------------------------------------------
   // Export Functions
@@ -568,7 +586,8 @@ export default function InvestmentTracker() {
       totalNetWorth,
       tempGoal.retirementYear,
       tempGoal.annualReturn,
-      tempGoal.monthlyDeposits
+      tempGoal.monthlyDeposits,
+      tempGoal.depositIncreasePercentage
     );
 
     setGoal({

@@ -44,6 +44,7 @@ export interface Goal {
   retirementYear: number;
   annualReturn: number;
   monthlyDeposits: number;
+  depositIncreasePercentage: number;
 }
 
 export interface AllocationItem {
@@ -63,6 +64,7 @@ export interface ProjectionDataPoint {
   monthlyReturn: number; // Return THIS month
   cumulativeReturns: number; // Total returns to date
   principalValue: number; // Starting value + cumulative contributions
+  actualInvestedAmount?: number; // Actual cumulative investment deposits (EUR)
 }
 
 export type TimeRange = '1m' | '3m' | '6m' | 'ytd' | '1y' | '3y' | '5y' | 'all';

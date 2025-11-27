@@ -11,7 +11,8 @@ export function calculateMonthlyProjection(
   monthlyDeposits: number,
   startYear?: number,
   startMonth?: number,
-  retirementGoalAmount?: number
+  retirementGoalAmount?: number,
+  depositIncreasePercentage?: number
 ): ProjectionDataPoint[] {
   const data: ProjectionDataPoint[] = [];
   const currentYear = startYear ?? new Date().getFullYear();
@@ -24,27 +25,22 @@ export function calculateMonthlyProjection(
   let cumulativeContributions = 0;
   let cumulativeReturns = 0;
 
-  // Calculate total months for goal interpolation
-  let totalMonths = 0;
-  for (let year = currentYear; year <= retirementYear; year++) {
-    const start = year === currentYear ? currentMonth : 1;
-    const end = 12;
-    totalMonths += end - start + 1;
-  }
-
-  let monthIndex = 0;
-
   for (let year = currentYear; year <= retirementYear; year++) {
     const startMonthValue = year === currentYear ? currentMonth : 1;
     const endMonth = year === retirementYear ? 12 : 12;
 
+    // Calculate monthly deposit for this year based on annual increases
+    const yearsElapsed = year - currentYear;
+    const increaseRate = depositIncreasePercentage ?? 0;
+    const currentYearMonthlyDeposits = monthlyDeposits * Math.pow(1 + increaseRate, yearsElapsed);
+
     for (let month = startMonthValue; month <= endMonth; month++) {
-      // Add monthly contribution
-      portfolioValue += monthlyDeposits;
-      cumulativeContributions += monthlyDeposits;
+      // Add monthly contribution (with annual increases applied)
+      portfolioValue += currentYearMonthlyDeposits;
+      cumulativeContributions += currentYearMonthlyDeposits;
 
       // Calculate and apply monthly return
-      const previousValue = portfolioValue - monthlyDeposits;
+      const previousValue = portfolioValue - currentYearMonthlyDeposits;
       const monthlyReturnAmount = previousValue * monthlyReturn;
       portfolioValue += monthlyReturnAmount;
       cumulativeReturns += monthlyReturnAmount;
@@ -52,14 +48,8 @@ export function calculateMonthlyProjection(
       // Calculate principal value (starting balance + cumulative contributions)
       const principalValue = currentNetWorth + cumulativeContributions;
 
-      // Calculate monthly goal target using linear interpolation
-      let monthlyGoal = currentNetWorth;
-      if (retirementGoalAmount && totalMonths > 0) {
-        const progress = (monthIndex + 1) / totalMonths;
-        monthlyGoal = currentNetWorth + (retirementGoalAmount - currentNetWorth) * progress;
-      } else if (retirementGoalAmount) {
-        monthlyGoal = retirementGoalAmount;
-      }
+      // Use fixed goal amount
+      const monthlyGoal = retirementGoalAmount || 0;
 
       data.push({
         year,
@@ -67,14 +57,12 @@ export function calculateMonthlyProjection(
         date: `${year}-${String(month).padStart(2, '0')}`,
         value: Math.round(portfolioValue),
         goal: Math.round(monthlyGoal),
-        monthlyContribution: monthlyDeposits,
+        monthlyContribution: currentYearMonthlyDeposits,
         cumulativeContributions: Math.round(cumulativeContributions),
         monthlyReturn: Math.round(monthlyReturnAmount),
         cumulativeReturns: Math.round(cumulativeReturns),
         principalValue: Math.round(principalValue),
       });
-
-      monthIndex++;
     }
   }
 
