@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, Input, Button, ProgressBar, SectionTitle } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Goal, ProjectionDataPoint } from '@/app/lib/types';
-import { EnhancedProjection } from './EnhancedProjection';
 import styles from './Goal.module.css';
 
 interface GoalTabProps {
@@ -142,13 +141,6 @@ export const GoalTab: React.FC<GoalTabProps> = ({
           endLabel={formatPLN(goal.amount)}
         />
       </Card>
-
-      {/* Enhanced Projection */}
-      <EnhancedProjection
-        projectionData={projectionData}
-        goal={goal}
-        currentNetWorth={totalNetWorth}
-      />
     </div>
   );
 };
