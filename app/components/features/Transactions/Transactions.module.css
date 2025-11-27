@@ -20,30 +20,33 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  overflow-x: auto;
 }
 
 .transactionHeader {
   display: grid;
-  grid-template-columns: 100px 100px 80px 80px 100px 100px 100px;
-  gap: 12px;
+  grid-template-columns: 100px 90px 70px 70px 90px 90px 100px 80px 90px;
+  gap: 8px;
   padding: 12px 16px;
   background: rgba(15, 23, 42, 0.5);
   border-radius: 8px 8px 0 0;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  min-width: 780px;
 }
 
 .transactionRow {
   display: grid;
-  grid-template-columns: 100px 100px 80px 80px 100px 100px 100px;
-  gap: 12px;
+  grid-template-columns: 100px 90px 70px 70px 90px 90px 100px 80px 90px;
+  gap: 8px;
   padding: 12px 16px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.1);
   align-items: center;
   transition: background 0.15s;
+  min-width: 780px;
 }
 
 .transactionRow:hover {
@@ -55,7 +58,7 @@
 }
 
 .txDate {
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
 }
 
@@ -66,9 +69,29 @@
 }
 
 .txPrice {
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
   text-align: right;
+}
+
+.txGain {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.txPercent {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #ef4444;
 }
 
 .txActions {
@@ -99,21 +122,32 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .transactionHeader,
   .transactionRow {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: 90px 80px 70px 60px 80px 80px 90px;
+    min-width: 650px;
   }
 
-  .transactionHeader span:nth-child(n+4),
-  .transactionRow span:nth-child(n+4) {
+  .transactionHeader span:nth-child(8),
+  .transactionRow span:nth-child(8),
+  .transactionHeader span:nth-child(9),
+  .transactionRow span:nth-child(9) {
     display: none;
   }
+}
 
-  .transactionRow .txActions {
-    grid-column: span 3;
-    justify-content: flex-start;
-    padding-top: 8px;
+@media (max-width: 700px) {
+  .transactionHeader,
+  .transactionRow {
+    grid-template-columns: 80px 70px 60px 50px 70px 80px;
+    min-width: 500px;
+  }
+
+  .transactionHeader span:nth-child(6),
+  .transactionRow span:nth-child(6),
+  .transactionHeader span:nth-child(7),
+  .transactionRow span:nth-child(7) {
+    display: none;
   }
 }

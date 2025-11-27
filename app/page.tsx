@@ -681,6 +681,7 @@ export default function InvestmentTracker() {
         {activeTab === 'transactions' && (
           <TransactionsTab
             transactions={transactions}
+            prices={prices}
             newTx={newTx}
             onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
             onAddTransaction={addTransaction}

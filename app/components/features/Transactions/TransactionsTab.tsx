@@ -6,6 +6,7 @@ import { Transaction, NewTransaction } from '@/app/lib/types';
 
 interface TransactionsTabProps {
   transactions: Transaction[];
+  prices: Record<string, number>;
   newTx: NewTransaction;
   onTxChange: (updates: Partial<NewTransaction>) => void;
   onAddTransaction: () => void;
@@ -15,6 +16,7 @@ interface TransactionsTabProps {
 
 export const TransactionsTab: React.FC<TransactionsTabProps> = ({
   transactions,
+  prices,
   newTx,
   onTxChange,
   onAddTransaction,
@@ -30,6 +32,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
       />
       <TransactionList
         transactions={transactions}
+        prices={prices}
         onEdit={onEditTransaction}
         onDelete={onDeleteTransaction}
       />

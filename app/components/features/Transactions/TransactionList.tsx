@@ -7,6 +7,7 @@ import styles from './Transactions.module.css';
 
 interface TransactionListProps {
   transactions: Transaction[];
+  prices: Record<string, number>;
   onEdit: (transaction: Transaction) => void;
   onDelete: (id: number) => void;
 }
@@ -38,6 +39,7 @@ const actionOptions = [
 
 export const TransactionList: React.FC<TransactionListProps> = ({
   transactions,
+  prices,
   onEdit,
   onDelete,
 }) => {
@@ -58,6 +60,21 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     }
   };
 
+  const getTransactionGainLoss = (tx: Transaction) => {
+    const currentPrice = prices[tx.ticker] || ETF_DATA[tx.ticker]?.basePrice || tx.price;
+    const purchaseValue = tx.shares * tx.price;
+    const currentValue = tx.shares * currentPrice;
+    const gainLoss = currentValue - purchaseValue;
+    const gainLossPercent = purchaseValue > 0 ? (gainLoss / purchaseValue) * 100 : 0;
+    
+    return {
+      currentPrice,
+      currentValue,
+      gainLoss,
+      gainLossPercent,
+    };
+  };
+
   return (
     <>
       <Card>
@@ -71,40 +88,53 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               <span>Ticker</span>
               <span>Action</span>
               <span style={{ textAlign: 'right' }}>Shares</span>
-              <span style={{ textAlign: 'right' }}>Price</span>
-              <span style={{ textAlign: 'right' }}>Total</span>
+              <span style={{ textAlign: 'right' }}>Buy Price</span>
+              <span style={{ textAlign: 'right' }}>Current</span>
+              <span style={{ textAlign: 'right' }}>Gain/Loss</span>
+              <span style={{ textAlign: 'right' }}>%</span>
               <span style={{ textAlign: 'center' }}>Actions</span>
             </div>
-            {transactions.map((tx) => (
-              <div key={tx.id} className={styles.transactionRow}>
-                <span className={styles.txDate}>{tx.date}</span>
-                <span className={styles.ticker}>{tx.ticker}</span>
-                <span>
-                  <Badge variant={tx.action === 'Buy' ? 'success' : 'danger'}>
-                    {tx.action}
-                  </Badge>
-                </span>
-                <span className={styles.txShares}>{tx.shares}</span>
-                <span className={styles.txPrice}>€{tx.price.toFixed(2)}</span>
-                <span className={styles.total}>€{(tx.shares * tx.price).toFixed(2)}</span>
-                <span className={styles.txActions}>
-                  <IconButton
-                    icon={<EditIcon />}
-                    variant="ghost"
-                    size="small"
-                    onClick={() => setEditingTransaction({ ...tx })}
-                    title="Edit"
-                  />
-                  <IconButton
-                    icon={<DeleteIcon />}
-                    variant="danger"
-                    size="small"
-                    onClick={() => setDeleteConfirmId(tx.id)}
-                    title="Delete"
-                  />
-                </span>
-              </div>
-            ))}
+            {transactions.map((tx) => {
+              const { currentPrice, gainLoss, gainLossPercent } = getTransactionGainLoss(tx);
+              const isPositive = gainLoss >= 0;
+              
+              return (
+                <div key={tx.id} className={styles.transactionRow}>
+                  <span className={styles.txDate}>{tx.date}</span>
+                  <span className={styles.ticker}>{tx.ticker}</span>
+                  <span>
+                    <Badge variant={tx.action === 'Buy' ? 'success' : 'danger'}>
+                      {tx.action}
+                    </Badge>
+                  </span>
+                  <span className={styles.txShares}>{tx.shares}</span>
+                  <span className={styles.txPrice}>€{tx.price.toFixed(2)}</span>
+                  <span className={styles.txPrice}>€{currentPrice.toFixed(2)}</span>
+                  <span className={`${styles.txGain} ${isPositive ? styles.positive : styles.negative}`}>
+                    {isPositive ? '+' : ''}€{gainLoss.toFixed(2)}
+                  </span>
+                  <span className={`${styles.txPercent} ${isPositive ? styles.positive : styles.negative}`}>
+                    {isPositive ? '+' : ''}{gainLossPercent.toFixed(2)}%
+                  </span>
+                  <span className={styles.txActions}>
+                    <IconButton
+                      icon={<EditIcon />}
+                      variant="ghost"
+                      size="small"
+                      onClick={() => setEditingTransaction({ ...tx })}
+                      title="Edit"
+                    />
+                    <IconButton
+                      icon={<DeleteIcon />}
+                      variant="danger"
+                      size="small"
+                      onClick={() => setDeleteConfirmId(tx.id)}
+                      title="Delete"
+                    />
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </Card>
