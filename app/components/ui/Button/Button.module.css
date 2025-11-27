@@ -33,6 +33,11 @@
   color: white;
 }
 
+.red {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: white;
+}
+
 .small {
   padding: 8px 16px;
   font-size: 12px;

@@ -24,6 +24,7 @@ import {
   HoldingWithDetails,
   Transaction,
   CashBalance,
+  CashTransaction,
   Goal,
   AllocationItem,
   ProjectionDataPoint,
@@ -59,6 +60,13 @@ const INITIAL_CASH: CashBalance[] = [
   { currency: 'USD', amount: 0 },
 ];
 
+const INITIAL_CASH_TRANSACTIONS: CashTransaction[] = [
+  { id: 1, date: '2025-11-15', type: 'deposit', currency: 'PLN', amount: 1500, note: 'Monthly savings' },
+  { id: 2, date: '2025-11-01', type: 'deposit', currency: 'PLN', amount: 1000, note: 'Bonus' },
+  { id: 3, date: '2025-10-20', type: 'deposit', currency: 'EUR', amount: 150, note: 'Transfer from PLN' },
+  { id: 4, date: '2025-10-15', type: 'withdrawal', currency: 'PLN', amount: 500, note: 'ETF purchase' },
+];
+
 const INITIAL_GOAL: Goal = { amount: 4204928, targetYear: 2054 };
 
 // ============================================================================
@@ -74,6 +82,7 @@ export default function InvestmentTracker() {
   const [holdings, setHoldings] = useState<Holding[]>(INITIAL_HOLDINGS);
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
+  const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>(INITIAL_CASH_TRANSACTIONS);
 
   // ---------------------------------------------------------------------------
   // Prices State
@@ -103,7 +112,12 @@ export default function InvestmentTracker() {
     currency: 'EUR',
   });
 
-  const [newCash, setNewCash] = useState<NewCash>({ currency: 'PLN', amount: '' });
+  const [newCash, setNewCash] = useState<NewCash>({
+    currency: 'PLN',
+    amount: '',
+    type: 'deposit',
+    note: '',
+  });
 
   // ---------------------------------------------------------------------------
   // Goal Edit State
@@ -247,12 +261,13 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   const exportToJSON = useCallback(() => {
     const data = {
-      version: '1.0',
+      version: '1.1',
       exportDate: new Date().toISOString(),
       goal,
       holdings,
       transactions,
       cash,
+      cashTransactions,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -265,9 +280,9 @@ export default function InvestmentTracker() {
     URL.revokeObjectURL(url);
     setExportSuccess(true);
     setTimeout(() => setExportSuccess(false), 3000);
-  }, [goal, holdings, transactions, cash]);
+  }, [goal, holdings, transactions, cash, cashTransactions]);
 
-  const exportToCSV = useCallback((type: 'holdings' | 'transactions' | 'cash') => {
+  const exportToCSV = useCallback((type: 'holdings' | 'transactions' | 'cash' | 'cashTransactions') => {
     let csv = '';
     let filename = '';
 
@@ -292,6 +307,12 @@ export default function InvestmentTracker() {
         csv += `${c.currency},${c.amount.toFixed(2)},${inPLN.toFixed(2)}\n`;
       });
       filename = `cash-${new Date().toISOString().split('T')[0]}.csv`;
+    } else if (type === 'cashTransactions') {
+      csv = 'Date,Type,Currency,Amount,Note\n';
+      cashTransactions.forEach((tx) => {
+        csv += `${tx.date},${tx.type},${tx.currency},${tx.amount.toFixed(2)},"${tx.note || ''}"\n`;
+      });
+      filename = `cash-transactions-${new Date().toISOString().split('T')[0]}.csv`;
     }
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -305,7 +326,7 @@ export default function InvestmentTracker() {
     URL.revokeObjectURL(url);
     setExportSuccess(true);
     setTimeout(() => setExportSuccess(false), 3000);
-  }, [holdingsData, transactions, cash, exchangeRates]);
+  }, [holdingsData, transactions, cash, cashTransactions, exchangeRates]);
 
   // ---------------------------------------------------------------------------
   // Import Functions
@@ -348,6 +369,12 @@ export default function InvestmentTracker() {
       setTransactions(data.transactions);
       setCash(data.cash);
       setGoal(data.goal);
+      // Handle cashTransactions (may not exist in older exports)
+      if (data.cashTransactions && Array.isArray(data.cashTransactions)) {
+        setCashTransactions(data.cashTransactions);
+      } else {
+        setCashTransactions([]);
+      }
       setShowImportModal(false);
       setImportData('');
     } catch (e) {
@@ -403,19 +430,195 @@ export default function InvestmentTracker() {
     setNewTx((prev) => ({ ...prev, shares: '', price: '' }));
   }, [newTx, holdings]);
 
+  const editTransaction = useCallback((editedTx: Transaction) => {
+    // Find original transaction
+    const originalTx = transactions.find((tx) => tx.id === editedTx.id);
+    if (!originalTx) return;
+
+    // Update holdings based on the difference
+    setHoldings((prevHoldings) => {
+      const updated = [...prevHoldings];
+
+      // If ticker changed, handle both old and new tickers
+      if (originalTx.ticker !== editedTx.ticker) {
+        // Remove shares from old ticker
+        const oldIdx = updated.findIndex((h) => h.ticker === originalTx.ticker);
+        if (oldIdx >= 0) {
+          const oldHolding = updated[oldIdx];
+          const newShares = oldHolding.shares - originalTx.shares;
+          if (newShares <= 0) {
+            updated.splice(oldIdx, 1);
+          } else {
+            // Recalculate avg cost (approximate - remove the shares at their original price)
+            const newCost = (oldHolding.shares * oldHolding.avgCost - originalTx.shares * originalTx.price) / newShares;
+            updated[oldIdx] = { ...oldHolding, shares: newShares, avgCost: Math.max(0, newCost) };
+          }
+        }
+
+        // Add shares to new ticker
+        const newIdx = updated.findIndex((h) => h.ticker === editedTx.ticker);
+        if (newIdx >= 0) {
+          const existingHolding = updated[newIdx];
+          const newShares = existingHolding.shares + editedTx.shares;
+          const newAvgCost = (existingHolding.shares * existingHolding.avgCost + editedTx.shares * editedTx.price) / newShares;
+          updated[newIdx] = { ...existingHolding, shares: newShares, avgCost: newAvgCost };
+        } else {
+          updated.push({ ticker: editedTx.ticker, shares: editedTx.shares, avgCost: editedTx.price });
+        }
+      } else {
+        // Same ticker - adjust shares and recalculate avg cost
+        const idx = updated.findIndex((h) => h.ticker === editedTx.ticker);
+        if (idx >= 0) {
+          const holding = updated[idx];
+          const sharesDiff = editedTx.shares - originalTx.shares;
+          const newShares = holding.shares + sharesDiff;
+          
+          if (newShares <= 0) {
+            updated.splice(idx, 1);
+          } else {
+            // Recalculate average cost
+            const totalCostBefore = holding.shares * holding.avgCost;
+            const costDiff = editedTx.shares * editedTx.price - originalTx.shares * originalTx.price;
+            const newAvgCost = (totalCostBefore + costDiff) / newShares;
+            updated[idx] = { ...holding, shares: newShares, avgCost: Math.max(0, newAvgCost) };
+          }
+        }
+      }
+
+      return updated;
+    });
+
+    // Update transaction
+    setTransactions((prev) =>
+      prev.map((tx) => (tx.id === editedTx.id ? editedTx : tx))
+    );
+  }, [transactions]);
+
+  const deleteTransaction = useCallback((id: number) => {
+    const tx = transactions.find((t) => t.id === id);
+    if (!tx) return;
+
+    // Remove the transaction's effect on holdings
+    setHoldings((prevHoldings) => {
+      const updated = [...prevHoldings];
+      const idx = updated.findIndex((h) => h.ticker === tx.ticker);
+      
+      if (idx >= 0) {
+        const holding = updated[idx];
+        const newShares = holding.shares - tx.shares;
+        
+        if (newShares <= 0) {
+          updated.splice(idx, 1);
+        } else {
+          // Recalculate average cost (approximate)
+          const totalCostBefore = holding.shares * holding.avgCost;
+          const removedCost = tx.shares * tx.price;
+          const newAvgCost = (totalCostBefore - removedCost) / newShares;
+          updated[idx] = { ...holding, shares: newShares, avgCost: Math.max(0, newAvgCost) };
+        }
+      }
+
+      return updated;
+    });
+
+    // Remove transaction
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  }, [transactions]);
+
   // ---------------------------------------------------------------------------
   // Cash Functions
   // ---------------------------------------------------------------------------
   const addCash = useCallback(() => {
     if (!newCash.amount) return;
-    const idx = cash.findIndex((c) => c.currency === newCash.currency);
+
+    const amount = parseFloat(newCash.amount);
+    const currency = newCash.currency as 'PLN' | 'EUR' | 'USD';
+
+    // Create transaction
+    const tx: CashTransaction = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      type: newCash.type,
+      currency,
+      amount,
+      note: newCash.note || undefined,
+    };
+
+    setCashTransactions((prev) => [tx, ...prev]);
+
+    // Update balance
+    const idx = cash.findIndex((c) => c.currency === currency);
     if (idx >= 0) {
       const updated = [...cash];
-      updated[idx] = { ...updated[idx], amount: updated[idx].amount + parseFloat(newCash.amount) };
+      const delta = newCash.type === 'deposit' ? amount : -amount;
+      updated[idx] = { ...updated[idx], amount: updated[idx].amount + delta };
       setCash(updated);
     }
-    setNewCash((prev) => ({ ...prev, amount: '' }));
+
+    setNewCash((prev) => ({ ...prev, amount: '', note: '' }));
   }, [newCash, cash]);
+
+  const editCashTransaction = useCallback((editedTx: CashTransaction) => {
+    // Find original transaction
+    const originalTx = cashTransactions.find((tx) => tx.id === editedTx.id);
+    if (!originalTx) return;
+
+    // Reverse original transaction's effect on balance
+    const originalDelta = originalTx.type === 'deposit' ? -originalTx.amount : originalTx.amount;
+    const newDelta = editedTx.type === 'deposit' ? editedTx.amount : -editedTx.amount;
+
+    // Update cash balances
+    setCash((prevCash) => {
+      const updated = [...prevCash];
+
+      // If currency changed, update both old and new currencies
+      if (originalTx.currency !== editedTx.currency) {
+        // Remove from old currency
+        const oldIdx = updated.findIndex((c) => c.currency === originalTx.currency);
+        if (oldIdx >= 0) {
+          updated[oldIdx] = { ...updated[oldIdx], amount: updated[oldIdx].amount + originalDelta };
+        }
+        // Add to new currency
+        const newIdx = updated.findIndex((c) => c.currency === editedTx.currency);
+        if (newIdx >= 0) {
+          updated[newIdx] = { ...updated[newIdx], amount: updated[newIdx].amount + newDelta };
+        }
+      } else {
+        // Same currency - just update the difference
+        const idx = updated.findIndex((c) => c.currency === editedTx.currency);
+        if (idx >= 0) {
+          updated[idx] = { ...updated[idx], amount: updated[idx].amount + originalDelta + newDelta };
+        }
+      }
+
+      return updated;
+    });
+
+    // Update transaction
+    setCashTransactions((prev) =>
+      prev.map((tx) => (tx.id === editedTx.id ? editedTx : tx))
+    );
+  }, [cashTransactions]);
+
+  const deleteCashTransaction = useCallback((id: number) => {
+    const tx = cashTransactions.find((t) => t.id === id);
+    if (!tx) return;
+
+    // Reverse the transaction's effect on balance
+    const delta = tx.type === 'deposit' ? -tx.amount : tx.amount;
+
+    setCash((prevCash) => {
+      const updated = [...prevCash];
+      const idx = updated.findIndex((c) => c.currency === tx.currency);
+      if (idx >= 0) {
+        updated[idx] = { ...updated[idx], amount: updated[idx].amount + delta };
+      }
+      return updated;
+    });
+
+    // Remove transaction
+    setCashTransactions((prev) => prev.filter((t) => t.id !== id));
+  }, [cashTransactions]);
 
   // ---------------------------------------------------------------------------
   // Goal Functions
@@ -481,16 +684,22 @@ export default function InvestmentTracker() {
             newTx={newTx}
             onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
             onAddTransaction={addTransaction}
+            onEditTransaction={editTransaction}
+            onDeleteTransaction={deleteTransaction}
           />
         )}
 
         {activeTab === 'cash' && (
           <CashTab
             cash={cash}
+            cashTransactions={cashTransactions}
             totalCashPLN={totalCashPLN}
             newCash={newCash}
+            exchangeRates={exchangeRates}
             onCashChange={(updates) => setNewCash((prev) => ({ ...prev, ...updates }))}
             onAddCash={addCash}
+            onEditCashTransaction={editCashTransaction}
+            onDeleteCashTransaction={deleteCashTransaction}
           />
         )}
 

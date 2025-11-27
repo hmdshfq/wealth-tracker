@@ -7,7 +7,7 @@ interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
   onExportJSON: () => void;
-  onExportCSV: (type: 'holdings' | 'transactions' | 'cash') => void;
+  onExportCSV: (type: 'holdings' | 'transactions' | 'cash' | 'cashTransactions') => void;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({
@@ -56,7 +56,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             size="small"
             onClick={() => onExportCSV('cash')}
           >
-            Cash
+            Cash Balances
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => onExportCSV('cashTransactions')}
+          >
+            Cash History
           </Button>
         </div>
       </div>

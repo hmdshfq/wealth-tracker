@@ -29,6 +29,15 @@ export interface CashBalance {
   amount: number;
 }
 
+export interface CashTransaction {
+  id: number;
+  date: string;
+  type: 'deposit' | 'withdrawal';
+  currency: 'PLN' | 'EUR' | 'USD';
+  amount: number;
+  note?: string;
+}
+
 export interface Goal {
   amount: number;
   targetYear: number;
@@ -58,4 +67,6 @@ export interface NewTransaction {
 export interface NewCash {
   currency: string;
   amount: string;
+  type: 'deposit' | 'withdrawal';
+  note: string;
 }

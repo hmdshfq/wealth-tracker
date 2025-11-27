@@ -9,6 +9,8 @@ interface TransactionsTabProps {
   newTx: NewTransaction;
   onTxChange: (updates: Partial<NewTransaction>) => void;
   onAddTransaction: () => void;
+  onEditTransaction: (transaction: Transaction) => void;
+  onDeleteTransaction: (id: number) => void;
 }
 
 export const TransactionsTab: React.FC<TransactionsTabProps> = ({
@@ -16,6 +18,8 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
   newTx,
   onTxChange,
   onAddTransaction,
+  onEditTransaction,
+  onDeleteTransaction,
 }) => {
   return (
     <div style={{ display: 'grid', gap: '24px' }}>
@@ -24,7 +28,11 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
         onChange={onTxChange}
         onSubmit={onAddTransaction}
       />
-      <TransactionList transactions={transactions} />
+      <TransactionList
+        transactions={transactions}
+        onEdit={onEditTransaction}
+        onDelete={onDeleteTransaction}
+      />
     </div>
   );
 };
