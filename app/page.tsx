@@ -296,22 +296,60 @@ export default function InvestmentTracker() {
 
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
     const { year, month } = getFirstTransactionDate();
-    const baseProjection = calculateMonthlyProjection(
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+
+    // 1. Past Projection (Start -> Now)
+    // Simulates the "Ideal Path" from the beginning starting at 0
+    const pastProjection = calculateMonthlyProjection(
+      0, // Start with 0
+      currentYear, // Calculate up to current year
+      goal.annualReturn,
+      goal.monthlyDeposits,
+      year, // Start Year
+      month, // Start Month
+      goal.amount,
+      goal.depositIncreasePercentage,
+      0, // initial contributions
+      0  // initial returns
+    ).filter(p => p.date < currentDateStr);
+
+    // 2. Future Projection (Now -> Retirement)
+    // Projects from current actual Net Worth
+    const totalDeposits = cashTransactions.reduce((sum, t) => {
+       const amountPLN = t.currency === 'PLN' ? t.amount : 
+                        t.currency === 'EUR' ? t.amount * exchangeRates.EUR_PLN :
+                        t.amount * exchangeRates.USD_PLN;
+       return sum + (t.type === 'deposit' ? amountPLN : -amountPLN);
+    }, 0);
+
+    const initialContributions = totalDeposits;
+    const initialReturns = totalNetWorth - initialContributions;
+
+    const futureProjection = calculateMonthlyProjection(
       totalNetWorth,
       goal.retirementYear,
       goal.annualReturn,
       goal.monthlyDeposits,
-      year,
-      month,
+      currentYear,
+      currentMonth,
       goal.amount,
-      goal.depositIncreasePercentage
+      goal.depositIncreasePercentage,
+      initialContributions,
+      initialReturns
     );
+
+    // Combine
+    const combined = [...pastProjection, ...futureProjection];
+
     // Add actual invested amounts to each projection point
-    return baseProjection.map((point) => ({
+    return combined.map((point) => ({
       ...point,
       actualInvestedAmount: getActualInvestedByDate(point.date),
     }));
-  }, [totalNetWorth, goal, getFirstTransactionDate, getActualInvestedByDate]);
+  }, [totalNetWorth, goal, getFirstTransactionDate, getActualInvestedByDate, cashTransactions, exchangeRates]);
 
   // ---------------------------------------------------------------------------
   // Export Functions

@@ -15,25 +15,25 @@ const formatNumber = (value: number): string => {
   });
 };
 
-const getValue = (
+const getMetricValues = (
   point: ProjectionDataPoint | undefined,
   metric: ProjectionMetric
-): number => {
-  if (!point) return 0;
+): { primary: number; secondary: number } => {
+  if (!point) return { primary: 0, secondary: 0 };
 
   switch (metric) {
     case 'value':
-      return point.value;
+      return { primary: point.value, secondary: point.principalValue };
     case 'contribution':
-      return point.monthlyContribution;
+      return { primary: point.monthlyContribution, secondary: point.cumulativeContributions };
     case 'grossContribution':
-      return point.cumulativeContributions;
+      return { primary: point.cumulativeContributions, secondary: point.value };
     case 'return':
-      return point.monthlyReturn;
+      return { primary: point.monthlyReturn, secondary: point.cumulativeReturns };
     case 'cumulativeReturn':
-      return point.cumulativeReturns;
+      return { primary: point.cumulativeReturns, secondary: point.value };
     default:
-      return 0;
+      return { primary: 0, secondary: 0 };
   }
 };
 
@@ -76,13 +76,18 @@ export const ProjectionDataTable: React.FC<ProjectionDataTableProps> = ({
               {monthNames.map((_, monthIndex) => {
                 const monthNum = monthIndex + 1;
                 const point = data[year]?.find((p) => p.month === monthNum);
-                const value = getValue(point, metric);
+                const { primary, secondary } = getMetricValues(point, metric);
 
                 return (
                   <td key={`${year}-${monthIndex}`}>
-                    <span className={styles.cellValue}>
-                      {formatNumber(value)}
-                    </span>
+                    <div className={styles.cellContent}>
+                      <span className={styles.cellValue}>
+                        {formatNumber(primary)}
+                      </span>
+                      <span className={styles.cellSecondary}>
+                        {formatNumber(secondary)}
+                      </span>
+                    </div>
                   </td>
                 );
               })}
