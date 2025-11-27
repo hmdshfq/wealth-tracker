@@ -1,0 +1,29 @@
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.default {
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.gradient {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.dark {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.padding-small {
+  padding: 16px;
+}
+
+.padding-medium {
+  padding: 24px;
+}
+
+.padding-large {
+  padding: 32px;
+}

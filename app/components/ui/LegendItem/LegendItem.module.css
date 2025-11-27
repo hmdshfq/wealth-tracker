@@ -1,0 +1,23 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.label {
+  color: #94a3b8;
+  flex: 1;
+}
+
+.value {
+  color: #f8fafc;
+  font-weight: 500;
+}

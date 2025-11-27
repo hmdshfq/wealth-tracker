@@ -1,0 +1,35 @@
+.label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #f8fafc;
+}
+
+.subValue {
+  font-size: 14px;
+  margin: 8px 0 0 0;
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #ef4444;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.footer {
+  margin-top: 8px;
+}

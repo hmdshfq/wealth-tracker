@@ -1,0 +1,47 @@
+.container {
+  width: 100%;
+}
+
+.track {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.small {
+  height: 8px;
+}
+
+.medium {
+  height: 12px;
+}
+
+.large {
+  height: 16px;
+}
+
+.fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.startLabel {
+  color: #10b981;
+}
+
+.middleLabel {
+  color: #64748b;
+}
+
+.endLabel {
+  color: #3b82f6;
+}

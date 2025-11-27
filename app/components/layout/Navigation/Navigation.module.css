@@ -1,0 +1,33 @@
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: rgba(30, 41, 59, 0.5);
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 400;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #f8fafc;
+}
+
+.active {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+  font-weight: 600;
+}

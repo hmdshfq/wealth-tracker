@@ -1,0 +1,54 @@
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  border-radius: 50%;
+  border-style: solid;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Sizes */
+.small .ring {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+.medium .ring {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.large .ring {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* Colors */
+.primary .ring {
+  border-color: #10b981;
+}
+
+.secondary .ring {
+  border-color: #64748b;
+}
+
+.white .ring {
+  border-color: white;
+}

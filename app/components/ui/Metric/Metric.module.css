@@ -1,0 +1,63 @@
+.metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.value {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.subtext {
+  font-size: 12px;
+  color: #64748b;
+  margin: 8px 0 0 0;
+}
+
+/* Sizes */
+.small .value {
+  font-size: 20px;
+}
+
+.medium .value {
+  font-size: 28px;
+}
+
+.large .value {
+  font-size: 36px;
+}
+
+.xlarge .value {
+  font-size: 48px;
+}
+
+/* Value colors */
+.value-default {
+  color: #f8fafc;
+}
+
+.value-positive {
+  color: #10b981;
+}
+
+.value-negative {
+  color: #ef4444;
+}
+
+.value-primary {
+  color: #3b82f6;
+}
+
+.value-accent {
+  color: #f59e0b;
+}
