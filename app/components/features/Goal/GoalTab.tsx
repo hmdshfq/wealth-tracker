@@ -1,17 +1,9 @@
 'use client';
 import React from 'react';
-import {
-  AreaChart,
-  Area,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
 import { Card, Input, Button, ProgressBar, SectionTitle } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Goal, ProjectionDataPoint } from '@/app/lib/types';
+import { EnhancedProjection } from './EnhancedProjection';
 import styles from './Goal.module.css';
 
 interface GoalTabProps {
@@ -137,67 +129,12 @@ export const GoalTab: React.FC<GoalTabProps> = ({
         />
       </Card>
 
-      {/* Projection Chart */}
-      <Card>
-        <SectionTitle subtitle={`Assuming ${(goal.annualReturn * 100).toFixed(1)}% annual return and ${formatPLN(goal.monthlyDeposits)} monthly contributions`}>
-          Projection to Goal
-        </SectionTitle>
-        <div style={{ height: '300px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={projectionData}>
-              <defs>
-                <linearGradient id="colorProjection" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="year"
-                stroke="#64748b"
-                fontSize={11}
-                tickLine={false}
-                interval={4}
-              />
-              <YAxis
-                stroke="#64748b"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`}
-                width={50}
-              />
-              <Tooltip
-                formatter={(value: number, name: string) => [
-                  formatPLN(value),
-                  name === 'value' ? 'Projected' : 'Goal',
-                ]}
-                contentStyle={{
-                  background: '#1e293b',
-                  border: '1px solid #334155',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#10b981"
-                strokeWidth={2}
-                fill="url(#colorProjection)"
-                name="Projected Value"
-              />
-              <Line
-                type="monotone"
-                dataKey="goal"
-                stroke="#3b82f6"
-                strokeDasharray="8 4"
-                strokeWidth={2}
-                dot={false}
-                name="Goal"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      {/* Enhanced Projection */}
+      <EnhancedProjection
+        projectionData={projectionData}
+        goal={goal}
+        currentNetWorth={totalNetWorth}
+      />
     </div>
   );
 };

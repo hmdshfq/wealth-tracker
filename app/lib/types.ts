@@ -54,9 +54,25 @@ export interface AllocationItem {
 
 export interface ProjectionDataPoint {
   year: number;
-  value: number;
-  goal: number;
+  month: number; // 1-12
+  date: string; // "2025-01" format for filtering
+  value: number; // Total portfolio value
+  goal: number; // Goal amount
+  monthlyContribution: number; // Contribution THIS month
+  cumulativeContributions: number; // Total contributions to date
+  monthlyReturn: number; // Return THIS month
+  cumulativeReturns: number; // Total returns to date
+  principalValue: number; // Starting value + cumulative contributions
 }
+
+export type TimeRange = '1m' | '3m' | '6m' | 'ytd' | '1y' | '3y' | '5y' | 'all';
+
+export type ProjectionMetric =
+  | 'value'
+  | 'contribution'
+  | 'grossContribution'
+  | 'return'
+  | 'cumulativeReturn';
 
 export interface NewTransaction {
   date: string;

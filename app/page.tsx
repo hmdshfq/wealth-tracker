@@ -33,6 +33,7 @@ import {
 } from '@/app/lib/types';
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
+import { calculateMonthlyProjection } from '@/app/lib/projectionCalculations';
 
 // Styles
 import styles from './page.module.css';
@@ -250,15 +251,14 @@ export default function InvestmentTracker() {
   }, [holdingsData]);
 
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
-    const currentYear = 2025;
-    const years: ProjectionDataPoint[] = [];
-    let value = totalNetWorth;
-
-    for (let year = currentYear; year <= goal.retirementYear; year++) {
-      years.push({ year, value: Math.round(value), goal: goal.amount });
-      value = value * (1 + goal.annualReturn) + goal.monthlyDeposits * 12;
-    }
-    return years;
+    const monthlyData = calculateMonthlyProjection(
+      totalNetWorth,
+      goal.retirementYear,
+      goal.annualReturn,
+      goal.monthlyDeposits
+    );
+    // Add goal amount to each data point
+    return monthlyData.map((point) => ({ ...point, goal: goal.amount }));
   }, [totalNetWorth, goal]);
 
   // ---------------------------------------------------------------------------

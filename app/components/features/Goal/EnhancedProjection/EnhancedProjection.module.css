@@ -1,0 +1,136 @@
+.container {
+  display: grid;
+  gap: 24px;
+}
+
+.chartContainer {
+  position: relative;
+  width: 100%;
+}
+
+.timeRangeSelector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.timeRangeSelector button {
+  min-width: 60px;
+}
+
+.tableControls {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.tabButtons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tabButtons button {
+  min-width: 120px;
+}
+
+.tableContainer {
+  max-height: 600px;
+  overflow: auto;
+  margin-top: 16px;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.projectionTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.projectionTable thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-card-solid);
+  z-index: 10;
+}
+
+.projectionTable th {
+  padding: 12px 8px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--bg-card-solid);
+}
+
+.projectionTable td {
+  padding: 10px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+}
+
+.yearColumn {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background-color: var(--bg-card-solid);
+  z-index: 9;
+  min-width: 60px;
+  font-weight: 600;
+}
+
+.projectionTable tbody .yearColumn {
+  background-color: var(--bg-card-subtle);
+  font-weight: 600;
+}
+
+.projectionTable thead .yearColumn {
+  text-align: left;
+  min-width: 60px;
+}
+
+.cellValue {
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.projectionTable tbody tr:hover {
+  background-color: var(--bg-card-subtle);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .container {
+    gap: 16px;
+  }
+
+  .timeRangeSelector {
+    gap: 6px;
+  }
+
+  .timeRangeSelector button {
+    min-width: 48px;
+    font-size: 11px;
+  }
+
+  .projectionTable {
+    font-size: 10px;
+  }
+
+  .projectionTable th,
+  .projectionTable td {
+    padding: 8px 4px;
+  }
+
+  .yearColumn {
+    min-width: 50px;
+  }
+}
