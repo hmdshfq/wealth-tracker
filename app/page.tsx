@@ -34,6 +34,7 @@ import {
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
 import { calculateMonthlyProjection } from '@/app/lib/projectionCalculations';
+import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
 
 // Styles
 import styles from './page.module.css';
@@ -41,8 +42,6 @@ import styles from './page.module.css';
 // ============================================================================
 // INITIAL DATA
 // ============================================================================
-
-const INITIAL_HOLDINGS: Holding[] = [];
 
 const INITIAL_TRANSACTIONS: Transaction[] = [];
 
@@ -72,10 +71,12 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   const [activeTab, setActiveTab] = useState<TabName>('dashboard');
   const [goal, setGoal] = useState<Goal>(INITIAL_GOAL);
-  const [holdings, setHoldings] = useState<Holding[]>(INITIAL_HOLDINGS);
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
   const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>(INITIAL_CASH_TRANSACTIONS);
+
+  // Compute holdings from transactions
+  const holdings = useMemo(() => calculateHoldingsFromTransactions(transactions), [transactions]);
 
   // ---------------------------------------------------------------------------
   // Data Persistence
@@ -86,7 +87,6 @@ export default function InvestmentTracker() {
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         if (parsedData.goal) setGoal(parsedData.goal);
-        if (parsedData.holdings) setHoldings(parsedData.holdings);
         if (parsedData.transactions) setTransactions(parsedData.transactions);
         if (parsedData.cash) setCash(parsedData.cash);
         if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
@@ -100,7 +100,6 @@ export default function InvestmentTracker() {
     try {
       const dataToSave = {
         goal,
-        holdings,
         transactions,
         cash,
         cashTransactions,
@@ -109,7 +108,7 @@ export default function InvestmentTracker() {
     } catch (error) {
       console.error('Failed to save data to local storage:', error);
     }
-  }, [goal, holdings, transactions, cash, cashTransactions]);
+  }, [goal, transactions, cash, cashTransactions]);
 
   // ---------------------------------------------------------------------------
   // Prices State
@@ -285,16 +284,15 @@ export default function InvestmentTracker() {
 
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
     const { year, month } = getFirstTransactionDate();
-    const monthlyData = calculateMonthlyProjection(
+    return calculateMonthlyProjection(
       totalNetWorth,
       goal.retirementYear,
       goal.annualReturn,
       goal.monthlyDeposits,
       year,
-      month
+      month,
+      goal.amount
     );
-    // Add goal amount to each data point
-    return monthlyData.map((point) => ({ ...point, goal: goal.amount }));
   }, [totalNetWorth, goal, getFirstTransactionDate]);
 
   // ---------------------------------------------------------------------------
@@ -305,7 +303,6 @@ export default function InvestmentTracker() {
       version: '1.1',
       exportDate: new Date().toISOString(),
       goal,
-      holdings,
       transactions,
       cash,
       cashTransactions,
@@ -321,7 +318,7 @@ export default function InvestmentTracker() {
     URL.revokeObjectURL(url);
     setExportSuccess(true);
     setTimeout(() => setExportSuccess(false), 3000);
-  }, [goal, holdings, transactions, cash, cashTransactions]);
+  }, [goal, transactions, cash, cashTransactions]);
 
   const exportToCSV = useCallback((type: 'holdings' | 'transactions' | 'cash' | 'cashTransactions') => {
     let csv = '';
@@ -377,16 +374,9 @@ export default function InvestmentTracker() {
     try {
       const data = JSON.parse(importData);
 
-      if (!data.holdings || !data.transactions || !data.cash || !data.goal) {
-        throw new Error('Invalid file format. Missing required fields.');
+      if (!data.transactions || !data.cash || !data.goal) {
+        throw new Error('Invalid file format. Missing required fields (transactions, cash, goal).');
       }
-
-      if (!Array.isArray(data.holdings)) throw new Error('Holdings must be an array');
-      data.holdings.forEach((h: Holding, i: number) => {
-        if (!h.ticker || typeof h.shares !== 'number' || typeof h.avgCost !== 'number') {
-          throw new Error(`Invalid holding at index ${i}`);
-        }
-      });
 
       if (!Array.isArray(data.transactions)) throw new Error('Transactions must be an array');
       data.transactions.forEach((tx: Transaction, i: number) => {
@@ -406,7 +396,6 @@ export default function InvestmentTracker() {
         throw new Error('Invalid goal format');
       }
 
-      setHoldings(data.holdings);
       setTransactions(data.transactions);
       setCash(data.cash);
       setGoal(data.goal);
@@ -455,116 +444,20 @@ export default function InvestmentTracker() {
     };
 
     setTransactions((prev) => [tx, ...prev]);
-
-    const existingIdx = holdings.findIndex((h) => h.ticker === tx.ticker);
-    if (existingIdx >= 0) {
-      const existing = holdings[existingIdx];
-      const newShares = existing.shares + tx.shares;
-      const newAvgCost = (existing.shares * existing.avgCost + tx.shares * tx.price) / newShares;
-      const updated = [...holdings];
-      updated[existingIdx] = { ...existing, shares: newShares, avgCost: newAvgCost };
-      setHoldings(updated);
-    } else {
-      setHoldings((prev) => [...prev, { ticker: tx.ticker, shares: tx.shares, avgCost: tx.price }]);
-    }
-
     setNewTx((prev) => ({ ...prev, shares: '', price: '' }));
-  }, [newTx, holdings]);
+  }, [newTx]);
 
   const editTransaction = useCallback((editedTx: Transaction) => {
-    // Find original transaction
-    const originalTx = transactions.find((tx) => tx.id === editedTx.id);
-    if (!originalTx) return;
-
-    // Update holdings based on the difference
-    setHoldings((prevHoldings) => {
-      const updated = [...prevHoldings];
-
-      // If ticker changed, handle both old and new tickers
-      if (originalTx.ticker !== editedTx.ticker) {
-        // Remove shares from old ticker
-        const oldIdx = updated.findIndex((h) => h.ticker === originalTx.ticker);
-        if (oldIdx >= 0) {
-          const oldHolding = updated[oldIdx];
-          const newShares = oldHolding.shares - originalTx.shares;
-          if (newShares <= 0) {
-            updated.splice(oldIdx, 1);
-          } else {
-            // Recalculate avg cost (approximate - remove the shares at their original price)
-            const newCost = (oldHolding.shares * oldHolding.avgCost - originalTx.shares * originalTx.price) / newShares;
-            updated[oldIdx] = { ...oldHolding, shares: newShares, avgCost: Math.max(0, newCost) };
-          }
-        }
-
-        // Add shares to new ticker
-        const newIdx = updated.findIndex((h) => h.ticker === editedTx.ticker);
-        if (newIdx >= 0) {
-          const existingHolding = updated[newIdx];
-          const newShares = existingHolding.shares + editedTx.shares;
-          const newAvgCost = (existingHolding.shares * existingHolding.avgCost + editedTx.shares * editedTx.price) / newShares;
-          updated[newIdx] = { ...existingHolding, shares: newShares, avgCost: newAvgCost };
-        } else {
-          updated.push({ ticker: editedTx.ticker, shares: editedTx.shares, avgCost: editedTx.price });
-        }
-      } else {
-        // Same ticker - adjust shares and recalculate avg cost
-        const idx = updated.findIndex((h) => h.ticker === editedTx.ticker);
-        if (idx >= 0) {
-          const holding = updated[idx];
-          const sharesDiff = editedTx.shares - originalTx.shares;
-          const newShares = holding.shares + sharesDiff;
-          
-          if (newShares <= 0) {
-            updated.splice(idx, 1);
-          } else {
-            // Recalculate average cost
-            const totalCostBefore = holding.shares * holding.avgCost;
-            const costDiff = editedTx.shares * editedTx.price - originalTx.shares * originalTx.price;
-            const newAvgCost = (totalCostBefore + costDiff) / newShares;
-            updated[idx] = { ...holding, shares: newShares, avgCost: Math.max(0, newAvgCost) };
-          }
-        }
-      }
-
-      return updated;
-    });
-
-    // Update transaction
+    // Update transaction only - holdings will be recalculated automatically
     setTransactions((prev) =>
       prev.map((tx) => (tx.id === editedTx.id ? editedTx : tx))
     );
-  }, [transactions]);
+  }, []);
 
   const deleteTransaction = useCallback((id: number) => {
-    const tx = transactions.find((t) => t.id === id);
-    if (!tx) return;
-
-    // Remove the transaction's effect on holdings
-    setHoldings((prevHoldings) => {
-      const updated = [...prevHoldings];
-      const idx = updated.findIndex((h) => h.ticker === tx.ticker);
-      
-      if (idx >= 0) {
-        const holding = updated[idx];
-        const newShares = holding.shares - tx.shares;
-        
-        if (newShares <= 0) {
-          updated.splice(idx, 1);
-        } else {
-          // Recalculate average cost (approximate)
-          const totalCostBefore = holding.shares * holding.avgCost;
-          const removedCost = tx.shares * tx.price;
-          const newAvgCost = (totalCostBefore - removedCost) / newShares;
-          updated[idx] = { ...holding, shares: newShares, avgCost: Math.max(0, newAvgCost) };
-        }
-      }
-
-      return updated;
-    });
-
-    // Remove transaction
+    // Remove transaction only - holdings will be recalculated automatically
     setTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, [transactions]);
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Cash Functions

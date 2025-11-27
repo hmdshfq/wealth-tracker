@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import {
   ComposedChart,
   Line,
+  Area,
+  AreaChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -89,7 +91,17 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
       </div>
 
       <ResponsiveContainer width="100%" height={400}>
-        <ComposedChart data={filteredData} margin={{ top: 20, right: 30, left: 0, bottom: 60 }}>
+        <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 0, bottom: 60 }}>
+          <defs>
+            <linearGradient id="depositsGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--text-muted)" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="var(--text-muted)" stopOpacity={0.05}/>
+            </linearGradient>
+            <linearGradient id="returnsGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--accent-green)" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="var(--accent-green)" stopOpacity={0.05}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="var(--border-primary)"
@@ -128,15 +140,28 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             iconType="line"
           />
 
-          {/* Portfolio value line */}
-          <Line
+          {/* Stacked areas showing portfolio composition */}
+          <Area
             type="monotone"
-            dataKey="value"
-            name="Portfolio Value"
-            stroke="var(--text-primary)"
-            strokeWidth={2}
+            dataKey="cumulativeContributions"
+            name="Deposits"
+            fill="url(#depositsGradient)"
+            stroke="var(--text-muted)"
+            strokeWidth={1.5}
             dot={false}
             isAnimationActive={false}
+            stackId="portfolio"
+          />
+          <Area
+            type="monotone"
+            dataKey="cumulativeReturns"
+            name="Interest/Returns"
+            fill="url(#returnsGradient)"
+            stroke="var(--accent-green)"
+            strokeWidth={1.5}
+            dot={false}
+            isAnimationActive={false}
+            stackId="portfolio"
           />
 
           {/* Goal line */}
@@ -144,22 +169,12 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             type="monotone"
             dataKey="goal"
             name="Goal Amount"
-            stroke="var(--accent-green)"
-            strokeWidth={2}
+            stroke="var(--accent-blue)"
+            strokeWidth={2.5}
             strokeDasharray="8 4"
             dot={false}
             isAnimationActive={false}
-          />
-
-          {/* Planned deposits line (stepped) */}
-          <Line
-            type="stepAfter"
-            dataKey="principalValue"
-            name="Planned Deposits"
-            stroke="var(--text-muted)"
-            strokeWidth={1.5}
-            dot={false}
-            isAnimationActive={false}
+            yAxisId="left"
           />
 
           {/* Brush for timeline selection */}
@@ -170,7 +185,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             fill="var(--bg-card)"
             onChange={handleBrushChange}
           />
-        </ComposedChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

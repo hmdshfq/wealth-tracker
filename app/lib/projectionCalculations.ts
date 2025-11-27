@@ -10,7 +10,8 @@ export function calculateMonthlyProjection(
   annualReturn: number,
   monthlyDeposits: number,
   startYear?: number,
-  startMonth?: number
+  startMonth?: number,
+  retirementGoalAmount?: number
 ): ProjectionDataPoint[] {
   const data: ProjectionDataPoint[] = [];
   const currentYear = startYear ?? new Date().getFullYear();
@@ -23,11 +24,21 @@ export function calculateMonthlyProjection(
   let cumulativeContributions = 0;
   let cumulativeReturns = 0;
 
+  // Calculate total months for goal interpolation
+  let totalMonths = 0;
   for (let year = currentYear; year <= retirementYear; year++) {
-    const startMonth = year === currentYear ? currentMonth : 1;
+    const start = year === currentYear ? currentMonth : 1;
+    const end = 12;
+    totalMonths += end - start + 1;
+  }
+
+  let monthIndex = 0;
+
+  for (let year = currentYear; year <= retirementYear; year++) {
+    const startMonthValue = year === currentYear ? currentMonth : 1;
     const endMonth = year === retirementYear ? 12 : 12;
 
-    for (let month = startMonth; month <= endMonth; month++) {
+    for (let month = startMonthValue; month <= endMonth; month++) {
       // Add monthly contribution
       portfolioValue += monthlyDeposits;
       cumulativeContributions += monthlyDeposits;
@@ -41,18 +52,29 @@ export function calculateMonthlyProjection(
       // Calculate principal value (starting balance + cumulative contributions)
       const principalValue = currentNetWorth + cumulativeContributions;
 
+      // Calculate monthly goal target using linear interpolation
+      let monthlyGoal = currentNetWorth;
+      if (retirementGoalAmount && totalMonths > 0) {
+        const progress = (monthIndex + 1) / totalMonths;
+        monthlyGoal = currentNetWorth + (retirementGoalAmount - currentNetWorth) * progress;
+      } else if (retirementGoalAmount) {
+        monthlyGoal = retirementGoalAmount;
+      }
+
       data.push({
         year,
         month,
         date: `${year}-${String(month).padStart(2, '0')}`,
         value: Math.round(portfolioValue),
-        goal: 0, // Will be set by caller
+        goal: Math.round(monthlyGoal),
         monthlyContribution: monthlyDeposits,
         cumulativeContributions: Math.round(cumulativeContributions),
         monthlyReturn: Math.round(monthlyReturnAmount),
         cumulativeReturns: Math.round(cumulativeReturns),
         principalValue: Math.round(principalValue),
       });
+
+      monthIndex++;
     }
   }
 
