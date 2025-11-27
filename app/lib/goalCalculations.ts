@@ -16,7 +16,7 @@ export function calculateGoalAmount(
   monthlyDeposits: number,
   depositIncreasePercentage: number = 0
 ): number {
-  const currentYear = 2025;
+  const currentYear = new Date().getFullYear();
   const yearsToRetirement = retirementYear - currentYear;
 
   if (yearsToRetirement <= 0) {
@@ -25,35 +25,18 @@ export function calculateGoalAmount(
 
   // Convert annual return to monthly
   const monthlyReturn = Math.pow(1 + annualReturn, 1 / 12) - 1;
-  const monthsToRetirement = yearsToRetirement * 12;
+  
+  let currentBalance = currentNetWorth;
 
-  // Future value of current net worth
-  const fvCurrentWorth = currentNetWorth * Math.pow(1 + monthlyReturn, monthsToRetirement);
-
-  // Future value of escalating monthly deposits
-  let fvDeposits = 0;
-  const annualIncreaseRate = depositIncreasePercentage;
-
-  if (annualIncreaseRate === 0) {
-    // Standard annuity formula when no escalation
-    fvDeposits = monthlyDeposits *
-      (Math.pow(1 + monthlyReturn, monthsToRetirement) - 1) / monthlyReturn;
-  } else {
-    // Escalating deposits: each year deposits increase by annualIncreaseRate
-    for (let year = 0; year < yearsToRetirement; year++) {
-      const yearlyDeposits = monthlyDeposits * Math.pow(1 + annualIncreaseRate, year);
-      const monthsInYear = 12;
-      const monthsRemaining = monthsToRetirement - (year * 12);
-      
-      // Future value of this year's deposits
-      const fvThisYear = yearlyDeposits * monthsInYear *
-        (Math.pow(1 + monthlyReturn, monthsRemaining) - 1) / monthlyReturn;
-      
-      fvDeposits += fvThisYear;
+  for (let year = 0; year < yearsToRetirement; year++) {
+    const currentYearMonthlyDeposits = monthlyDeposits * Math.pow(1 + depositIncreasePercentage, year);
+    
+    for (let month = 1; month <= 12; month++) {
+      // Balance grows by return (on start balance) + Deposit (at end)
+      // Formula: Balance_End = Balance_Start * (1 + r) + Deposit
+      currentBalance = currentBalance * (1 + monthlyReturn) + currentYearMonthlyDeposits;
     }
   }
 
-  const totalGoal = fvCurrentWorth + fvDeposits;
-
-  return Math.round(totalGoal);
+  return Math.round(currentBalance);
 }
