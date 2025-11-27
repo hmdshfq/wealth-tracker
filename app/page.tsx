@@ -78,6 +78,40 @@ export default function InvestmentTracker() {
   const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>(INITIAL_CASH_TRANSACTIONS);
 
   // ---------------------------------------------------------------------------
+  // Data Persistence
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('investment-tracker-data');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.goal) setGoal(parsedData.goal);
+        if (parsedData.holdings) setHoldings(parsedData.holdings);
+        if (parsedData.transactions) setTransactions(parsedData.transactions);
+        if (parsedData.cash) setCash(parsedData.cash);
+        if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
+      }
+    } catch (error) {
+      console.error('Failed to load data from local storage:', error);
+    }
+  }, []); // Empty array ensures this runs only once on mount
+
+  useEffect(() => {
+    try {
+      const dataToSave = {
+        goal,
+        holdings,
+        transactions,
+        cash,
+        cashTransactions,
+      };
+      localStorage.setItem('investment-tracker-data', JSON.stringify(dataToSave));
+    } catch (error) {
+      console.error('Failed to save data to local storage:', error);
+    }
+  }, [goal, holdings, transactions, cash, cashTransactions]);
+
+  // ---------------------------------------------------------------------------
   // Prices State
   // ---------------------------------------------------------------------------
   const [prices, setPrices] = useState<Record<string, number>>({});

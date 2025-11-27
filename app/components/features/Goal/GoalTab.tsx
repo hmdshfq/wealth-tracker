@@ -55,7 +55,7 @@ export const GoalTab: React.FC<GoalTabProps> = ({
             <Input
               type="number"
               label="Retirement Year"
-              value={tempGoal.retirementYear}
+              value={tempGoal.retirementYear ?? 2050}
               onChange={(e) =>
                 onTempGoalChange({ retirementYear: parseInt(e.target.value) || 2050 })
               }
@@ -64,7 +64,7 @@ export const GoalTab: React.FC<GoalTabProps> = ({
             <Input
               type="number"
               label="Annual Return (%)"
-              value={(tempGoal.annualReturn * 100).toFixed(1)}
+              value={((tempGoal.annualReturn ?? 0.05) * 100).toFixed(1)}
               onChange={(e) =>
                 onTempGoalChange({ annualReturn: (parseFloat(e.target.value) || 0) / 100 })
               }
@@ -74,7 +74,7 @@ export const GoalTab: React.FC<GoalTabProps> = ({
             <Input
               type="number"
               label="Monthly Deposits (PLN)"
-              value={tempGoal.monthlyDeposits}
+              value={tempGoal.monthlyDeposits ?? 0}
               onChange={(e) =>
                 onTempGoalChange({ monthlyDeposits: parseInt(e.target.value) || 0 })
               }
