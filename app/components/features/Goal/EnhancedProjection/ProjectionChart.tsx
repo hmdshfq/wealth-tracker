@@ -1,7 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  ComposedChart,
   Line,
   Area,
   AreaChart,
@@ -12,6 +11,7 @@ import {
   ResponsiveContainer,
   Brush,
   Legend,
+  TooltipProps,
 } from 'recharts';
 import { ProjectionDataPoint, TimeRange, Goal } from '@/app/lib/types';
 import { TimeRangeSelector } from './TimeRangeSelector';
@@ -35,7 +35,14 @@ const formatYAxis = (value: number) => {
   return value.toString();
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
+const formatTooltipValue = (value: number) => {
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+};
+
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -50,12 +57,12 @@ const CustomTooltip = ({ active, payload }: any) => {
         <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>
           {payload[0].payload.date}
         </p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <p
             key={index}
             style={{ margin: '4px 0', color: entry.color, fontSize: '12px' }}
           >
-            {entry.name}: {formatYAxis(entry.value)}
+            {entry.name}: {formatTooltipValue(entry.value as number)}
           </p>
         ))}
       </div>
@@ -65,22 +72,10 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export const ProjectionChart: React.FC<ProjectionChartProps> = ({
-  fullData,
   filteredData,
-  goal,
   timeRange,
   onTimeRangeChange,
 }) => {
-  const [brushStart, setBrushStart] = useState(0);
-  const [brushEnd, setBrushEnd] = useState(Math.min(100, filteredData.length));
-
-  const handleBrushChange = (data: any) => {
-    setBrushStart(data.startIndex || 0);
-    setBrushEnd(data.endIndex || filteredData.length);
-  };
-
-  const displayData = filteredData.slice(brushStart, brushEnd);
-
   return (
     <div>
       <div className={styles.timeRangeSelector} style={{ marginBottom: '16px' }}>
@@ -194,7 +189,6 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             height={60}
             stroke="var(--border-primary)"
             fill="var(--bg-card)"
-            onChange={handleBrushChange}
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -286,13 +286,19 @@ export default function InvestmentTracker() {
   const getActualInvestedByDate = useCallback((date: string) => {
     let totalInvested = 0;
     transactions.forEach((tx) => {
-      // Only count Buy transactions and only up to the specified date
-      if (tx.action === 'Buy' && tx.date <= date) {
-        totalInvested += tx.shares * tx.price;
+      // Only count Buy transactions and only up to the specified date (inclusive of the whole month)
+      if (tx.action === 'Buy' && tx.date.substring(0, 7) <= date) {
+        const value = tx.shares * tx.price;
+        // Convert to PLN
+        const valuePLN = tx.currency === 'PLN' ? value :
+                         tx.currency === 'EUR' ? value * exchangeRates.EUR_PLN :
+                         tx.currency === 'USD' ? value * exchangeRates.USD_PLN :
+                         value;
+        totalInvested += valuePLN;
       }
     });
-    return totalInvested;
-  }, [transactions]);
+    return Math.round(totalInvested * 100) / 100;
+  }, [transactions, exchangeRates]);
 
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
     const { year, month } = getFirstTransactionDate();
