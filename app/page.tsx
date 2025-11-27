@@ -269,16 +269,33 @@ export default function InvestmentTracker() {
     }));
   }, [holdingsData]);
 
+  const getFirstTransactionDate = useCallback(() => {
+    if (transactions.length === 0) {
+      const today = new Date();
+      return { year: today.getFullYear(), month: today.getMonth() + 1 };
+    }
+    const sortedTransactions = [...transactions].sort((a, b) => {
+      const [aYear, aMonth, aDay] = a.date.split('-').map(Number);
+      const [bYear, bMonth, bDay] = b.date.split('-').map(Number);
+      return new Date(aYear, aMonth - 1, aDay).getTime() - new Date(bYear, bMonth - 1, bDay).getTime();
+    });
+    const [year, month] = sortedTransactions[0].date.split('-').map(Number);
+    return { year, month };
+  }, [transactions]);
+
   const projectionData: ProjectionDataPoint[] = useMemo(() => {
+    const { year, month } = getFirstTransactionDate();
     const monthlyData = calculateMonthlyProjection(
       totalNetWorth,
       goal.retirementYear,
       goal.annualReturn,
-      goal.monthlyDeposits
+      goal.monthlyDeposits,
+      year,
+      month
     );
     // Add goal amount to each data point
     return monthlyData.map((point) => ({ ...point, goal: goal.amount }));
-  }, [totalNetWorth, goal]);
+  }, [totalNetWorth, goal, getFirstTransactionDate]);
 
   // ---------------------------------------------------------------------------
   // Export Functions

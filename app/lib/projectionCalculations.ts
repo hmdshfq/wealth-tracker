@@ -8,11 +8,13 @@ export function calculateMonthlyProjection(
   currentNetWorth: number,
   retirementYear: number,
   annualReturn: number,
-  monthlyDeposits: number
+  monthlyDeposits: number,
+  startYear?: number,
+  startMonth?: number
 ): ProjectionDataPoint[] {
   const data: ProjectionDataPoint[] = [];
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = startYear ?? new Date().getFullYear();
+  const currentMonth = startMonth ?? new Date().getMonth() + 1;
 
   // Convert annual return to monthly
   const monthlyReturn = Math.pow(1 + annualReturn, 1 / 12) - 1;
