@@ -1,8 +1,12 @@
-export const formatPLN = (val: number): string =>
-  `zł${val.toLocaleString('pl-PL', {
+export const formatPLN = (val: number | undefined | null): string => {
+  if (typeof val !== 'number' || isNaN(val)) {
+    return 'zł0,00';
+  }
+  return `zł${val.toLocaleString('pl-PL', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+};
 
 export const formatEUR = (val: number): string =>
   `€${val.toLocaleString('de-DE', {

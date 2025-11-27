@@ -42,39 +42,24 @@ import styles from './page.module.css';
 // INITIAL DATA
 // ============================================================================
 
-const INITIAL_HOLDINGS: Holding[] = [
-  { ticker: 'FWIA.DE', shares: 518, avgCost: 6.54 },
-  { ticker: 'VWCE.DE', shares: 7.13, avgCost: 122.18 },
-  { ticker: 'IUSQ.DE', shares: 4, avgCost: 88.32 },
-];
+const INITIAL_HOLDINGS: Holding[] = [];
 
-const INITIAL_TRANSACTIONS: Transaction[] = [
-  { id: 1, date: '2025-11-11', ticker: 'FWIA.DE', action: 'Buy', shares: 32, price: 7.15, currency: 'EUR' },
-  { id: 2, date: '2025-11-04', ticker: 'FWIA.DE', action: 'Buy', shares: 34, price: 7.14, currency: 'EUR' },
-  { id: 3, date: '2025-10-31', ticker: 'FWIA.DE', action: 'Buy', shares: 13, price: 7.18, currency: 'EUR' },
-  { id: 4, date: '2025-10-13', ticker: 'FWIA.DE', action: 'Buy', shares: 29, price: 6.95, currency: 'EUR' },
-  { id: 5, date: '2025-09-08', ticker: 'VWCE.DE', action: 'Buy', shares: 2, price: 141.5, currency: 'EUR' },
-];
+const INITIAL_TRANSACTIONS: Transaction[] = [];
 
 const INITIAL_CASH: CashBalance[] = [
-  { currency: 'PLN', amount: 2500 },
-  { currency: 'EUR', amount: 150 },
+  { currency: 'PLN', amount: 0 },
+  { currency: 'EUR', amount: 0 },
   { currency: 'USD', amount: 0 },
 ];
 
-const INITIAL_CASH_TRANSACTIONS: CashTransaction[] = [
-  { id: 1, date: '2025-11-15', type: 'deposit', currency: 'PLN', amount: 1500, note: 'Monthly savings' },
-  { id: 2, date: '2025-11-01', type: 'deposit', currency: 'PLN', amount: 1000, note: 'Bonus' },
-  { id: 3, date: '2025-10-20', type: 'deposit', currency: 'EUR', amount: 150, note: 'Transfer from PLN' },
-  { id: 4, date: '2025-10-15', type: 'withdrawal', currency: 'PLN', amount: 500, note: 'ETF purchase' },
-];
+const INITIAL_CASH_TRANSACTIONS: CashTransaction[] = [];
 
 const INITIAL_GOAL: Goal = {
-  retirementYear: 2054,
+  retirementYear: 2050,
   annualReturn: 0.07,
-  monthlyDeposits: 1500,
-  amount: 4204928,
-  targetYear: 2054,
+  monthlyDeposits: 0,
+  amount: 0,
+  targetYear: 2050,
 };
 
 // ============================================================================
