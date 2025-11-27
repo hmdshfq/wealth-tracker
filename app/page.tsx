@@ -32,6 +32,7 @@ import {
   NewCash,
 } from '@/app/lib/types';
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
+import { calculateGoalAmount } from '@/app/lib/goalCalculations';
 
 // Styles
 import styles from './page.module.css';
@@ -67,7 +68,13 @@ const INITIAL_CASH_TRANSACTIONS: CashTransaction[] = [
   { id: 4, date: '2025-10-15', type: 'withdrawal', currency: 'PLN', amount: 500, note: 'ETF purchase' },
 ];
 
-const INITIAL_GOAL: Goal = { amount: 4204928, targetYear: 2054 };
+const INITIAL_GOAL: Goal = {
+  retirementYear: 2054,
+  annualReturn: 0.07,
+  monthlyDeposits: 1500,
+  amount: 4204928,
+  targetYear: 2054,
+};
 
 // ============================================================================
 // MAIN COMPONENT
@@ -246,12 +253,10 @@ export default function InvestmentTracker() {
     const currentYear = 2025;
     const years: ProjectionDataPoint[] = [];
     let value = totalNetWorth;
-    const monthlyContribution = 1500;
-    const annualReturn = 0.07;
 
-    for (let year = currentYear; year <= goal.targetYear; year++) {
+    for (let year = currentYear; year <= goal.retirementYear; year++) {
       years.push({ year, value: Math.round(value), goal: goal.amount });
-      value = value * (1 + annualReturn) + monthlyContribution * 12;
+      value = value * (1 + goal.annualReturn) + goal.monthlyDeposits * 12;
     }
     return years;
   }, [totalNetWorth, goal]);
@@ -629,9 +634,21 @@ export default function InvestmentTracker() {
   }, [goal]);
 
   const handleGoalEditSave = useCallback(() => {
-    setGoal({ ...tempGoal });
+    // Calculate the goal amount based on retirement parameters
+    const calculatedAmount = calculateGoalAmount(
+      totalNetWorth,
+      tempGoal.retirementYear,
+      tempGoal.annualReturn,
+      tempGoal.monthlyDeposits
+    );
+
+    setGoal({
+      ...tempGoal,
+      amount: calculatedAmount,
+      targetYear: tempGoal.retirementYear,
+    });
     setEditingGoal(false);
-  }, [tempGoal]);
+  }, [tempGoal, totalNetWorth]);
 
   const handleGoalEditCancel = useCallback(() => {
     setEditingGoal(false);

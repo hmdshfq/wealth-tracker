@@ -62,23 +62,33 @@ export const GoalTab: React.FC<GoalTabProps> = ({
           <div className={styles.editForm}>
             <Input
               type="number"
-              label="Target Amount (PLN)"
-              value={tempGoal.amount}
+              label="Retirement Year"
+              value={tempGoal.retirementYear}
               onChange={(e) =>
-                onTempGoalChange({ amount: parseInt(e.target.value) || 0 })
-              }
-              style={{ width: '180px' }}
-            />
-            <Input
-              type="number"
-              label="Target Year"
-              value={tempGoal.targetYear}
-              onChange={(e) =>
-                onTempGoalChange({ targetYear: parseInt(e.target.value) || 2050 })
+                onTempGoalChange({ retirementYear: parseInt(e.target.value) || 2050 })
               }
               style={{ width: '100px' }}
             />
-            <Button onClick={onEditSave}>Save</Button>
+            <Input
+              type="number"
+              label="Annual Return (%)"
+              value={(tempGoal.annualReturn * 100).toFixed(1)}
+              onChange={(e) =>
+                onTempGoalChange({ annualReturn: (parseFloat(e.target.value) || 0) / 100 })
+              }
+              step="0.1"
+              style={{ width: '100px' }}
+            />
+            <Input
+              type="number"
+              label="Monthly Deposits (PLN)"
+              value={tempGoal.monthlyDeposits}
+              onChange={(e) =>
+                onTempGoalChange({ monthlyDeposits: parseInt(e.target.value) || 0 })
+              }
+              style={{ width: '140px' }}
+            />
+            <Button onClick={onEditSave}>Calculate & Save</Button>
             <Button variant="secondary" onClick={onEditCancel}>
               Cancel
             </Button>
@@ -86,16 +96,20 @@ export const GoalTab: React.FC<GoalTabProps> = ({
         ) : (
           <div className={styles.statsGrid}>
             <div>
-              <p className={styles.statLabel}>Target</p>
+              <p className={styles.statLabel}>Target Amount</p>
               <p className={styles.statValueBlue}>{formatPLN(goal.amount)}</p>
             </div>
             <div>
-              <p className={styles.statLabel}>Target Year</p>
-              <p className={styles.statValueWhite}>{goal.targetYear}</p>
+              <p className={styles.statLabel}>Retirement Year</p>
+              <p className={styles.statValueWhite}>{goal.retirementYear}</p>
             </div>
             <div>
-              <p className={styles.statLabel}>Years Remaining</p>
-              <p className={styles.statValueYellow}>{yearsRemaining}</p>
+              <p className={styles.statLabel}>Annual Return</p>
+              <p className={styles.statValueGreen}>{(goal.annualReturn * 100).toFixed(1)}%</p>
+            </div>
+            <div>
+              <p className={styles.statLabel}>Monthly Deposits</p>
+              <p className={styles.statValueYellow}>{formatPLN(goal.monthlyDeposits)}</p>
             </div>
           </div>
         )}
@@ -125,7 +139,7 @@ export const GoalTab: React.FC<GoalTabProps> = ({
 
       {/* Projection Chart */}
       <Card>
-        <SectionTitle subtitle="Assuming 7% annual return and zł1,500 monthly contributions">
+        <SectionTitle subtitle={`Assuming ${(goal.annualReturn * 100).toFixed(1)}% annual return and ${formatPLN(goal.monthlyDeposits)} monthly contributions`}>
           Projection to Goal
         </SectionTitle>
         <div style={{ height: '300px' }}>

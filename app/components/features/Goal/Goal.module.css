@@ -40,6 +40,13 @@
   color: var(--accent-yellow);
 }
 
+.statValueGreen {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--accent-green);
+}
+
 .progressHeader {
   display: flex;
   justify-content: space-between;

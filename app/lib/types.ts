@@ -41,6 +41,9 @@ export interface CashTransaction {
 export interface Goal {
   amount: number;
   targetYear: number;
+  retirementYear: number;
+  annualReturn: number;
+  monthlyDeposits: number;
 }
 
 export interface AllocationItem {
