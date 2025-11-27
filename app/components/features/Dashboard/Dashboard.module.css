@@ -2,11 +2,12 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 16px 0;
+  color: var(--text-primary);
 }
 
 .chartSubtitle {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: -8px 0 24px 0;
 }
 
@@ -35,12 +36,12 @@
 }
 
 .legendName {
-  color: #94a3b8;
+  color: var(--text-muted);
   flex: 1;
 }
 
 .legendValue {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .pricesGrid {
@@ -58,7 +59,7 @@
 
 .goalLabel {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 0 0 4px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -66,7 +67,7 @@
 
 .goalTarget {
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -78,12 +79,12 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  color: #10b981;
+  color: var(--accent-green);
 }
 
 .goalRemaining {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 8px 0 0 0;
 }
 

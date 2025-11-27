@@ -1,9 +1,10 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  color: #e2e8f0;
+  background: var(--gradient-bg);
+  color: var(--text-secondary);
   font-family: 'JetBrains Mono', 'SF Mono', monospace;
   padding: 24px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .main {

@@ -1,20 +1,21 @@
 .card {
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  border: 1px solid var(--border-secondary);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .ticker {
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 4px 0;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .name {
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 0 0 8px 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -30,7 +31,7 @@
 .price {
   font-size: 20px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .change {
@@ -39,9 +40,9 @@
 }
 
 .positive {
-  color: #10b981;
+  color: var(--accent-green);
 }
 
 .negative {
-  color: #ef4444;
+  color: var(--accent-red);
 }

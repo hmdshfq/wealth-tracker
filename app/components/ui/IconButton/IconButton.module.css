@@ -18,7 +18,7 @@
 
 /* Variants */
 .primary {
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: var(--gradient-green);
   color: white;
 }
 
@@ -27,30 +27,30 @@
 }
 
 .secondary {
-  background: #334155;
-  border: 1px solid #475569;
-  color: #e2e8f0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-input);
+  color: var(--text-secondary);
 }
 
 .secondary:hover:not(:disabled) {
-  background: #3d4f66;
-  border-color: #566b87;
+  background: var(--bg-hover);
+  border-color: var(--text-dimmed);
 }
 
 .ghost {
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .ghost:hover:not(:disabled) {
-  background: rgba(148, 163, 184, 0.1);
-  color: #e2e8f0;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .danger {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--accent-red);
 }
 
 .danger:hover:not(:disabled) {

@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   THEME VARIABLES
+   ============================================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default to dark theme */
+  --font-sans: 'JetBrains Mono', 'SF Mono', monospace;
+  
+  /* Dark Theme Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-card: rgba(15, 23, 42, 0.5);
+  --bg-card-solid: #1e293b;
+  --bg-hover: rgba(148, 163, 184, 0.05);
+  --bg-input: #1e293b;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-dimmed: #64748b;
+  
+  --border-primary: rgba(148, 163, 184, 0.2);
+  --border-secondary: rgba(148, 163, 184, 0.1);
+  --border-input: #475569;
+  
+  --accent-green: #10b981;
+  --accent-green-dark: #059669;
+  --accent-blue: #3b82f6;
+  --accent-blue-dark: #2563eb;
+  --accent-red: #ef4444;
+  --accent-red-dark: #dc2626;
+  --accent-yellow: #f59e0b;
+  --accent-purple: #8b5cf6;
+  
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-border: rgba(16, 185, 129, 0.3);
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger-border: rgba(239, 68, 68, 0.3);
+  
+  --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  --gradient-green: linear-gradient(90deg, #10b981, #059669);
+  --gradient-blue: linear-gradient(90deg, #3b82f6, #2563eb);
+  --gradient-red: linear-gradient(90deg, #ef4444, #dc2626);
+  --gradient-title: linear-gradient(90deg, #10b981, #3b82f6);
+  --gradient-card-highlight: linear-gradient(90deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card-solid: #ffffff;
+  --bg-hover: rgba(100, 116, 139, 0.08);
+  --bg-input: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #475569;
+  --text-dimmed: #64748b;
+  
+  --border-primary: rgba(100, 116, 139, 0.2);
+  --border-secondary: rgba(100, 116, 139, 0.15);
+  --border-input: #cbd5e1;
+  
+  --accent-green: #059669;
+  --accent-green-dark: #047857;
+  --accent-blue: #2563eb;
+  --accent-blue-dark: #1d4ed8;
+  --accent-red: #dc2626;
+  --accent-red-dark: #b91c1c;
+  --accent-yellow: #d97706;
+  --accent-purple: #7c3aed;
+  
+  --success-bg: rgba(5, 150, 105, 0.1);
+  --success-border: rgba(5, 150, 105, 0.3);
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --danger-border: rgba(220, 38, 38, 0.3);
+  
+  --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
+  --gradient-green: linear-gradient(90deg, #059669, #047857);
+  --gradient-blue: linear-gradient(90deg, #2563eb, #1d4ed8);
+  --gradient-red: linear-gradient(90deg, #dc2626, #b91c1c);
+  --gradient-title: linear-gradient(90deg, #059669, #2563eb);
+  --gradient-card-highlight: linear-gradient(90deg, rgba(5, 150, 105, 0.1), rgba(37, 99, 235, 0.1));
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-dimmed);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

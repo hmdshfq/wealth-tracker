@@ -13,12 +13,12 @@
   font-size: 16px;
   font-weight: 600;
   margin: 0;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .subtitle {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 4px 0 0 0;
 }
 

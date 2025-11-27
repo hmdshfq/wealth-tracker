@@ -1,10 +1,10 @@
 .ticker {
   font-weight: 600;
-  color: #10b981;
+  color: var(--accent-green);
 }
 
 .name {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .valueCell {
@@ -12,23 +12,24 @@
 }
 
 .positive {
-  color: #10b981;
+  color: var(--accent-green);
   font-weight: 600;
 }
 
 .negative {
-  color: #ef4444;
+  color: var(--accent-red);
   font-weight: 600;
 }
 
 .footerRow {
-  border-top: 2px solid rgba(148, 163, 184, 0.3);
+  border-top: 2px solid var(--border-primary);
 }
 
 .footerLabel {
   padding: 16px 8px;
   font-weight: 600;
   text-align: left;
+  color: var(--text-primary);
 }
 
 .footerValue {
@@ -36,4 +37,5 @@
   text-align: right;
   font-weight: 700;
   font-size: 15px;
+  color: var(--text-primary);
 }

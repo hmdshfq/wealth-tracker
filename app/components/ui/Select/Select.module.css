@@ -5,23 +5,29 @@
 
 .label {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin-bottom: 4px;
 }
 
 .select {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
   border-radius: 8px;
   padding: 10px 12px;
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;
   min-width: 100px;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .select:focus {
   outline: none;
-  border-color: #10b981;
+  border-color: var(--accent-green);
+}
+
+.select option {
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
 }

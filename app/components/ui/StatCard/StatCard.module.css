@@ -1,6 +1,6 @@
 .label {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -10,7 +10,7 @@
   font-size: 32px;
   font-weight: 700;
   margin: 0;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .subValue {
@@ -19,15 +19,15 @@
 }
 
 .positive {
-  color: #10b981;
+  color: var(--accent-green);
 }
 
 .negative {
-  color: #ef4444;
+  color: var(--accent-red);
 }
 
 .muted {
-  color: #64748b;
+  color: var(--text-dimmed);
 }
 
 .footer {

@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid var(--border-primary);
   padding-bottom: 16px;
 }
 
@@ -16,7 +16,7 @@
   font-size: 28px;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(90deg, #10b981, #3b82f6);
+  background: var(--gradient-title);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -24,7 +24,7 @@
 
 .subtitle {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-dimmed);
   margin: 4px 0 0 0;
 }
 
@@ -36,5 +36,17 @@
 
 .lastUpdate {
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-dimmed);
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .actions {
+    flex-wrap: wrap;
+  }
 }
