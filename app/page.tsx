@@ -82,6 +82,8 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   // Data Persistence
   // ---------------------------------------------------------------------------
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   useEffect(() => {
     try {
       const savedData = localStorage.getItem('investment-tracker-data');
@@ -94,10 +96,14 @@ export default function InvestmentTracker() {
       }
     } catch (error) {
       console.error('Failed to load data from local storage:', error);
+    } finally {
+      setIsDataLoaded(true);
     }
   }, []); // Empty array ensures this runs only once on mount
 
   useEffect(() => {
+    if (!isDataLoaded) return;
+
     try {
       const dataToSave = {
         goal,
@@ -109,7 +115,7 @@ export default function InvestmentTracker() {
     } catch (error) {
       console.error('Failed to save data to local storage:', error);
     }
-  }, [goal, transactions, cash, cashTransactions]);
+  }, [goal, transactions, cash, cashTransactions, isDataLoaded]);
 
   // ---------------------------------------------------------------------------
   // Prices State

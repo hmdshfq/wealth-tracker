@@ -42,7 +42,7 @@ const formatTooltipValue = (value: number) => {
   });
 };
 
-const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -57,7 +57,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
         <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>
           {payload[0].payload.date}
         </p>
-        {payload.map((entry, index) => (
+        {payload.map((entry: any, index: number) => (
           <p
             key={index}
             style={{ margin: '4px 0', color: entry.color, fontSize: '12px' }}
