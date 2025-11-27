@@ -2,7 +2,7 @@ export const formatPLN = (val: number | undefined | null): string => {
   if (typeof val !== 'number' || isNaN(val)) {
     return 'zł0,00';
   }
-  return `zł${val.toLocaleString('pl-PL', {
+  return `zł${val.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
