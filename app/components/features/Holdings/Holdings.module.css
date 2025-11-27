@@ -1,0 +1,39 @@
+.ticker {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.name {
+  color: #94a3b8;
+}
+
+.valueCell {
+  font-weight: 600;
+}
+
+.positive {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.negative {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.footerRow {
+  border-top: 2px solid rgba(148, 163, 184, 0.3);
+}
+
+.footerLabel {
+  padding: 16px 8px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.footerValue {
+  padding: 16px 8px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 15px;
+}

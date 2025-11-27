@@ -1,0 +1,1 @@
+export { HoldingsTab } from './HoldingsTab';

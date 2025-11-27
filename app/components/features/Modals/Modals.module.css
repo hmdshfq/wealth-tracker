@@ -1,0 +1,144 @@
+.exportButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primaryExport {
+  padding: 16px 20px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exportTitle {
+  margin-bottom: 4px;
+}
+
+.exportSubtitle {
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.arrow {
+  font-size: 20px;
+}
+
+.dividerText {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.csvGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.tipBox {
+  margin-top: 24px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.tipBox p {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.dropZone {
+  border: 2px dashed #475569;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 16px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.fileInput {
+  display: none;
+}
+
+.dropZoneLabel {
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.dropZoneIcon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.dropZoneTitle {
+  color: #10b981;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.dropZoneSubtitle {
+  font-size: 11px;
+}
+
+.textarea {
+  width: 100%;
+  height: 150px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.errorBox {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.warningBox {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.warningBox p {
+  font-size: 11px;
+  color: #f59e0b;
+  margin: 0;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.buttonRow > * {
+  flex: 1;
+}

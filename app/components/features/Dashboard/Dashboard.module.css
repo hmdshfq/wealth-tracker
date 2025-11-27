@@ -1,0 +1,106 @@
+.chartTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.chartSubtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: -8px 0 24px 0;
+}
+
+.pieContainer {
+  height: 200px;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legendName {
+  color: #94a3b8;
+  flex: 1;
+}
+
+.legendValue {
+  color: #f8fafc;
+}
+
+.pricesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.goalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.goalLabel {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.goalTarget {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.goalPercent {
+  text-align: right;
+}
+
+.goalPercent p {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #10b981;
+}
+
+.goalRemaining {
+  font-size: 12px;
+  color: #64748b;
+  margin: 8px 0 0 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .chartsRow {
+    grid-template-columns: 1fr;
+  }
+}

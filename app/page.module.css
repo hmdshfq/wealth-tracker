@@ -1,0 +1,11 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  padding: 24px;
+}
+
+.main {
+  margin-top: 24px;
+}

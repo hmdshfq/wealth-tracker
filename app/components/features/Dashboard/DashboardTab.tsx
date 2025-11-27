@@ -1,0 +1,91 @@
+'use client';
+import React from 'react';
+import { StatCard } from '@/app/components/ui';
+import { AllocationChart } from './AllocationChart';
+import { ProjectionChart } from './ProjectionChart';
+import { GoalProgress } from './GoalProgress';
+import { LivePrices } from './LivePrices';
+import { formatPLN, formatPercent } from '@/app/lib/formatters';
+import { Goal, AllocationItem, ProjectionDataPoint, CashBalance } from '@/app/lib/types';
+import styles from './Dashboard.module.css';
+
+interface DashboardTabProps {
+  portfolioValue: number;
+  totalGain: number;
+  totalGainPercent: number;
+  totalCashPLN: number;
+  cash: CashBalance[];
+  totalNetWorth: number;
+  goal: Goal;
+  goalProgress: number;
+  allocationData: AllocationItem[];
+  projectionData: ProjectionDataPoint[];
+  prices: Record<string, number>;
+}
+
+export const DashboardTab: React.FC<DashboardTabProps> = ({
+  portfolioValue,
+  totalGain,
+  totalGainPercent,
+  totalCashPLN,
+  cash,
+  totalNetWorth,
+  goal,
+  goalProgress,
+  allocationData,
+  projectionData,
+  prices,
+}) => {
+  const cashFooter = (
+    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#94a3b8' }}>
+      {cash.map((c) => (
+        <span key={c.currency}>
+          {c.currency}: {c.amount.toLocaleString()}
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'grid', gap: '24px' }}>
+      {/* Top Stats */}
+      <div className={styles.statsGrid}>
+        <StatCard
+          label="Portfolio Value"
+          value={formatPLN(portfolioValue)}
+          subValue={`${formatPLN(totalGain)} (${formatPercent(totalGainPercent)})`}
+          subValueColor={totalGain >= 0 ? 'positive' : 'negative'}
+        />
+        <StatCard
+          label="Total Cash"
+          value={formatPLN(totalCashPLN)}
+          footer={cashFooter}
+        />
+        <StatCard
+          label="Net Worth"
+          value={formatPLN(totalNetWorth)}
+          subValue="Portfolio + Cash"
+          subValueColor="muted"
+        />
+      </div>
+
+      {/* Goal Progress */}
+      <GoalProgress
+        goal={goal}
+        currentValue={totalNetWorth}
+        progress={goalProgress}
+      />
+
+      {/* Charts Row */}
+      <div className={styles.chartsRow}>
+        <AllocationChart data={allocationData} />
+        <ProjectionChart data={projectionData} />
+      </div>
+
+      {/* Live Prices */}
+      <LivePrices prices={prices} />
+    </div>
+  );
+};
+
+export default DashboardTab;

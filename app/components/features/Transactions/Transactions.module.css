@@ -1,0 +1,15 @@
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.ticker {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.total {
+  font-weight: 600;
+}

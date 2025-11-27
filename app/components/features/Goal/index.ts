@@ -1,0 +1,1 @@
+export { GoalTab } from './GoalTab';
