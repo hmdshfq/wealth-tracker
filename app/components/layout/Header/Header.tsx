@@ -44,8 +44,8 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className={styles.header}>
       <div className={styles.titleWrapper}>
-        <h1 className={styles.title}>Investment Tracker</h1>
-        <p className={styles.subtitle}>ETF Portfolio & Goal Tracker</p>
+        <h1 className={styles.title}>Wealth Tracker</h1>
+        <p className={styles.subtitle}>ETF Portfolio, Cash, & Goal Tracker</p>
       </div>
       <div className={styles.actions}>
         <IconButton

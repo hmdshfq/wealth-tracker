@@ -298,7 +298,7 @@ export default function InvestmentTracker() {
     setTimeout(() => setExportSuccess(false), 3000);
   }, [goal, transactions, cash, cashTransactions]);
 
-  const exportToCSV = useCallback((type: 'holdings' | 'transactions' | 'cash' | 'cashTransactions') => {
+  const exportToCSV = useCallback((type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => {
     let csv = '';
     let filename = '';
 
@@ -308,7 +308,7 @@ export default function InvestmentTracker() {
         csv += `${h.ticker},"${h.name}",${h.shares.toFixed(4)},${h.avgCost.toFixed(2)},${h.price.toFixed(2)},${h.value.toFixed(2)},${h.valuePLN.toFixed(2)},${h.gain.toFixed(2)},${h.gainPercent.toFixed(2)}\n`;
       });
       filename = `holdings-${new Date().toISOString().split('T')[0]}.csv`;
-    } else if (type === 'transactions') {
+    } else if (type === 'investments') {
       csv = 'Date,Ticker,Action,Shares,Price,Currency,Total\n';
       transactions.forEach((tx) => {
         csv += `${tx.date},${tx.ticker},${tx.action},${tx.shares},${tx.price.toFixed(2)},${tx.currency},${(tx.shares * tx.price).toFixed(2)}\n`;
@@ -602,7 +602,7 @@ export default function InvestmentTracker() {
           />
         )}
 
-        {activeTab === 'transactions' && (
+        {activeTab === 'investments' && (
           <TransactionsTab
             transactions={transactions}
             prices={prices}

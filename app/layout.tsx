@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Investment Tracker",
-  description: "ETF Portfolio & Goal Tracker",
+  title: "Wealth Tracker",
+  description: "ETF Portfolio, Cash, & Goal Tracker",
 };
 
 export default function RootLayout({
