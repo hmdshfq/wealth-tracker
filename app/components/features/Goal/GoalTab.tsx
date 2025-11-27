@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, Input, Button, ProgressBar, SectionTitle } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
-import { Goal, ProjectionDataPoint } from '@/app/lib/types';
+import { Goal } from '@/app/lib/types';
 import styles from './Goal.module.css';
 
 interface GoalTabProps {
@@ -11,7 +11,6 @@ interface GoalTabProps {
   editingGoal: boolean;
   totalNetWorth: number;
   goalProgress: number;
-  projectionData: ProjectionDataPoint[];
   onEditStart: () => void;
   onEditCancel: () => void;
   onEditSave: () => void;
@@ -24,7 +23,6 @@ export const GoalTab: React.FC<GoalTabProps> = ({
   editingGoal,
   totalNetWorth,
   goalProgress,
-  projectionData,
   onEditStart,
   onEditCancel,
   onEditSave,

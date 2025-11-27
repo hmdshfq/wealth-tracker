@@ -27,13 +27,11 @@ import {
   CashTransaction,
   Goal,
   AllocationItem,
-  ProjectionDataPoint,
   NewTransaction,
   NewCash,
 } from '@/app/lib/types';
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
-import { calculateMonthlyProjection } from '@/app/lib/projectionCalculations';
 import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
 
 // Styles
@@ -274,94 +272,6 @@ export default function InvestmentTracker() {
       percent: total > 0 ? (h.value / total) * 100 : 0,
     }));
   }, [holdingsData]);
-
-  const getFirstTransactionDate = useCallback(() => {
-    if (transactions.length === 0) {
-      const today = new Date();
-      return { year: today.getFullYear(), month: today.getMonth() + 1 };
-    }
-    const sortedTransactions = [...transactions].sort((a, b) => {
-      const [aYear, aMonth, aDay] = a.date.split('-').map(Number);
-      const [bYear, bMonth, bDay] = b.date.split('-').map(Number);
-      return new Date(aYear, aMonth - 1, aDay).getTime() - new Date(bYear, bMonth - 1, bDay).getTime();
-    });
-    const [year, month] = sortedTransactions[0].date.split('-').map(Number);
-    return { year, month };
-  }, [transactions]);
-
-  const getActualInvestedByDate = useCallback((date: string) => {
-    let totalInvested = 0;
-    transactions.forEach((tx) => {
-      // Only count Buy transactions and only up to the specified date (inclusive of the whole month)
-      if (tx.action === 'Buy' && tx.date.substring(0, 7) <= date) {
-        const value = tx.shares * tx.price;
-        // Convert to PLN
-        const valuePLN = tx.currency === 'PLN' ? value :
-                         tx.currency === 'EUR' ? value * exchangeRates.EUR_PLN :
-                         tx.currency === 'USD' ? value * exchangeRates.USD_PLN :
-                         value;
-        totalInvested += valuePLN;
-      }
-    });
-    return Math.round(totalInvested * 100) / 100;
-  }, [transactions, exchangeRates]);
-
-  const projectionData: ProjectionDataPoint[] = useMemo(() => {
-    const { year, month } = getFirstTransactionDate();
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1;
-    const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-
-    // 1. Past Projection (Start -> Now)
-    // Simulates the "Ideal Path" from the beginning starting at 0
-    const pastProjection = calculateMonthlyProjection(
-      0, // Start with 0
-      currentYear, // Calculate up to current year
-      goal.annualReturn,
-      goal.monthlyDeposits,
-      year, // Start Year
-      month, // Start Month
-      goal.amount,
-      goal.depositIncreasePercentage,
-      0, // initial contributions
-      0  // initial returns
-    ).filter(p => p.date < currentDateStr);
-
-    // 2. Future Projection (Now -> Retirement)
-    // Projects from current actual Net Worth
-    const totalDeposits = cashTransactions.reduce((sum, t) => {
-       const amountPLN = t.currency === 'PLN' ? t.amount : 
-                        t.currency === 'EUR' ? t.amount * exchangeRates.EUR_PLN :
-                        t.amount * exchangeRates.USD_PLN;
-       return sum + (t.type === 'deposit' ? amountPLN : -amountPLN);
-    }, 0);
-
-    const initialContributions = totalDeposits;
-    const initialReturns = totalNetWorth - initialContributions;
-
-    const futureProjection = calculateMonthlyProjection(
-      totalNetWorth,
-      goal.retirementYear,
-      goal.annualReturn,
-      goal.monthlyDeposits,
-      currentYear,
-      currentMonth,
-      goal.amount,
-      goal.depositIncreasePercentage,
-      initialContributions,
-      initialReturns
-    );
-
-    // Combine
-    const combined = [...pastProjection, ...futureProjection];
-
-    // Add actual invested amounts to each projection point
-    return combined.map((point) => ({
-      ...point,
-      actualInvestedAmount: getActualInvestedByDate(point.date),
-    }));
-  }, [totalNetWorth, goal, getFirstTransactionDate, getActualInvestedByDate, cashTransactions, exchangeRates]);
 
   // ---------------------------------------------------------------------------
   // Export Functions
@@ -679,7 +589,6 @@ export default function InvestmentTracker() {
             goal={goal}
             goalProgress={goalProgress}
             allocationData={allocationData}
-            projectionData={projectionData}
             prices={prices}
           />
         )}
@@ -726,7 +635,6 @@ export default function InvestmentTracker() {
             editingGoal={editingGoal}
             totalNetWorth={totalNetWorth}
             goalProgress={goalProgress}
-            projectionData={projectionData}
             onEditStart={handleGoalEditStart}
             onEditCancel={handleGoalEditCancel}
             onEditSave={handleGoalEditSave}

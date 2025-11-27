@@ -2,11 +2,10 @@
 import React from 'react';
 import { StatCard } from '@/app/components/ui';
 import { AllocationChart } from './AllocationChart';
-import { ProjectionChart } from './ProjectionChart';
 import { GoalProgress } from './GoalProgress';
 import { LivePrices } from './LivePrices';
 import { formatPLN, formatPercent } from '@/app/lib/formatters';
-import { Goal, AllocationItem, ProjectionDataPoint, CashBalance } from '@/app/lib/types';
+import { Goal, AllocationItem, CashBalance } from '@/app/lib/types';
 import styles from './Dashboard.module.css';
 
 interface DashboardTabProps {
@@ -19,7 +18,6 @@ interface DashboardTabProps {
   goal: Goal;
   goalProgress: number;
   allocationData: AllocationItem[];
-  projectionData: ProjectionDataPoint[];
   prices: Record<string, number>;
 }
 
@@ -33,7 +31,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   goal,
   goalProgress,
   allocationData,
-  projectionData,
   prices,
 }) => {
   const cashFooter = (
@@ -77,10 +74,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       />
 
       {/* Charts Row */}
-      <div className={styles.chartsRow}>
-        <AllocationChart data={allocationData} />
-        <ProjectionChart data={projectionData} />
-      </div>
+      <AllocationChart data={allocationData} />
 
       {/* Live Prices */}
       <LivePrices prices={prices} />
