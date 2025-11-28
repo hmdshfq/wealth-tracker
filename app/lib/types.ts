@@ -45,6 +45,7 @@ export interface Goal {
   annualReturn: number;
   monthlyDeposits: number;
   depositIncreasePercentage: number;
+  startDate: string; // ISO date string (YYYY-MM-DD)
 }
 
 export interface AllocationItem {

@@ -58,6 +58,7 @@ const INITIAL_GOAL: Goal = {
   amount: 0,
   targetYear: 2050,
   depositIncreasePercentage: 0,
+  startDate: new Date().toISOString().split('T')[0],
 };
 
 // ============================================================================
@@ -635,6 +636,8 @@ export default function InvestmentTracker() {
             editingGoal={editingGoal}
             totalNetWorth={totalNetWorth}
             goalProgress={goalProgress}
+            transactions={transactions}
+            exchangeRates={exchangeRates}
             onEditStart={handleGoalEditStart}
             onEditCancel={handleGoalEditCancel}
             onEditSave={handleGoalEditSave}

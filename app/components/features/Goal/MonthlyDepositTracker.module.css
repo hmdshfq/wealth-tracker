@@ -1,0 +1,382 @@
+/* ============================================================================
+   MONTHLY DEPOSIT TRACKER
+   ============================================================================ */
+
+/* Summary Row */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summaryValueGreen {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-green);
+}
+
+.summaryValueRed {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-red);
+}
+
+.summaryValueYellow {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-yellow);
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legendMet {
+  background: var(--success-bg);
+  border: 1px solid var(--accent-green);
+}
+
+.legendUnmet {
+  background: var(--danger-bg);
+  border: 1px solid var(--accent-red);
+}
+
+.legendFuture {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+}
+
+.legendEmpty {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  opacity: 0.5;
+}
+
+/* Table Wrapper */
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-secondary);
+}
+
+.tableWrapper:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  font-size: 12px;
+}
+
+/* Headers */
+.yearHeader {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-tertiary);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-primary);
+  min-width: 120px;
+}
+
+.yearHeaderText {
+  display: block;
+  font-size: 13px;
+}
+
+.yearHeaderSubtext {
+  display: block;
+  font-size: 10px;
+  color: var(--text-dimmed);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.monthHeader {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-primary);
+  min-width: 75px;
+}
+
+.monthHeader abbr {
+  text-decoration: none;
+  cursor: default;
+}
+
+/* Year Cell */
+.yearCell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-secondary);
+  padding: 10px 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  border-right: 1px solid var(--border-secondary);
+  border-bottom: 1px solid var(--border-secondary);
+  text-align: left;
+}
+
+.yearValue {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.yearsToGo {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--text-dimmed);
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.yearRequired {
+  display: block;
+  font-size: 10px;
+  color: var(--text-dimmed);
+  margin-top: 4px;
+}
+
+/* Data Cells */
+.cell {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-secondary);
+  border-right: 1px solid var(--border-secondary);
+  vertical-align: middle;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  position: relative;
+  min-height: 60px;
+}
+
+.cell:hover {
+  transform: scale(1.02);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cell:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+}
+
+/* Cell Status Colors */
+.cell.met {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+}
+
+.cell.unmet {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+
+.cell.future {
+  background: var(--bg-tertiary);
+  opacity: 0.6;
+}
+
+.cell.empty {
+  background: var(--bg-secondary);
+  opacity: 0.5;
+}
+
+/* Current Month Highlight */
+.cell.currentMonth {
+  box-shadow: inset 0 0 0 2px var(--accent-blue);
+}
+
+.currentIndicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 8px;
+  color: var(--accent-blue);
+}
+
+/* Cell Content */
+.cellContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.investedAmount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Highlight invested amount based on status */
+.cell.met .investedAmount {
+  color: var(--accent-green);
+}
+
+.cell.unmet .investedAmount {
+  color: var(--accent-red);
+}
+
+.requiredAmount {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dimmed);
+  line-height: 1.2;
+}
+
+.futureText {
+  color: var(--text-dimmed);
+  font-size: 14px;
+}
+
+/* More Years Note */
+.moreYearsNote {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-dimmed);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Keyboard Hint */
+.keyboardHint {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-dimmed);
+  text-align: center;
+}
+
+.keyboardHint kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Accessibility */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summaryRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .legend {
+    justify-content: center;
+  }
+  
+  .cell {
+    padding: 6px 4px;
+  }
+  
+  .depositedAmount {
+    font-size: 11px;
+  }
+  
+  .requiredAmount {
+    font-size: 9px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .cell.met {
+    background: #006400;
+    border-color: #00ff00;
+  }
+  
+  .cell.unmet {
+    background: #8b0000;
+    border-color: #ff0000;
+  }
+  
+  .depositedAmount,
+  .requiredAmount {
+    color: #ffffff;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+  
+  .cell:hover {
+    transform: none;
+  }
+}

@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, Input, Button, ProgressBar, SectionTitle } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
-import { Goal } from '@/app/lib/types';
+import { Goal, Transaction } from '@/app/lib/types';
+import { MonthlyDepositTracker } from './MonthlyDepositTracker';
 import styles from './Goal.module.css';
 
 interface GoalTabProps {
@@ -11,6 +12,11 @@ interface GoalTabProps {
   editingGoal: boolean;
   totalNetWorth: number;
   goalProgress: number;
+  transactions: Transaction[];
+  exchangeRates: {
+    EUR_PLN: number;
+    USD_PLN: number;
+  };
   onEditStart: () => void;
   onEditCancel: () => void;
   onEditSave: () => void;
@@ -23,13 +29,21 @@ export const GoalTab: React.FC<GoalTabProps> = ({
   editingGoal,
   totalNetWorth,
   goalProgress,
+  transactions,
+  exchangeRates,
   onEditStart,
   onEditCancel,
   onEditSave,
   onTempGoalChange,
 }) => {
   const remaining = goal.amount - totalNetWorth;
-  const yearsRemaining = goal.targetYear - 2025;
+
+  // Format date for display
+  const formatDisplayDate = (dateStr: string) => {
+    if (!dateStr) return 'Not set';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  };
 
   return (
     <div style={{ display: 'grid', gap: '24px' }}>
@@ -49,6 +63,17 @@ export const GoalTab: React.FC<GoalTabProps> = ({
 
         {editingGoal ? (
           <div className={styles.editForm}>
+            <Input
+              type="month"
+              label="Investment Start Date"
+              value={tempGoal.startDate ? tempGoal.startDate.substring(0, 7) : ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Convert YYYY-MM to YYYY-MM-01
+                onTempGoalChange({ startDate: value ? `${value}-01` : '' });
+              }}
+              style={{ width: '140px' }}
+            />
             <Input
               type="number"
               label="Retirement Year"
@@ -99,6 +124,10 @@ export const GoalTab: React.FC<GoalTabProps> = ({
               <p className={styles.statValueBlue}>{formatPLN(goal.amount)}</p>
             </div>
             <div>
+              <p className={styles.statLabel}>Start Date</p>
+              <p className={styles.statValueWhite}>{formatDisplayDate(goal.startDate)}</p>
+            </div>
+            <div>
               <p className={styles.statLabel}>Retirement Year</p>
               <p className={styles.statValueWhite}>{goal.retirementYear}</p>
             </div>
@@ -139,6 +168,13 @@ export const GoalTab: React.FC<GoalTabProps> = ({
           endLabel={formatPLN(goal.amount)}
         />
       </Card>
+
+      {/* Monthly Investment Tracker Card */}
+      <MonthlyDepositTracker
+        goal={goal}
+        transactions={transactions}
+        exchangeRates={exchangeRates}
+      />
     </div>
   );
 };
