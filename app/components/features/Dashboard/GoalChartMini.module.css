@@ -1,0 +1,186 @@
+/* GoalChartMini.module.css */
+/* Minimal Investment Goal Chart for Dashboard */
+
+.container {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.clickableArea {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.clickableArea:hover {
+  background: var(--bg-hover);
+}
+
+.clickableArea:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: -2px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 16px;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.viewMore {
+  font-size: 12px;
+  color: var(--accent-green);
+  font-weight: 500;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.clickableArea:hover .viewMore {
+  opacity: 1;
+}
+
+/* Stats Row */
+.statsRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat:first-child .statValue {
+  color: var(--accent-green);
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Chart Wrapper */
+.chartWrapper {
+  height: 120px;
+  width: 100%;
+  margin: 8px 0;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.footerItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.footerLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .clickableArea {
+    padding: 16px;
+  }
+
+  .statsRow {
+    gap: 12px;
+  }
+
+  .stat {
+    min-width: 70px;
+  }
+
+  .statValue {
+    font-size: 14px;
+  }
+
+  .chartWrapper {
+    height: 100px;
+  }
+
+  .footer {
+    gap: 12px;
+  }
+
+  .footerLabel {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .statsRow {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .clickableArea {
+    transition: none;
+  }
+
+  .viewMore {
+    transition: none;
+  }
+}

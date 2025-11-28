@@ -589,6 +589,9 @@ export default function InvestmentTracker() {
             goalProgress={goalProgress}
             allocationData={allocationData}
             prices={prices}
+            transactions={transactions}
+            exchangeRates={exchangeRates}
+            onNavigateToGoal={() => setActiveTab('investments')}
           />
         )}
 
