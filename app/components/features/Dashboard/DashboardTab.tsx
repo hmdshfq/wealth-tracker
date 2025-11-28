@@ -6,7 +6,7 @@ import { GoalProgress } from './GoalProgress';
 import { GoalChartMini } from './GoalChartMini';
 import { LivePrices } from './LivePrices';
 import { formatPLN, formatPercent } from '@/app/lib/formatters';
-import { Goal, AllocationItem, CashBalance, Transaction } from '@/app/lib/types';
+import { Goal, AllocationItem, CashBalance, Transaction, TickerInfo } from '@/app/lib/types';
 import { 
   generateProjectionData, 
   mergeProjectedWithActual,
@@ -24,6 +24,7 @@ interface DashboardTabProps {
   goalProgress: number;
   allocationData: AllocationItem[];
   prices: Record<string, number>;
+  etfData?: Record<string, TickerInfo>;
   transactions?: Transaction[];
   exchangeRates?: {
     EUR_PLN: number;
@@ -43,6 +44,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   goalProgress,
   allocationData,
   prices,
+  etfData = {},
   transactions = [],
   exchangeRates = { EUR_PLN: 4.3, USD_PLN: 4.0 },
   onNavigateToGoal,
@@ -120,7 +122,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
         {/* Right Column: Live ETF Prices */}
         <div className={styles.rightColumn}>
-          <LivePrices prices={prices} />
+          <LivePrices prices={prices} etfData={etfData} />
         </div>
       </div>
     </div>

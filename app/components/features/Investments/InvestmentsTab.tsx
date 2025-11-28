@@ -6,7 +6,8 @@ import { TransactionForm } from '../Transactions/TransactionForm';
 import { TransactionList } from '../Transactions/TransactionList';
 import { MonthlyDepositTracker } from '../Goal/MonthlyDepositTracker';
 import { InvestmentGoalChart } from '../Goal/InvestmentGoalChart';
-import { Transaction, NewTransaction, HoldingWithDetails, Goal } from '@/app/lib/types';
+import { TickerSearchCard } from './TickerSearchCard';
+import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
 import { 
   generateProjectionData, 
   mergeProjectedWithActual,
@@ -26,11 +27,13 @@ interface InvestmentsTabProps {
   // Transaction data
   transactions: Transaction[];
   prices: Record<string, number>;
+  etfData: Record<string, TickerInfo>;
   newTx: NewTransaction;
   onTxChange: (updates: Partial<NewTransaction>) => void;
   onAddTransaction: () => void;
   onEditTransaction: (transaction: Transaction) => void;
   onDeleteTransaction: (id: number) => void;
+  onAddTicker: (symbol: string, info: TickerInfo) => void;
   
   // Goal data
   goal: Goal;
@@ -58,11 +61,13 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   // Transactions
   transactions,
   prices,
+  etfData,
   newTx,
   onTxChange,
   onAddTransaction,
   onEditTransaction,
   onDeleteTransaction,
+  onAddTicker,
   
   // Goal
   goal,
@@ -364,11 +369,18 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       {/* Transactions Sub-tab Content */}
       {activeSubTab === 'transactions' && (
         <div className={styles.tabContent}>
+          {/* Ticker Search */}
+          <TickerSearchCard
+            onAddTicker={onAddTicker}
+            existingTickers={Object.keys(etfData)}
+          />
+
           {/* Add Transaction Form */}
           <TransactionForm
             newTx={newTx}
             onChange={onTxChange}
             onSubmit={onAddTransaction}
+            etfData={etfData}
           />
 
           {/* Transaction History */}

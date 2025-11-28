@@ -1,31 +1,32 @@
 'use client';
 import React from 'react';
 import { Card, Input, Select, Button, SectionTitle } from '@/app/components/ui';
-import { ETF_DATA } from '@/app/lib/constants';
-import { NewTransaction } from '@/app/lib/types';
+import { NewTransaction, TickerInfo } from '@/app/lib/types';
 import styles from './Transactions.module.css';
 
 interface TransactionFormProps {
   newTx: NewTransaction;
   onChange: (updates: Partial<NewTransaction>) => void;
   onSubmit: () => void;
+  etfData: Record<string, TickerInfo>;
 }
-
-const tickerOptions = Object.keys(ETF_DATA).map((t) => ({
-  value: t,
-  label: t,
-}));
-
-const actionOptions = [
-  { value: 'Buy', label: 'Buy' },
-  { value: 'Sell', label: 'Sell' },
-];
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({
   newTx,
   onChange,
   onSubmit,
+  etfData,
 }) => {
+  const tickerOptions = Object.keys(etfData).map((t) => ({
+    value: t,
+    label: t,
+  }));
+
+  const actionOptions = [
+    { value: 'Buy', label: 'Buy' },
+    { value: 'Sell', label: 'Sell' },
+  ];
+
   return (
     <Card>
       <SectionTitle>Add Transaction</SectionTitle>

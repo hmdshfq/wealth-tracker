@@ -27,6 +27,7 @@ import {
   AllocationItem,
   NewTransaction,
   NewCash,
+  TickerInfo,
 } from '@/app/lib/types';
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
@@ -72,9 +73,11 @@ export default function InvestmentTracker() {
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
   const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>(INITIAL_CASH_TRANSACTIONS);
+  const [customTickers, setCustomTickers] = useState<Record<string, TickerInfo>>({});
 
   // Compute holdings from transactions
   const holdings = useMemo(() => calculateHoldingsFromTransactions(transactions), [transactions]);
+  const allTickers = useMemo(() => ({ ...ETF_DATA, ...customTickers }), [customTickers]);
 
   // ---------------------------------------------------------------------------
   // Data Persistence
@@ -90,6 +93,7 @@ export default function InvestmentTracker() {
         if (parsedData.transactions) setTransactions(parsedData.transactions);
         if (parsedData.cash) setCash(parsedData.cash);
         if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
+        if (parsedData.customTickers) setCustomTickers(parsedData.customTickers);
       }
     } catch (error) {
       console.error('Failed to load data from local storage:', error);
@@ -107,12 +111,13 @@ export default function InvestmentTracker() {
         transactions,
         cash,
         cashTransactions,
+        customTickers,
       };
       localStorage.setItem('investment-tracker-data', JSON.stringify(dataToSave));
     } catch (error) {
       console.error('Failed to save data to local storage:', error);
     }
-  }, [goal, transactions, cash, cashTransactions, isDataLoaded]);
+  }, [goal, transactions, cash, cashTransactions, customTickers, isDataLoaded]);
 
   // ---------------------------------------------------------------------------
   // Prices State
@@ -168,7 +173,7 @@ export default function InvestmentTracker() {
 
     try {
       // Fetch ETF prices
-      const tickers = Object.keys(ETF_DATA).join(',');
+      const tickers = Object.keys(allTickers).join(',');
       const pricesResponse = await fetch(`/api/prices?tickers=${tickers}`);
 
       if (!pricesResponse.ok) throw new Error('Failed to fetch prices');
@@ -194,14 +199,14 @@ export default function InvestmentTracker() {
       console.error('Failed to fetch prices:', error);
       // Fall back to base prices from constants
       const fallbackPrices: Record<string, number> = {};
-      Object.entries(ETF_DATA).forEach(([ticker, data]) => {
+      Object.entries(allTickers).forEach(([ticker, data]) => {
         fallbackPrices[ticker] = data.basePrice;
       });
       setPrices(fallbackPrices);
     } finally {
       setPricesLoading(false);
     }
-  }, []);
+  }, [allTickers]);
 
   useEffect(() => {
     fetchPrices();
@@ -215,11 +220,11 @@ export default function InvestmentTracker() {
   const portfolioValue = useMemo(() => {
     let totalEUR = 0;
     holdings.forEach((h) => {
-      const price = prices[h.ticker] || ETF_DATA[h.ticker]?.basePrice || 0;
+      const price = prices[h.ticker] || allTickers[h.ticker]?.basePrice || 0;
       totalEUR += h.shares * price;
     });
     return totalEUR * exchangeRates.EUR_PLN;
-  }, [holdings, prices, exchangeRates]);
+  }, [holdings, prices, exchangeRates, allTickers]);
 
   const totalCost = useMemo(() => {
     let costEUR = 0;
@@ -245,14 +250,14 @@ export default function InvestmentTracker() {
 
   const holdingsData: HoldingWithDetails[] = useMemo(() => {
     return holdings.map((h) => {
-      const price = prices[h.ticker] || ETF_DATA[h.ticker]?.basePrice || 0;
+      const price = prices[h.ticker] || allTickers[h.ticker]?.basePrice || 0;
       const value = h.shares * price;
       const cost = h.shares * h.avgCost;
       const gain = value - cost;
       const gainPercent = cost > 0 ? (gain / cost) * 100 : 0;
       return {
         ...h,
-        name: ETF_DATA[h.ticker]?.name || h.ticker,
+        name: allTickers[h.ticker]?.name || h.ticker,
         price,
         value,
         valuePLN: value * exchangeRates.EUR_PLN,
@@ -261,7 +266,7 @@ export default function InvestmentTracker() {
         gainPercent,
       };
     });
-  }, [holdings, prices, exchangeRates]);
+  }, [holdings, prices, exchangeRates, allTickers]);
 
   const allocationData: AllocationItem[] = useMemo(() => {
     const total = holdingsData.reduce((sum, h) => sum + h.value, 0);
@@ -283,6 +288,7 @@ export default function InvestmentTracker() {
       transactions,
       cash,
       cashTransactions,
+      customTickers,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -295,7 +301,7 @@ export default function InvestmentTracker() {
     URL.revokeObjectURL(url);
     setExportSuccess(true);
     setTimeout(() => setExportSuccess(false), 3000);
-  }, [goal, transactions, cash, cashTransactions]);
+  }, [goal, transactions, cash, cashTransactions, customTickers]);
 
   const exportToCSV = useCallback((type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => {
     let csv = '';
@@ -382,6 +388,11 @@ export default function InvestmentTracker() {
       } else {
         setCashTransactions([]);
       }
+      // Handle customTickers
+      if (data.customTickers && typeof data.customTickers === 'object') {
+        setCustomTickers(data.customTickers);
+      }
+
       setShowImportModal(false);
       setImportData('');
     } catch (e) {
@@ -402,6 +413,10 @@ export default function InvestmentTracker() {
       setImportError('Failed to read file');
     };
     reader.readAsText(file);
+  }, []);
+
+  const addCustomTicker = useCallback((symbol: string, info: TickerInfo) => {
+    setCustomTickers((prev) => ({ ...prev, [symbol]: info }));
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -590,6 +605,7 @@ export default function InvestmentTracker() {
             goalProgress={goalProgress}
             allocationData={allocationData}
             prices={prices}
+            etfData={allTickers}
             transactions={transactions}
             exchangeRates={exchangeRates}
             onNavigateToGoal={() => setActiveTab('investments')}
@@ -606,11 +622,13 @@ export default function InvestmentTracker() {
             // Transaction data
             transactions={transactions}
             prices={prices}
+            etfData={allTickers}
             newTx={newTx}
             onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
             onAddTransaction={addTransaction}
             onEditTransaction={editTransaction}
             onDeleteTransaction={deleteTransaction}
+            onAddTicker={addCustomTicker}
             // Goal data
             goal={goal}
             tempGoal={tempGoal}

@@ -92,3 +92,9 @@ export interface NewCash {
   type: 'deposit' | 'withdrawal';
   note: string;
 }
+
+export interface TickerInfo {
+  name: string;
+  currency: string;
+  basePrice: number; // Used as fallback
+}
