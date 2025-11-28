@@ -7,7 +7,6 @@ import { Header, Footer, Navigation, TabName } from '@/app/components/layout';
 // Feature components
 import {
   DashboardTab,
-  HoldingsTab,
   TransactionsTab,
   CashTab,
   GoalTab,
@@ -594,20 +593,15 @@ export default function InvestmentTracker() {
           />
         )}
 
-        {activeTab === 'holdings' && (
-          <HoldingsTab
-            holdingsData={holdingsData}
-            portfolioValue={portfolioValue}
-            totalGain={totalGain}
-            totalGainPercent={totalGainPercent}
-          />
-        )}
-
         {activeTab === 'investments' && (
           <TransactionsTab
             transactions={transactions}
             prices={prices}
             newTx={newTx}
+            holdingsData={holdingsData}
+            portfolioValue={portfolioValue}
+            totalGain={totalGain}
+            totalGainPercent={totalGainPercent}
             onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
             onAddTransaction={addTransaction}
             onEditTransaction={editTransaction}

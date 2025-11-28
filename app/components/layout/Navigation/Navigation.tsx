@@ -1,14 +1,14 @@
 import React from 'react';
 import styles from './Navigation.module.css';
 
-export type TabName = 'dashboard' | 'holdings' | 'investments' | 'cash' | 'goal';
+export type TabName = 'dashboard' | 'investments' | 'cash' | 'goal';
 
 interface NavigationProps {
   activeTab: TabName;
   onTabChange: (tab: TabName) => void;
 }
 
-const TABS: TabName[] = ['dashboard', 'holdings', 'investments', 'cash', 'goal'];
+const TABS: TabName[] = ['dashboard', 'investments', 'cash', 'goal'];
 
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
