@@ -34,10 +34,14 @@ export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
             <Tooltip
               formatter={(value: number, name: string) => [formatEUR(value), name]}
               contentStyle={{
-                background: '#1e293b',
-                border: '1px solid #334155',
+                backgroundColor: 'var(--bg-card-solid)',
+                border: '1px solid var(--border-primary)',
                 borderRadius: '8px',
                 fontSize: '12px',
+                color: 'var(--text-primary)',
+              }}
+              itemStyle={{
+                color: 'var(--text-primary)',
               }}
             />
           </PieChart>
