@@ -1,11 +1,17 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, DataTable, SectionTitle, TabNav, TabButton, Input, Button, ProgressBar } from '@/app/components/ui';
 import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
 import { TransactionForm } from '../Transactions/TransactionForm';
 import { TransactionList } from '../Transactions/TransactionList';
 import { MonthlyDepositTracker } from '../Goal/MonthlyDepositTracker';
+import { InvestmentGoalChart } from '../Goal/InvestmentGoalChart';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal } from '@/app/lib/types';
+import { 
+  generateProjectionData, 
+  mergeProjectedWithActual,
+  calculateCumulativeContributions 
+} from '@/app/lib/projectionCalculations';
 import styles from './Investments.module.css';
 
 type InvestmentsSubTab = 'goal' | 'transactions';
@@ -73,6 +79,26 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
   
   const remaining = goal.amount - totalNetWorth;
+
+  // Generate projection data for the chart
+  const projectionData = useMemo(() => {
+    return generateProjectionData(goal, totalNetWorth);
+  }, [goal, totalNetWorth]);
+
+  // Calculate total actual contributions from transactions
+  const totalActualContributions = useMemo(() => {
+    return calculateCumulativeContributions(transactions, exchangeRates);
+  }, [transactions, exchangeRates]);
+
+  // Merge projected data with actual transaction history
+  const chartData = useMemo(() => {
+    return mergeProjectedWithActual(
+      projectionData,
+      transactions,
+      exchangeRates,
+      totalNetWorth
+    );
+  }, [projectionData, transactions, exchangeRates, totalNetWorth]);
 
   // Format date for display
   const formatDisplayDate = (dateStr: string) => {
@@ -304,6 +330,16 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               endLabel={formatPLN(goal.amount)}
             />
           </Card>
+
+          {/* Investment Goal Progress Chart */}
+          {chartData.length > 0 && (
+            <InvestmentGoalChart
+              goal={goal}
+              projectionData={chartData}
+              currentNetWorth={totalNetWorth}
+              totalActualContributions={totalActualContributions}
+            />
+          )}
 
           {/* Holdings Section */}
           <Card>
