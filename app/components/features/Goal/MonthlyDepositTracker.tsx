@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, SectionTitle } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
@@ -19,8 +19,13 @@ interface MonthData {
   month: number;
   required: number;
   invested: number;
+  cumulativeInvested: number;
+  cumulativeRequired: number;
   status: 'met' | 'unmet' | 'future' | 'empty';
+  cumulativeStatus: 'met' | 'unmet' | 'future' | 'empty';
 }
+
+type ViewMode = 'monthly' | 'cumulative';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTH_FULL_NAMES = [
@@ -33,6 +38,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
   transactions,
   exchangeRates,
 }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>('monthly');
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth(); // 0-indexed
 
@@ -50,6 +56,12 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
     let totalInvested = 0;
     let monthsMet = 0;
     let monthsUnmet = 0;
+    let cumulativeMonthsMet = 0;
+    let cumulativeMonthsUnmet = 0;
+
+    // Running cumulative totals
+    let runningCumulativeInvested = 0;
+    let runningCumulativeRequired = 0;
 
     // Group investments by year-month (only Buy transactions count as investments)
     const investmentsByMonth: Record<string, number> = {};
@@ -89,6 +101,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
         // Check if this month is before the start date
         const isBeforeStart = year < startYear || (year === startYear && month < startMonth);
 
+        // Monthly status
         let status: MonthData['status'] = 'empty';
         if (isBeforeStart) {
           status = 'empty';
@@ -102,10 +115,26 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
           monthsUnmet++;
         }
 
-        // Only count months from start date to current month in totals
-        if (!isFuture && !isBeforeStart) {
+        // Update cumulative totals (only for months from start date)
+        if (!isBeforeStart && !isFuture) {
+          runningCumulativeInvested += invested;
+          runningCumulativeRequired += requiredForYear;
           totalRequired += requiredForYear;
           totalInvested += invested;
+        }
+
+        // Cumulative status
+        let cumulativeStatus: MonthData['status'] = 'empty';
+        if (isBeforeStart) {
+          cumulativeStatus = 'empty';
+        } else if (isFuture) {
+          cumulativeStatus = 'future';
+        } else if (runningCumulativeInvested >= runningCumulativeRequired) {
+          cumulativeStatus = 'met';
+          cumulativeMonthsMet++;
+        } else {
+          cumulativeStatus = 'unmet';
+          cumulativeMonthsUnmet++;
         }
 
         yearData.push({
@@ -113,7 +142,10 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
           month,
           required: requiredForYear,
           invested,
+          cumulativeInvested: runningCumulativeInvested,
+          cumulativeRequired: runningCumulativeRequired,
           status,
+          cumulativeStatus,
         });
       }
 
@@ -127,8 +159,13 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
         totalInvested,
         monthsMet,
         monthsUnmet,
+        cumulativeMonthsMet,
+        cumulativeMonthsUnmet,
         percentageMet: monthsMet + monthsUnmet > 0 
           ? (monthsMet / (monthsMet + monthsUnmet)) * 100 
+          : 0,
+        cumulativePercentageMet: cumulativeMonthsMet + cumulativeMonthsUnmet > 0
+          ? (cumulativeMonthsMet / (cumulativeMonthsMet + cumulativeMonthsUnmet)) * 100
           : 0,
       },
     };
@@ -137,28 +174,68 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
   // Show all years until retirement
   const displayYears = yearlyData;
 
+  // Get current summary stats based on view mode
+  const currentMonthsMet = viewMode === 'monthly' ? summary.monthsMet : summary.cumulativeMonthsMet;
+  const currentMonthsUnmet = viewMode === 'monthly' ? summary.monthsUnmet : summary.cumulativeMonthsUnmet;
+  const currentPercentage = viewMode === 'monthly' ? summary.percentageMet : summary.cumulativePercentageMet;
+
   return (
     <Card>
       <SectionTitle>Monthly Investment Tracker</SectionTitle>
 
+      {/* View Mode Tabs */}
+      <div className={styles.tabContainer} role="tablist" aria-label="Tracker view mode">
+        <button
+          role="tab"
+          aria-selected={viewMode === 'monthly'}
+          aria-controls="monthly-panel"
+          id="monthly-tab"
+          className={`${styles.tab} ${viewMode === 'monthly' ? styles.tabActive : ''}`}
+          onClick={() => setViewMode('monthly')}
+        >
+          Monthly
+        </button>
+        <button
+          role="tab"
+          aria-selected={viewMode === 'cumulative'}
+          aria-controls="cumulative-panel"
+          id="cumulative-tab"
+          className={`${styles.tab} ${viewMode === 'cumulative' ? styles.tabActive : ''}`}
+          onClick={() => setViewMode('cumulative')}
+        >
+          Cumulative
+        </button>
+      </div>
+
       {/* Summary Stats */}
       <div className={styles.summaryRow} role="region" aria-label="Investment summary">
         <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>Target/Month</span>
-          <span className={styles.summaryValue}>{formatPLN(goal.monthlyDeposits)}</span>
+          <span className={styles.summaryLabel}>
+            {viewMode === 'monthly' ? 'Target/Month' : 'Total Invested'}
+          </span>
+          <span className={styles.summaryValue}>
+            {viewMode === 'monthly' 
+              ? formatPLN(goal.monthlyDeposits) 
+              : formatPLN(summary.totalInvested)
+            }
+          </span>
         </div>
         <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>Months Met</span>
-          <span className={styles.summaryValueGreen}>{summary.monthsMet}</span>
+          <span className={styles.summaryLabel}>
+            {viewMode === 'monthly' ? 'Months Met' : 'Months On Track'}
+          </span>
+          <span className={styles.summaryValueGreen}>{currentMonthsMet}</span>
         </div>
         <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>Months Missed</span>
-          <span className={styles.summaryValueRed}>{summary.monthsUnmet}</span>
+          <span className={styles.summaryLabel}>
+            {viewMode === 'monthly' ? 'Months Missed' : 'Months Behind'}
+          </span>
+          <span className={styles.summaryValueRed}>{currentMonthsUnmet}</span>
         </div>
         <div className={styles.summaryItem}>
           <span className={styles.summaryLabel}>Success Rate</span>
-          <span className={summary.percentageMet >= 80 ? styles.summaryValueGreen : styles.summaryValueYellow}>
-            {summary.percentageMet.toFixed(0)}%
+          <span className={currentPercentage >= 80 ? styles.summaryValueGreen : styles.summaryValueYellow}>
+            {currentPercentage.toFixed(0)}%
           </span>
         </div>
       </div>
@@ -167,11 +244,11 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       <div className={styles.legend} role="region" aria-label="Legend">
         <div className={styles.legendItem}>
           <span className={`${styles.legendDot} ${styles.legendMet}`} aria-hidden="true" />
-          <span>Goal Met</span>
+          <span>{viewMode === 'monthly' ? 'Goal Met' : 'On Track'}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendDot} ${styles.legendUnmet}`} aria-hidden="true" />
-          <span>Below Target</span>
+          <span>{viewMode === 'monthly' ? 'Below Target' : 'Behind'}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendDot} ${styles.legendFuture}`} aria-hidden="true" />
@@ -184,10 +261,19 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </div>
 
       {/* Table */}
-      <div className={styles.tableWrapper} role="region" aria-label="Monthly investments table" tabIndex={0}>
+      <div 
+        className={styles.tableWrapper} 
+        role="tabpanel" 
+        id={`${viewMode}-panel`}
+        aria-labelledby={`${viewMode}-tab`}
+        tabIndex={0}
+      >
         <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
           <caption id="investment-table-desc" className={styles.visuallyHidden}>
-            Monthly investment tracking table showing required and actual investments for each month.
+            {viewMode === 'monthly' 
+              ? 'Monthly investment tracking table showing required and actual investments for each month.'
+              : 'Cumulative investment tracking table showing running totals of investments vs requirements.'
+            }
             Green cells indicate the goal was met, red cells indicate below target.
           </caption>
           <thead>
@@ -214,32 +300,42 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                   <th scope="row" className={styles.yearCell}>
                     <span className={styles.yearValue}>{year}</span>
                     <span className={styles.yearsToGo}>{yearsToGo}y</span>
-                    <span className={styles.yearRequired}>
-                      Req: {formatPLN(requiredForYear)}
-                    </span>
+                    {viewMode === 'monthly' && (
+                      <span className={styles.yearRequired}>
+                        Req: {formatPLN(requiredForYear)}
+                      </span>
+                    )}
                   </th>
                   {yearData.map((monthData) => {
-                    const cellId = `cell-${monthData.year}-${monthData.month}`;
+                    const cellId = `cell-${viewMode}-${monthData.year}-${monthData.month}`;
                     const isCurrentMonth = monthData.year === currentYear && monthData.month === currentMonth;
+                    
+                    // Use appropriate status based on view mode
+                    const cellStatus = viewMode === 'monthly' ? monthData.status : monthData.cumulativeStatus;
+                    const isActiveCell = cellStatus !== 'future' && cellStatus !== 'empty';
 
                     return (
                       <td
                         key={monthData.month}
                         id={cellId}
-                        className={`${styles.cell} ${styles[monthData.status]} ${isCurrentMonth ? styles.currentMonth : ''}`}
+                        className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
                         role="gridcell"
                         aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
-                          monthData.status === 'future'
+                          cellStatus === 'future'
                             ? 'Future month'
-                            : monthData.status === 'empty'
+                            : cellStatus === 'empty'
                             ? 'Before investment start date'
-                            : `Invested ${formatPLN(monthData.invested)} of ${formatPLN(monthData.required)} required. ${
-                                monthData.status === 'met' ? 'Goal met.' : 'Below target.'
+                            : viewMode === 'monthly'
+                            ? `Invested ${formatPLN(monthData.invested)} of ${formatPLN(monthData.required)} required. ${
+                                cellStatus === 'met' ? 'Goal met.' : 'Below target.'
+                              }`
+                            : `Cumulative invested ${formatPLN(monthData.cumulativeInvested)} of ${formatPLN(monthData.cumulativeRequired)} required. ${
+                                cellStatus === 'met' ? 'On track.' : 'Behind.'
                               }`
                         }`}
                         tabIndex={-1}
                       >
-                        {monthData.status !== 'future' && monthData.status !== 'empty' && (
+                        {isActiveCell && viewMode === 'monthly' && (
                           <div className={styles.cellContent}>
                             <span className={styles.investedAmount}>
                               {formatPLN(monthData.invested)}
@@ -249,7 +345,17 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                             </span>
                           </div>
                         )}
-                        {(monthData.status === 'future' || monthData.status === 'empty') && (
+                        {isActiveCell && viewMode === 'cumulative' && (
+                          <div className={styles.cellContent}>
+                            <span className={styles.investedAmount}>
+                              {formatPLN(monthData.cumulativeInvested)}
+                            </span>
+                            <span className={styles.requiredAmount}>
+                              / {formatPLN(monthData.cumulativeRequired)}
+                            </span>
+                          </div>
+                        )}
+                        {!isActiveCell && (
                           <span className={styles.futureText}>—</span>
                         )}
                         {isCurrentMonth && (
