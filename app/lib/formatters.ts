@@ -3,14 +3,14 @@ export const formatPLN = (val: number | undefined | null): string => {
     return 'zł0,00';
   }
   return `zł${val.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
 };
 
 export const formatEUR = (val: number): string =>
   `€${val.toLocaleString('de-DE', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
 
@@ -20,7 +20,7 @@ export const formatPercent = (val: number): string =>
 export const formatCurrency = (val: number, currency: string): string => {
   const symbol = currency === 'PLN' ? 'zł' : currency === 'EUR' ? '€' : '$';
   return `${symbol}${val.toLocaleString('pl-PL', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
 };
