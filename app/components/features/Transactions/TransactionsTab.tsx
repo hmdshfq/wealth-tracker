@@ -9,7 +9,12 @@ import styles from './Transactions.module.css';
 
 interface TransactionsTabProps {
   transactions: Transaction[];
-  prices: Record<string, number>;
+  prices: Record<string, {
+  price: number;
+  change: number;
+  changePercent: number;
+  currency: string;
+}>;
   newTx: NewTransaction;
   holdingsData: HoldingWithDetails[];
   portfolioValue: number;

@@ -26,7 +26,12 @@ interface InvestmentsTabProps {
   
   // Transaction data
   transactions: Transaction[];
-  prices: Record<string, number>;
+  prices: Record<string, {
+  price: number;
+  change: number;
+  changePercent: number;
+  currency: string;
+}>;
   etfData: Record<string, TickerInfo>;
   newTx: NewTransaction;
   onTxChange: (updates: Partial<NewTransaction>) => void;

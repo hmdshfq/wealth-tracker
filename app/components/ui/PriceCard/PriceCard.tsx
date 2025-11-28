@@ -22,9 +22,11 @@ export const PriceCard: React.FC<PriceCardProps> = ({
       <p className={styles.name}>{name}</p>
       <div className={styles.priceRow}>
         <span className={styles.price}>{price}</span>
-        <span className={`${styles.change} ${styles[changeType]}`}>
-          {change}
-        </span>
+        {change && (
+          <span className={`${styles.change} ${styles[changeType]}`}>
+            {change}
+          </span>
+        )}
       </div>
     </div>
   );

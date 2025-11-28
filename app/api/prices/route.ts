@@ -9,10 +9,22 @@ export async function GET(request: Request) {
   const tickersParam = searchParams.get('tickers');
 
   if (!tickersParam) {
-    return NextResponse.json({ error: 'No tickers provided' }, { status: 400 });
+    return NextResponse.json({ 
+      error: 'No tickers provided', 
+      prices: {},
+      timestamp: new Date().toISOString() 
+    }, { status: 200 });
   }
 
-  const tickers = tickersParam.split(',');
+  const tickers = tickersParam.split(',').filter(t => t.trim());
+  
+  if (tickers.length === 0) {
+    return NextResponse.json({ 
+      error: 'No valid tickers provided', 
+      prices: {},
+      timestamp: new Date().toISOString() 
+    }, { status: 200 });
+  }
 
   try {
     const quotes = await yahooFinance.quote(tickers);
@@ -45,8 +57,13 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Yahoo Finance error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch prices' },
-      { status: 500 }
+      { 
+        error: 'Failed to fetch prices',
+        prices: {},
+        timestamp: new Date().toISOString(),
+        fallback: true 
+      },
+      { status: 200 }
     );
   }
 }

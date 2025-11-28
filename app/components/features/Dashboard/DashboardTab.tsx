@@ -23,7 +23,12 @@ interface DashboardTabProps {
   goal: Goal;
   goalProgress: number;
   allocationData: AllocationItem[];
-  prices: Record<string, number>;
+  prices: Record<string, {
+  price: number;
+  change: number;
+  changePercent: number;
+  currency: string;
+}>;
   etfData?: Record<string, TickerInfo>;
   transactions?: Transaction[];
   exchangeRates?: {

@@ -122,7 +122,14 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   // Prices State
   // ---------------------------------------------------------------------------
-  const [prices, setPrices] = useState<Record<string, number>>({});
+  type PriceData = {
+  price: number;
+  change: number;
+  changePercent: number;
+  currency: string;
+};
+
+const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const [pricesLoading, setPricesLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
@@ -172,17 +179,31 @@ export default function InvestmentTracker() {
     setPricesLoading(true);
 
     try {
-      // Fetch ETF prices
-      const tickers = Object.keys(allTickers).join(',');
-      const pricesResponse = await fetch(`/api/prices?tickers=${tickers}`);
+      // Check if there are any tickers to fetch
+      const tickers = Object.keys(allTickers);
+      if (tickers.length === 0) {
+        console.log('No tickers available, using fallback prices');
+        setPrices({});
+        return;
+      }
 
-      if (!pricesResponse.ok) throw new Error('Failed to fetch prices');
+      // Fetch ETF prices
+      const tickersParam = tickers.join(',');
+      const pricesResponse = await fetch(`/api/prices?tickers=${tickersParam}`);
+
+      if (!pricesResponse.ok) {
+        throw new Error(`HTTP ${pricesResponse.status}: ${pricesResponse.statusText}`);
+      }
 
       const pricesData = await pricesResponse.json();
 
-      const newPrices: Record<string, number> = {};
-      for (const [ticker, info] of Object.entries(pricesData.prices)) {
-        newPrices[ticker] = (info as { price: number }).price;
+      if (pricesData.error) {
+        throw new Error(pricesData.error);
+      }
+
+      const newPrices: Record<string, PriceData> = {};
+      for (const [ticker, info] of Object.entries(pricesData.prices || {})) {
+        newPrices[ticker] = info as PriceData;
       }
 
       setPrices(newPrices);
@@ -192,15 +213,22 @@ export default function InvestmentTracker() {
       if (ratesResponse.ok) {
         const ratesData = await ratesResponse.json();
         setExchangeRates(ratesData.rates);
+      } else {
+        console.warn('Failed to fetch exchange rates, using fallback');
       }
 
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Failed to fetch prices:', error);
+      console.warn('Failed to fetch prices from API, using fallback:', error instanceof Error ? error.message : error);
       // Fall back to base prices from constants
-      const fallbackPrices: Record<string, number> = {};
+      const fallbackPrices: Record<string, PriceData> = {};
       Object.entries(allTickers).forEach(([ticker, data]) => {
-        fallbackPrices[ticker] = data.basePrice;
+        fallbackPrices[ticker] = {
+          price: data.basePrice,
+          change: 0,
+          changePercent: 0,
+          currency: data.currency || 'EUR'
+        };
       });
       setPrices(fallbackPrices);
     } finally {
@@ -220,7 +248,7 @@ export default function InvestmentTracker() {
   const portfolioValue = useMemo(() => {
     let totalEUR = 0;
     holdings.forEach((h) => {
-      const price = prices[h.ticker] || allTickers[h.ticker]?.basePrice || 0;
+      const price = prices[h.ticker]?.price || allTickers[h.ticker]?.basePrice || 0;
       totalEUR += h.shares * price;
     });
     return totalEUR * exchangeRates.EUR_PLN;
@@ -250,7 +278,7 @@ export default function InvestmentTracker() {
 
   const holdingsData: HoldingWithDetails[] = useMemo(() => {
     return holdings.map((h) => {
-      const price = prices[h.ticker] || allTickers[h.ticker]?.basePrice || 0;
+      const price = prices[h.ticker]?.price || allTickers[h.ticker]?.basePrice || 0;
       const value = h.shares * price;
       const cost = h.shares * h.avgCost;
       const gain = value - cost;

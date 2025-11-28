@@ -7,21 +7,7 @@ export const EXCHANGE_RATES = {
 
 // ETF data with simulated prices
 export const ETF_DATA: Record<string, { name: string; currency: string; basePrice: number }> = {
-  'FWIA.DE': {
-    name: 'Invesco FTSE All-World',
-    currency: 'EUR',
-    basePrice: 7.12,
-  },
-  'VWCE.DE': {
-    name: 'Vanguard FTSE All-World',
-    currency: 'EUR',
-    basePrice: 144.36,
-  },
-  'IUSQ.DE': { 
-    name: 'iShares MSCI ACWI', 
-    currency: 'EUR', 
-    basePrice: 92.42 
-  },
+
 };
 
 export const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];

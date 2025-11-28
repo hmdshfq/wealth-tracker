@@ -7,7 +7,12 @@ import styles from './Transactions.module.css';
 
 interface TransactionListProps {
   transactions: Transaction[];
-  prices: Record<string, number>;
+  prices: Record<string, {
+    price: number;
+    change: number;
+    changePercent: number;
+    currency: string;
+  }>;
   onEdit: (transaction: Transaction) => void;
   onDelete: (id: number) => void;
 }
@@ -91,7 +96,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const getTransactionGainLoss = (tx: Transaction) => {
-    const currentPrice = prices[tx.ticker] || ETF_DATA[tx.ticker]?.basePrice || tx.price;
+    const currentPrice = prices[tx.ticker]?.price || ETF_DATA[tx.ticker]?.basePrice || tx.price;
     const purchaseValue = tx.shares * tx.price;
     const currentValue = tx.shares * currentPrice;
     const gainLoss = currentValue - purchaseValue;
