@@ -17,11 +17,6 @@ export const ETF_DATA: Record<string, { name: string; currency: string; basePric
     currency: 'EUR',
     basePrice: 144.36,
   },
-  'WEBN': {
-    name: 'Amundi Prime All Country World',
-    currency: 'EUR',
-    basePrice: 8.45,
-  },
   'IUSQ.DE': { 
     name: 'iShares MSCI ACWI', 
     currency: 'EUR', 

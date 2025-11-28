@@ -419,6 +419,18 @@ export default function InvestmentTracker() {
     setCustomTickers((prev) => ({ ...prev, [symbol]: info }));
   }, []);
 
+  const editCustomTicker = useCallback((symbol: string, info: TickerInfo) => {
+    setCustomTickers((prev) => ({ ...prev, [symbol]: info }));
+  }, []);
+
+  const deleteCustomTicker = useCallback((symbol: string) => {
+    setCustomTickers((prev) => {
+      const next = { ...prev };
+      delete next[symbol];
+      return next;
+    });
+  }, []);
+
   // ---------------------------------------------------------------------------
   // Transaction Functions
   // ---------------------------------------------------------------------------
@@ -629,6 +641,10 @@ export default function InvestmentTracker() {
             onEditTransaction={editTransaction}
             onDeleteTransaction={deleteTransaction}
             onAddTicker={addCustomTicker}
+            customTickers={customTickers}
+            onEditTicker={editCustomTicker}
+            onDeleteTicker={deleteCustomTicker}
+            allTickers={allTickers}
             // Goal data
             goal={goal}
             tempGoal={tempGoal}

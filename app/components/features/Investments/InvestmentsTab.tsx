@@ -34,6 +34,10 @@ interface InvestmentsTabProps {
   onEditTransaction: (transaction: Transaction) => void;
   onDeleteTransaction: (id: number) => void;
   onAddTicker: (symbol: string, info: TickerInfo) => void;
+  customTickers: Record<string, TickerInfo>;
+  onEditTicker: (symbol: string, info: TickerInfo) => void;
+  onDeleteTicker: (symbol: string) => void;
+  allTickers: Record<string, TickerInfo>;
   
   // Goal data
   goal: Goal;
@@ -68,6 +72,9 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onEditTransaction,
   onDeleteTransaction,
   onAddTicker,
+  customTickers,
+  onEditTicker,
+  onDeleteTicker,
   
   // Goal
   goal,
@@ -373,6 +380,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
           <TickerSearchCard
             onAddTicker={onAddTicker}
             existingTickers={Object.keys(etfData)}
+            customTickers={customTickers}
+            onEditTicker={onEditTicker}
+            onDeleteTicker={onDeleteTicker}
+            allTickers={etfData}
+            heldTickers={holdingsData.map(h => h.ticker)}
           />
 
           {/* Add Transaction Form */}

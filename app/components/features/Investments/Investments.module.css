@@ -173,6 +173,11 @@
   }
 }
 
+/* Custom Tickers Section */
+.customTickersSection {
+  margin-top: 24px;
+}
+
 /* TickerSearchCard Styles */
 .searchContainer {
   display: flex;
@@ -229,6 +234,11 @@
   color: var(--accent-red);
   font-size: 0.9rem;
   margin-bottom: 10px;
+}
+
+/* Custom Tickers Section */
+.customTickersSection {
+  margin-top: 24px;
 }
 
 /* TickerSearchCard Styles */
