@@ -2,43 +2,9 @@
    MONTHLY DEPOSIT TRACKER
    ============================================================================ */
 
-/* Tab Container */
-.tabContainer {
-  display: flex;
-  gap: 4px;
+/* Tab Container - REMOVED (Replaced with UI/TabNav) */
+.tabNav {
   margin-bottom: 20px;
-  padding: 4px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  width: fit-content;
-}
-
-.tab {
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.tab:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-.tab:focus-visible {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: 2px;
-}
-
-.tabActive {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-  box-shadow: var(--shadow-sm);
 }
 
 /* Summary Row */
@@ -417,9 +383,5 @@
   
   .cell:hover {
     transform: none;
-  }
-  
-  .tab {
-    transition: none;
   }
 }

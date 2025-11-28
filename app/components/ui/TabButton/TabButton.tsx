@@ -5,12 +5,14 @@ import { motion } from 'motion/react';
 import { useTabContext } from '../TabNav/TabNav';
 import styles from './TabButton.module.css';
 
-interface TabButtonProps {
+interface TabButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   isActive?: boolean;
   onClick?: () => void;
   /** Accessible label for screen readers */
   ariaLabel?: string;
+  /** ID of the panel this tab controls */
+  ariaControls?: string;
 }
 
 export const TabButton: React.FC<TabButtonProps> = ({
@@ -18,6 +20,9 @@ export const TabButton: React.FC<TabButtonProps> = ({
   isActive = false,
   onClick,
   ariaLabel,
+  ariaControls,
+  className,
+  ...props
 }) => {
   const context = useTabContext();
   // Fallback layoutId if context is missing (though it shouldn't be if used inside TabNav)
@@ -28,9 +33,11 @@ export const TabButton: React.FC<TabButtonProps> = ({
       role="tab"
       aria-selected={isActive}
       aria-label={ariaLabel}
-      className={`${styles.tabButton} ${isActive ? styles.active : ''}`}
+      aria-controls={ariaControls}
+      className={`${styles.tabButton} ${isActive ? styles.active : ''} ${className || ''}`}
       onClick={onClick}
       tabIndex={isActive ? 0 : -1}
+      {...props}
     >
       {isActive && (
         <motion.div

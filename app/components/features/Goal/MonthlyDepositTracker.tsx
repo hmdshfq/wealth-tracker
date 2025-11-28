@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Card, SectionTitle } from '@/app/components/ui';
+import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
 import styles from './MonthlyDepositTracker.module.css';
@@ -184,28 +184,26 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       <SectionTitle>Monthly Investment Tracker</SectionTitle>
 
       {/* View Mode Tabs */}
-      <div className={styles.tabContainer} role="tablist" aria-label="Tracker view mode">
-        <button
-          role="tab"
-          aria-selected={viewMode === 'monthly'}
-          aria-controls="monthly-panel"
-          id="monthly-tab"
-          className={`${styles.tab} ${viewMode === 'monthly' ? styles.tabActive : ''}`}
+      <TabNav ariaLabel="Tracker view mode" className={styles.tabNav}>
+        <TabButton
+          isActive={viewMode === 'monthly'}
           onClick={() => setViewMode('monthly')}
+          ariaLabel="Switch to monthly view"
+          ariaControls="monthly-panel"
+          id="monthly-tab"
         >
           Monthly
-        </button>
-        <button
-          role="tab"
-          aria-selected={viewMode === 'cumulative'}
-          aria-controls="cumulative-panel"
-          id="cumulative-tab"
-          className={`${styles.tab} ${viewMode === 'cumulative' ? styles.tabActive : ''}`}
+        </TabButton>
+        <TabButton
+          isActive={viewMode === 'cumulative'}
           onClick={() => setViewMode('cumulative')}
+          ariaLabel="Switch to cumulative view"
+          ariaControls="cumulative-panel"
+          id="cumulative-tab"
         >
           Cumulative
-        </button>
-      </div>
+        </TabButton>
+      </TabNav>
 
       {/* Summary Stats */}
       <div className={styles.summaryRow} role="region" aria-label="Investment summary">
