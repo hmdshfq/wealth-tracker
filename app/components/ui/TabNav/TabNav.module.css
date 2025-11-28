@@ -1,8 +1,9 @@
 .tabNav {
   display: flex;
   gap: 4px;
-  background: rgba(30, 41, 59, 0.5);
+  background: var(--bg-secondary);
   padding: 4px;
   border-radius: 12px;
   width: fit-content;
+  border: 1px solid var(--border-secondary);
 }

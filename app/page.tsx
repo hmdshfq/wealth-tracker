@@ -7,9 +7,8 @@ import { Header, Footer, Navigation, TabName } from '@/app/components/layout';
 // Feature components
 import {
   DashboardTab,
-  TransactionsTab,
+  InvestmentsTab,
   CashTab,
-  GoalTab,
   ExportModal,
   ImportModal,
 } from '@/app/components/features';
@@ -594,18 +593,31 @@ export default function InvestmentTracker() {
         )}
 
         {activeTab === 'investments' && (
-          <TransactionsTab
-            transactions={transactions}
-            prices={prices}
-            newTx={newTx}
+          <InvestmentsTab
+            // Holdings & Portfolio data
             holdingsData={holdingsData}
             portfolioValue={portfolioValue}
             totalGain={totalGain}
             totalGainPercent={totalGainPercent}
+            // Transaction data
+            transactions={transactions}
+            prices={prices}
+            newTx={newTx}
             onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
             onAddTransaction={addTransaction}
             onEditTransaction={editTransaction}
             onDeleteTransaction={deleteTransaction}
+            // Goal data
+            goal={goal}
+            tempGoal={tempGoal}
+            editingGoal={editingGoal}
+            totalNetWorth={totalNetWorth}
+            goalProgress={goalProgress}
+            exchangeRates={exchangeRates}
+            onEditStart={handleGoalEditStart}
+            onEditCancel={handleGoalEditCancel}
+            onEditSave={handleGoalEditSave}
+            onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
           />
         )}
 
@@ -620,22 +632,6 @@ export default function InvestmentTracker() {
             onAddCash={addCash}
             onEditCashTransaction={editCashTransaction}
             onDeleteCashTransaction={deleteCashTransaction}
-          />
-        )}
-
-        {activeTab === 'goal' && (
-          <GoalTab
-            goal={goal}
-            tempGoal={tempGoal}
-            editingGoal={editingGoal}
-            totalNetWorth={totalNetWorth}
-            goalProgress={goalProgress}
-            transactions={transactions}
-            exchangeRates={exchangeRates}
-            onEditStart={handleGoalEditStart}
-            onEditCancel={handleGoalEditCancel}
-            onEditSave={handleGoalEditSave}
-            onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
           />
         )}
       </main>

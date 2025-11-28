@@ -3,4 +3,5 @@ export * from './Holdings';
 export * from './Transactions';
 export * from './Cash';
 export * from './Goal';
+export * from './Investments';
 export * from './Modals';

@@ -2,7 +2,7 @@
   display: flex;
   gap: 4px;
   margin-bottom: 24px;
-  background: var(--bg-card);
+  background: var(--bg-secondary);
   padding: 4px;
   border-radius: 12px;
   width: fit-content;
@@ -18,17 +18,54 @@
   font-size: 13px;
   cursor: pointer;
   font-family: inherit;
-  font-weight: 400;
+  font-weight: 500;
   text-transform: capitalize;
   transition: all 0.2s ease;
 }
 
-.tab:hover {
+/* Hover state with improved contrast */
+.tab:hover:not(.active) {
   color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
+/* Focus state for keyboard navigation (a11y) */
+.tab:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Active tab state */
 .active {
   background: var(--gradient-green);
-  color: white;
+  color: #ffffff;
   font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Ensure active tab text stays white on hover */
+.active:hover {
+  color: #ffffff;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .tab {
+    border: 1px solid transparent;
+  }
+  
+  .tab:not(.active) {
+    border-color: var(--border-primary);
+  }
+  
+  .active {
+    border-color: var(--accent-green-dark);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
 }
