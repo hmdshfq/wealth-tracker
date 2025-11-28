@@ -102,6 +102,12 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
     return calculateCumulativeContributions(transactions, exchangeRates);
   }, [transactions, exchangeRates]);
 
+  // Find earliest transaction date
+  const firstTransactionDate = useMemo(() => {
+    if (transactions.length === 0) return undefined;
+    return transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date);
+  }, [transactions]);
+
   // Merge projected data with actual transaction history
   const chartData = useMemo(() => {
     return mergeProjectedWithActual(
@@ -350,6 +356,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               projectionData={chartData}
               currentNetWorth={portfolioValue}
               totalActualContributions={totalActualContributions}
+              firstTransactionDate={firstTransactionDate}
             />
           )}
 

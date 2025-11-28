@@ -58,6 +58,7 @@ interface InvestmentGoalChartProps {
   enableRealTimeUpdates?: boolean;
   websocketUrl?: string;
   className?: string;
+  firstTransactionDate?: string;
 }
 
 interface TimeRangeOption {
@@ -286,6 +287,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   enableRealTimeUpdates = false,
   websocketUrl,
   className = '',
+  firstTransactionDate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -296,6 +298,21 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
   const [showCustomRange, setShowCustomRange] = useState(false);
+
+  // Prefill date inputs when transaction history is available
+  useEffect(() => {
+    if (firstTransactionDate && !customStartDate) {
+      // Format YYYY-MM-DD to YYYY-MM
+      setCustomStartDate(firstTransactionDate.substring(0, 7));
+      
+      // Set end date to current month
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      setCustomEndDate(`${year}-${month}`);
+    }
+  }, [firstTransactionDate, customStartDate]);
+
   const [liveNetWorth, setLiveNetWorth] = useState(currentNetWorth);
   const [wsConnected, setWsConnected] = useState(false);
   const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set());
@@ -303,10 +320,56 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [brushRange, setBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({});
   const [announcement, setAnnouncement] = useState('');
 
+  const announceToScreenReader = useCallback((message: string) => {
+    setAnnouncement(message);
+    setTimeout(() => setAnnouncement(''), 1000);
+  }, []);
+
   // Calculate actual returns
   const actualReturns = useMemo(() => {
     return currentNetWorth - totalActualContributions;
   }, [currentNetWorth, totalActualContributions]);
+
+  // WebSocket connection
+  useEffect(() => {
+    if (!enableRealTimeUpdates || !websocketUrl) return;
+
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
+
+    const connect = () => {
+      try {
+        ws = new WebSocket(websocketUrl);
+        ws.onopen = () => {
+          setWsConnected(true);
+          announceToScreenReader('Real-time updates connected');
+        };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'portfolio_update' && typeof data.netWorth === 'number') {
+              setLiveNetWorth(data.netWorth);
+            }
+          } catch (e) {
+            console.error('WebSocket message parse error:', e);
+          }
+        };
+        ws.onclose = () => {
+          setWsConnected(false);
+          reconnectTimeout = setTimeout(connect, 5000);
+        };
+        ws.onerror = () => ws?.close();
+      } catch (error) {
+        reconnectTimeout = setTimeout(connect, 5000);
+      }
+    };
+
+    connect();
+    return () => {
+      ws?.close();
+      clearTimeout(reconnectTimeout);
+    };
+  }, [enableRealTimeUpdates, websocketUrl, announceToScreenReader]);
 
   const actualReturnsPercent = useMemo(() => {
     return totalActualContributions > 0 
@@ -379,12 +442,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       ws?.close();
       clearTimeout(reconnectTimeout);
     };
-  }, [enableRealTimeUpdates, websocketUrl]);
-
-  const announceToScreenReader = useCallback((message: string) => {
-    setAnnouncement(message);
-    setTimeout(() => setAnnouncement(''), 1000);
-  }, []);
+  }, [enableRealTimeUpdates, websocketUrl, announceToScreenReader]);
 
   const handleLegendToggle = useCallback((dataKey: string) => {
     setHiddenLines((prev) => {
@@ -397,6 +455,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       return newSet;
     });
   }, []);
+
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
