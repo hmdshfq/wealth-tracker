@@ -108,9 +108,9 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       projectionData,
       transactions,
       exchangeRates,
-      totalNetWorth
+      portfolioValue
     );
-  }, [projectionData, transactions, exchangeRates, totalNetWorth]);
+  }, [projectionData, transactions, exchangeRates, portfolioValue]);
 
   // Format date for display
   const formatDisplayDate = (dateStr: string) => {
@@ -348,7 +348,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             <InvestmentGoalChart
               goal={goal}
               projectionData={chartData}
-              currentNetWorth={totalNetWorth}
+              currentNetWorth={portfolioValue}
               totalActualContributions={totalActualContributions}
             />
           )}
