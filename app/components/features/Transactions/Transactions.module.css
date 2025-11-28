@@ -121,6 +121,55 @@
   margin-top: 8px;
 }
 
+/* Pagination Styles */
+.paginationControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pageSizeSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageSizeSelector select {
+  width: auto;
+  min-width: 80px;
+}
+
+.paginationLabel {
+  font-size: 13px;
+  color: var(--text-dimmed);
+}
+
+.paginationInfo {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.paginationNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  flex-wrap: wrap;
+}
+
+.pageIndicator {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 0 12px;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .transactionHeader,

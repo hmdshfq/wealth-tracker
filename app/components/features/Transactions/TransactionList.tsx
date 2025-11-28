@@ -37,6 +37,14 @@ const actionOptions = [
   { value: 'Sell', label: 'Sell' },
 ];
 
+const PAGE_SIZE_OPTIONS = [
+  { value: '50', label: '50' },
+  { value: '100', label: '100' },
+  { value: '200', label: '200' },
+  { value: '500', label: '500' },
+  { value: 'all', label: 'All' },
+];
+
 export const TransactionList: React.FC<TransactionListProps> = ({
   transactions,
   prices,
@@ -45,6 +53,28 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [pageSize, setPageSize] = useState<string>('50');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination logic
+  const itemsPerPage = pageSize === 'all' ? transactions.length : parseInt(pageSize, 10);
+  const totalPages = Math.ceil(transactions.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = pageSize === 'all' ? transactions.length : startIndex + itemsPerPage;
+  const paginatedTransactions = transactions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when page size changes or transactions change significantly
+  const handlePageSizeChange = (newSize: string) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
+  // Ensure current page is valid when transactions change
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [transactions.length, totalPages, currentPage]);
 
   const handleEditSave = () => {
     if (editingTransaction) {
@@ -82,19 +112,34 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         {transactions.length === 0 ? (
           <p className={styles.emptyState}>No transactions yet</p>
         ) : (
-          <div className={styles.transactionList}>
-            <div className={styles.transactionHeader}>
-              <span>Date</span>
-              <span>Ticker</span>
-              <span>Action</span>
-              <span style={{ textAlign: 'right' }}>Shares</span>
-              <span style={{ textAlign: 'right' }}>Buy Price</span>
-              <span style={{ textAlign: 'right' }}>Current</span>
-              <span style={{ textAlign: 'right' }}>Gain/Loss</span>
-              <span style={{ textAlign: 'right' }}>%</span>
-              <span style={{ textAlign: 'center' }}>Actions</span>
+          <>
+            <div className={styles.paginationControls}>
+              <div className={styles.pageSizeSelector}>
+                <span className={styles.paginationLabel}>Show:</span>
+                <Select
+                  options={PAGE_SIZE_OPTIONS}
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(e.target.value)}
+                />
+                <span className={styles.paginationLabel}>entries</span>
+              </div>
+              <div className={styles.paginationInfo}>
+                Showing {startIndex + 1}-{Math.min(endIndex, transactions.length)} of {transactions.length}
+              </div>
             </div>
-            {transactions.map((tx) => {
+            <div className={styles.transactionList}>
+              <div className={styles.transactionHeader}>
+                <span>Date</span>
+                <span>Ticker</span>
+                <span>Action</span>
+                <span style={{ textAlign: 'right' }}>Shares</span>
+                <span style={{ textAlign: 'right' }}>Buy Price</span>
+                <span style={{ textAlign: 'right' }}>Current</span>
+                <span style={{ textAlign: 'right' }}>Gain/Loss</span>
+                <span style={{ textAlign: 'right' }}>%</span>
+                <span style={{ textAlign: 'center' }}>Actions</span>
+              </div>
+              {paginatedTransactions.map((tx) => {
               const { currentPrice, gainLoss, gainLossPercent } = getTransactionGainLoss(tx);
               const isPositive = gainLoss >= 0;
               
@@ -136,6 +181,42 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               );
             })}
           </div>
+          {totalPages > 1 && (
+            <div className={styles.paginationNav}>
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className={styles.pageIndicator}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                Last
+              </Button>
+            </div>
+          )}
+        </>
         )}
       </Card>
 

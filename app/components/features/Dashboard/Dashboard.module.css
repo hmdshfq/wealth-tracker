@@ -1,3 +1,45 @@
+.dashboardContainer {
+  display: grid;
+  gap: 24px;
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Large screens: 2-column layout */
+@media (min-width: 1024px) {
+  .mainContent {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .rightColumn {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1280px) {
+  .mainContent {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
 .chartTitle {
   font-size: 14px;
   font-weight: 600;
@@ -12,7 +54,7 @@
 }
 
 .pieContainer {
-  height: 200px;
+  height: 225px;
 }
 
 .legend {
@@ -48,6 +90,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+}
+
+/* In right column on large screens, stack prices vertically */
+@media (min-width: 1024px) {
+  .rightColumn .pricesGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .goalHeader {
