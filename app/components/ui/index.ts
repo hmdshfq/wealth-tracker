@@ -13,3 +13,4 @@ export { TabNav } from './TabNav';
 export { PriceCard } from './PriceCard';
 export { DataTable } from './DataTable';
 export { SectionTitle } from './SectionTitle';
+export { LocalStorageBanner } from './LocalStorageBanner';

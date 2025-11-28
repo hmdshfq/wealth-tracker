@@ -14,7 +14,7 @@ import {
 } from '@/app/components/features';
 
 // UI components
-import { Toast } from '@/app/components/ui';
+import { Toast, LocalStorageBanner } from '@/app/components/ui';
 
 // Types and constants
 import {
@@ -566,6 +566,7 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   return (
     <div className={styles.container}>
+      <LocalStorageBanner />
       <Header
         onImport={() => setShowImportModal(true)}
         onExport={() => setShowExportModal(true)}
