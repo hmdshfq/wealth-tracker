@@ -1,4 +1,5 @@
 .tabButton {
+  position: relative;
   padding: 10px 20px;
   background: transparent;
   border: none;
@@ -26,10 +27,17 @@
 
 /* Active tab state */
 .active {
-  background: var(--gradient-green);
   color: #ffffff;
   font-weight: 600;
+}
+
+.activeBackground {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-green);
+  border-radius: 8px;
   box-shadow: var(--shadow-sm);
+  z-index: 0;
 }
 
 /* Ensure active tab text stays white on hover */

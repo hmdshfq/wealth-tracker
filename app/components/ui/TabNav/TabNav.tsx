@@ -1,17 +1,30 @@
-import React, { useCallback, useRef } from 'react';
+'use client';
+
+import React, { useCallback, useRef, createContext, useContext, useId } from 'react';
 import styles from './TabNav.module.css';
+
+interface TabContextType {
+  layoutId: string;
+}
+
+const TabContext = createContext<TabContextType | undefined>(undefined);
+
+export const useTabContext = () => useContext(TabContext);
 
 interface TabNavProps {
   children: React.ReactNode;
   /** Accessible label for the tab list */
   ariaLabel?: string;
+  className?: string;
 }
 
 export const TabNav: React.FC<TabNavProps> = ({ 
   children, 
-  ariaLabel = 'Tab navigation' 
+  ariaLabel = 'Tab navigation',
+  className
 }) => {
   const navRef = useRef<HTMLDivElement>(null);
+  const layoutId = useId();
 
   // Handle keyboard navigation between tabs
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -50,15 +63,17 @@ export const TabNav: React.FC<TabNavProps> = ({
   }, []);
 
   return (
-    <nav
-      ref={navRef}
-      role="tablist"
-      aria-label={ariaLabel}
-      className={styles.tabNav}
-      onKeyDown={handleKeyDown}
-    >
-      {children}
-    </nav>
+    <TabContext.Provider value={{ layoutId }}>
+      <nav
+        ref={navRef}
+        role="tablist"
+        aria-label={ariaLabel}
+        className={`${styles.tabNav} ${className || ''}`}
+        onKeyDown={handleKeyDown}
+      >
+        {children}
+      </nav>
+    </TabContext.Provider>
   );
 };
 

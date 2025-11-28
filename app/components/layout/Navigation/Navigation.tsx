@@ -1,4 +1,5 @@
-import React, { useCallback, useRef } from 'react';
+import React from 'react';
+import { TabNav, TabButton } from '@/app/components/ui';
 import styles from './Navigation.module.css';
 
 export type TabName = 'dashboard' | 'investments' | 'cash';
@@ -18,65 +19,22 @@ export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const navRef = useRef<HTMLElement>(null);
-
-  // Handle keyboard navigation between tabs
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      const currentIndex = TABS.findIndex((tab) => tab.name === activeTab);
-      let nextIndex: number | null = null;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          nextIndex = currentIndex > 0 ? currentIndex - 1 : TABS.length - 1;
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          nextIndex = currentIndex < TABS.length - 1 ? currentIndex + 1 : 0;
-          break;
-        case 'Home':
-          e.preventDefault();
-          nextIndex = 0;
-          break;
-        case 'End':
-          e.preventDefault();
-          nextIndex = TABS.length - 1;
-          break;
-      }
-
-      if (nextIndex !== null) {
-        onTabChange(TABS[nextIndex].name);
-        // Focus the new tab
-        const buttons = navRef.current?.querySelectorAll('button');
-        buttons?.[nextIndex]?.focus();
-      }
-    },
-    [activeTab, onTabChange]
-  );
-
   return (
-    <nav
-      ref={navRef}
-      role="tablist"
-      aria-label="Main navigation"
-      className={styles.nav}
-      onKeyDown={handleKeyDown}
+    <TabNav 
+      ariaLabel="Main navigation" 
+      className={styles.container}
     >
       {TABS.map((tab) => (
-        <button
+        <TabButton
           key={tab.name}
-          role="tab"
-          aria-selected={activeTab === tab.name}
-          aria-label={tab.label}
-          tabIndex={activeTab === tab.name ? 0 : -1}
+          isActive={activeTab === tab.name}
           onClick={() => onTabChange(tab.name)}
-          className={`${styles.tab} ${activeTab === tab.name ? styles.active : ''}`}
+          ariaLabel={tab.label}
         >
           {tab.name}
-        </button>
+        </TabButton>
       ))}
-    </nav>
+    </TabNav>
   );
 };
 

@@ -106,7 +106,10 @@ function useTheme() {
 }
 
 // Custom Tooltip Component
-interface CustomTooltipProps extends TooltipProps<number, string> {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
   goalAmount: number;
   totalActualContributions: number;
   currentNetWorth: number;

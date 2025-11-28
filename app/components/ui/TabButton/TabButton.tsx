@@ -1,4 +1,8 @@
+'use client';
+
 import React from 'react';
+import { motion } from 'motion/react';
+import { useTabContext } from '../TabNav/TabNav';
 import styles from './TabButton.module.css';
 
 interface TabButtonProps {
@@ -15,6 +19,10 @@ export const TabButton: React.FC<TabButtonProps> = ({
   onClick,
   ariaLabel,
 }) => {
+  const context = useTabContext();
+  // Fallback layoutId if context is missing (though it shouldn't be if used inside TabNav)
+  const layoutId = context?.layoutId || 'tabs';
+
   return (
     <button
       role="tab"
@@ -24,7 +32,14 @@ export const TabButton: React.FC<TabButtonProps> = ({
       onClick={onClick}
       tabIndex={isActive ? 0 : -1}
     >
-      {children}
+      {isActive && (
+        <motion.div
+          layoutId={layoutId}
+          className={styles.activeBackground}
+          transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+        />
+      )}
+      <span style={{ position: 'relative', zIndex: 1 }}>{children}</span>
     </button>
   );
 };
