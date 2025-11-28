@@ -34,6 +34,14 @@ const typeOptions = [
   { value: 'withdrawal', label: 'Withdrawal' },
 ];
 
+const PAGE_SIZE_OPTIONS = [
+  { value: '50', label: '50' },
+  { value: '100', label: '100' },
+  { value: '200', label: '200' },
+  { value: '500', label: '500' },
+  { value: 'all', label: 'All' },
+];
+
 // Simple SVG icons
 const EditIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -62,6 +70,28 @@ export const CashTab: React.FC<CashTabProps> = ({
 }) => {
   const [editingTransaction, setEditingTransaction] = useState<CashTransaction | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [pageSize, setPageSize] = useState<string>('50');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination logic
+  const itemsPerPage = pageSize === 'all' ? cashTransactions.length : parseInt(pageSize, 10);
+  const totalPages = Math.ceil(cashTransactions.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = pageSize === 'all' ? cashTransactions.length : startIndex + itemsPerPage;
+  const paginatedTransactions = cashTransactions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when page size changes
+  const handlePageSizeChange = (newSize: string) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
+  // Ensure current page is valid when transactions change
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [cashTransactions.length, totalPages, currentPage]);
 
   const getCashInPLN = (c: CashBalance): number => {
     if (c.currency === 'PLN') return c.amount;
@@ -156,47 +186,98 @@ export const CashTab: React.FC<CashTabProps> = ({
         {cashTransactions.length === 0 ? (
           <p className={styles.emptyState}>No cash transactions yet</p>
         ) : (
-          <div className={styles.transactionList}>
-            <div className={styles.transactionHeader}>
-              <span>Date</span>
-              <span>Type</span>
-              <span>Currency</span>
-              <span style={{ textAlign: 'right' }}>Amount</span>
-              <span>Note</span>
-              <span style={{ textAlign: 'center' }}>Actions</span>
-            </div>
-            {cashTransactions.map((tx) => (
-              <div key={tx.id} className={styles.transactionRow}>
-                <span className={styles.txDate}>{tx.date}</span>
-                <span>
-                  <Badge variant={tx.type === 'deposit' ? 'success' : 'danger'}>
-                    {tx.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
-                  </Badge>
-                </span>
-                <span className={styles.txCurrency}>{tx.currency}</span>
-                <span className={`${styles.txAmount} ${tx.type === 'withdrawal' ? styles.negative : ''}`} style={{ textAlign: 'right' }}>
-                  {tx.type === 'withdrawal' ? '-' : '+'}{formatCurrency(tx.amount, tx.currency)}
-                </span>
-                <span className={styles.txNote}>{tx.note || '-'}</span>
-                <span className={styles.txActions}>
-                  <IconButton
-                    icon={<EditIcon />}
-                    variant="ghost"
-                    size="small"
-                    onClick={() => setEditingTransaction({ ...tx })}
-                    title="Edit"
-                  />
-                  <IconButton
-                    icon={<DeleteIcon />}
-                    variant="danger"
-                    size="small"
-                    onClick={() => setDeleteConfirmId(tx.id)}
-                    title="Delete"
-                  />
-                </span>
+          <>
+            <div className={styles.paginationControls}>
+              <div className={styles.pageSizeSelector}>
+                <span className={styles.paginationLabel}>Show:</span>
+                <Select
+                  options={PAGE_SIZE_OPTIONS}
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(e.target.value)}
+                />
+                <span className={styles.paginationLabel}>entries</span>
               </div>
-            ))}
-          </div>
+              <div className={styles.paginationInfo}>
+                Showing {startIndex + 1}-{Math.min(endIndex, cashTransactions.length)} of {cashTransactions.length}
+              </div>
+            </div>
+            <div className={styles.transactionList}>
+              <div className={styles.transactionHeader}>
+                <span>Date</span>
+                <span>Type</span>
+                <span>Currency</span>
+                <span style={{ textAlign: 'right' }}>Amount</span>
+                <span>Note</span>
+                <span style={{ textAlign: 'center' }}>Actions</span>
+              </div>
+              {paginatedTransactions.map((tx) => (
+                <div key={tx.id} className={styles.transactionRow}>
+                  <span className={styles.txDate}>{tx.date}</span>
+                  <span>
+                    <Badge variant={tx.type === 'deposit' ? 'success' : 'danger'}>
+                      {tx.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+                    </Badge>
+                  </span>
+                  <span className={styles.txCurrency}>{tx.currency}</span>
+                  <span className={`${styles.txAmount} ${tx.type === 'withdrawal' ? styles.negative : ''}`} style={{ textAlign: 'right' }}>
+                    {tx.type === 'withdrawal' ? '-' : '+'}{formatCurrency(tx.amount, tx.currency)}
+                  </span>
+                  <span className={styles.txNote}>{tx.note || '-'}</span>
+                  <span className={styles.txActions}>
+                    <IconButton
+                      icon={<EditIcon />}
+                      variant="ghost"
+                      size="small"
+                      onClick={() => setEditingTransaction({ ...tx })}
+                      title="Edit"
+                    />
+                    <IconButton
+                      icon={<DeleteIcon />}
+                      variant="danger"
+                      size="small"
+                      onClick={() => setDeleteConfirmId(tx.id)}
+                      title="Delete"
+                    />
+                  </span>
+                </div>
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className={styles.paginationNav}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <span className={styles.pageIndicator}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </Card>
 

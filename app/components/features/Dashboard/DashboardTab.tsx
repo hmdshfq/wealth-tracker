@@ -44,8 +44,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   );
 
   return (
-    <div style={{ display: 'grid', gap: '24px' }}>
-      {/* Top Stats */}
+    <div className={styles.dashboardContainer}>
+      {/* Top Stats Row */}
       <div className={styles.statsGrid}>
         <StatCard
           label="Portfolio Value"
@@ -66,18 +66,23 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         />
       </div>
 
-      {/* Goal Progress */}
-      <GoalProgress
-        goal={goal}
-        currentValue={totalNetWorth}
-        progress={goalProgress}
-      />
+      {/* Main Content: 2-column layout on large screens */}
+      <div className={styles.mainContent}>
+        {/* Left Column: Goal Progress + Allocation */}
+        <div className={styles.leftColumn}>
+          <GoalProgress
+            goal={goal}
+            currentValue={totalNetWorth}
+            progress={goalProgress}
+          />
+          <AllocationChart data={allocationData} />
+        </div>
 
-      {/* Charts Row */}
-      <AllocationChart data={allocationData} />
-
-      {/* Live Prices */}
-      <LivePrices prices={prices} />
+        {/* Right Column: Live ETF Prices */}
+        <div className={styles.rightColumn}>
+          <LivePrices prices={prices} />
+        </div>
+      </div>
     </div>
   );
 };
