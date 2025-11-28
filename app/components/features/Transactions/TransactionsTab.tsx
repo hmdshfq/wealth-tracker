@@ -4,7 +4,7 @@ import { Card, DataTable, SectionTitle } from '@/app/components/ui';
 import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
 import { TransactionForm } from './TransactionForm';
 import { TransactionList } from './TransactionList';
-import { Transaction, NewTransaction, HoldingWithDetails } from '@/app/lib/types';
+import { Transaction, NewTransaction, HoldingWithDetails, TickerInfo } from '@/app/lib/types';
 import styles from './Transactions.module.css';
 
 interface TransactionsTabProps {
@@ -19,6 +19,7 @@ interface TransactionsTabProps {
   onAddTransaction: () => void;
   onEditTransaction: (transaction: Transaction) => void;
   onDeleteTransaction: (id: number) => void;
+  etfData: Record<string, TickerInfo>;
 }
 
 export const TransactionsTab: React.FC<TransactionsTabProps> = ({
@@ -33,6 +34,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
   onAddTransaction,
   onEditTransaction,
   onDeleteTransaction,
+  etfData,
 }) => {
   const holdingsColumns = [
     {
@@ -132,6 +134,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
         newTx={newTx}
         onChange={onTxChange}
         onSubmit={onAddTransaction}
+        etfData={etfData}
       />
 
       {/* Transaction History */}
