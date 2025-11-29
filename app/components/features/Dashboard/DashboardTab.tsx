@@ -1,6 +1,8 @@
 'use client';
 import React, { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { StatCard } from '@/app/components/ui';
+import { staggerContainerVariants, fadeVariants, transitions } from '@/app/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { GoalProgress } from './GoalProgress';
 import { GoalChartMini } from './GoalChartMini';
@@ -82,25 +84,45 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   return (
     <div className={styles.dashboardContainer}>
       {/* Top Stats Row */}
-      <div className={styles.statsGrid}>
-        <StatCard
-          label="Portfolio Value"
-          value={formatPLN(portfolioValue)}
-          subValue={`${formatPLN(totalGain)} (${formatPercent(totalGainPercent)})`}
-          subValueColor={totalGain >= 0 ? 'positive' : 'negative'}
-        />
-        <StatCard
-          label="Total Cash"
-          value={formatPLN(totalCashPLN)}
-          footer={cashFooter}
-        />
-        <StatCard
-          label="Net Worth"
-          value={formatPLN(totalNetWorth)}
-          subValue="Portfolio + Cash"
-          subValueColor="muted"
-        />
-      </div>
+      <motion.div
+        className={styles.statsGrid}
+        variants={staggerContainerVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <motion.div
+          variants={fadeVariants}
+          transition={transitions.normal}
+        >
+          <StatCard
+            label="Portfolio Value"
+            value={formatPLN(portfolioValue)}
+            subValue={`${formatPLN(totalGain)} (${formatPercent(totalGainPercent)})`}
+            subValueColor={totalGain >= 0 ? 'positive' : 'negative'}
+          />
+        </motion.div>
+        <motion.div
+          variants={fadeVariants}
+          transition={transitions.normal}
+        >
+          <StatCard
+            label="Total Cash"
+            value={formatPLN(totalCashPLN)}
+            footer={cashFooter}
+          />
+        </motion.div>
+        <motion.div
+          variants={fadeVariants}
+          transition={transitions.normal}
+        >
+          <StatCard
+            label="Net Worth"
+            value={formatPLN(totalNetWorth)}
+            subValue="Portfolio + Cash"
+            subValueColor="muted"
+          />
+        </motion.div>
+      </motion.div>
 
       {/* Investment Goal Mini Chart */}
       {chartData.length > 0 && (

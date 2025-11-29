@@ -2,26 +2,10 @@
 
 import React, { useState, useSyncExternalStore, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useReducedMotion } from '@/app/lib/hooks';
 import styles from './LocalStorageBanner.module.css';
 
 const STORAGE_KEY = 'localStorageBanner_dismissed';
-
-function useReducedMotion(): boolean {
-  const getSnapshot = useCallback(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }, []);
-
-  const subscribe = useCallback((callback: () => void) => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    mediaQuery.addEventListener('change', callback);
-    return () => mediaQuery.removeEventListener('change', callback);
-  }, []);
-
-  const getServerSnapshot = useCallback(() => false, []);
-
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-}
 
 function useDismissedState(): [boolean, () => void] {
   const getSnapshot = useCallback(() => {

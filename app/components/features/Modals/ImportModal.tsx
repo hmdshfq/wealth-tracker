@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Modal, Button } from '@/app/components/ui';
+import { AnimatedModal, Button } from '@/app/components/ui';
 import styles from './Modals.module.css';
 
 interface ImportModalProps {
@@ -28,7 +28,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   };
 
   return (
-    <Modal
+    <AnimatedModal
       isOpen={isOpen}
       onClose={handleClose}
       title="Import Data"
@@ -81,7 +81,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           Import Data
         </Button>
       </div>
-    </Modal>
+    </AnimatedModal>
   );
 };
 

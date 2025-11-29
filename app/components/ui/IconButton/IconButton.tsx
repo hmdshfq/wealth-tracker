@@ -1,7 +1,10 @@
+'use client';
 import React from 'react';
+import { motion } from 'motion/react';
+import { useReducedMotion } from '@/app/lib/hooks';
 import styles from './IconButton.module.css';
 
-interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface IconButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'ref'> {
   icon: React.ReactNode;
   label?: string;
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -9,32 +12,34 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   iconPosition?: 'left' | 'right';
 }
 
-export const IconButton: React.FC<IconButtonProps> = ({
-  icon,
-  label,
-  variant = 'secondary',
-  size = 'medium',
-  iconPosition = 'left',
-  className,
-  ...props
-}) => {
-  const classes = [
-    styles.button,
-    styles[variant],
-    styles[size],
-    !label && styles.iconOnly,
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+  ({ icon, label, variant = 'secondary', size = 'medium', iconPosition = 'left', className, disabled, ...props }, ref) => {
+    const prefersReducedMotion = useReducedMotion();
 
-  return (
-    <button className={classes} {...props}>
-      {iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
-      {label && <span className={styles.label}>{label}</span>}
-      {iconPosition === 'right' && <span className={styles.icon}>{icon}</span>}
-    </button>
-  );
-};
+    const classes = [
+      styles.button,
+      styles[variant],
+      styles[size],
+      !label && styles.iconOnly,
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    return (
+      <motion.button
+        ref={ref}
+        className={classes}
+        disabled={disabled}
+        whileTap={!disabled && !prefersReducedMotion ? { scale: 0.97 } : undefined}
+        {...(props as any)}
+      >
+        {iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
+        {label && <span className={styles.label}>{label}</span>}
+        {iconPosition === 'right' && <span className={styles.icon}>{icon}</span>}
+      </motion.button>
+    );
+  }
+);
 
 export default IconButton;

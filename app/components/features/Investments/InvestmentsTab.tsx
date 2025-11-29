@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Card, DataTable, SectionTitle, TabNav, TabButton, Input, Button, ProgressBar } from '@/app/components/ui';
 import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
 import { TransactionForm } from '../Transactions/TransactionForm';
@@ -8,11 +9,12 @@ import { MonthlyDepositTracker } from '../Goal/MonthlyDepositTracker';
 import { InvestmentGoalChart } from '../Goal/InvestmentGoalChart';
 import { TickerSearchCard } from './TickerSearchCard';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
-import { 
-  generateProjectionData, 
+import {
+  generateProjectionData,
   mergeProjectedWithActual,
-  calculateCumulativeContributions 
+  calculateCumulativeContributions
 } from '@/app/lib/projectionCalculations';
+import { fadeVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
 type InvestmentsSubTab = 'goal' | 'transactions';
@@ -94,7 +96,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onTempGoalChange,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
-  
+
   const remaining = goal.amount - totalNetWorth;
 
   // Generate projection data for the chart
@@ -231,8 +233,17 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       </TabNav>
 
       {/* Goal Sub-tab Content */}
-      {activeSubTab === 'goal' && (
-        <div className={styles.tabContent}>
+      <AnimatePresence mode="wait">
+        {activeSubTab === 'goal' && (
+          <motion.div
+            key="goal"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.normal}
+            className={styles.tabContent}
+          >
           {/* Goal Settings */}
           <Card>
             <SectionTitle
@@ -382,12 +393,20 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transactions={transactions}
             exchangeRates={exchangeRates}
           />
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {/* Transactions Sub-tab Content */}
-      {activeSubTab === 'transactions' && (
-        <div className={styles.tabContent}>
+        {/* Transactions Sub-tab Content */}
+        {activeSubTab === 'transactions' && (
+          <motion.div
+            key="transactions"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.normal}
+            className={styles.tabContent}
+          >
           {/* Ticker Search */}
           <TickerSearchCard
             onAddTicker={onAddTicker}
@@ -414,8 +433,9 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             onEdit={onEditTransaction}
             onDelete={onDeleteTransaction}
           />
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

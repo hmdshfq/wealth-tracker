@@ -801,7 +801,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               {filteredData.slice(-12).map((point, index) => {
                 const progress = (point.value / goal.amount) * 100;
                 return (
-                  <tr key={point.date || index}>
+                  <tr key={index}>
                     <td>{point.date}</td>
                     <td>{formatPLN(point.value)}</td>
                     <td>{formatPLN(point.cumulativeContributions)}</td>

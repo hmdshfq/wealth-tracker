@@ -33,6 +33,7 @@ import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
 
+
 // Styles
 import styles from './page.module.css';
 
@@ -633,73 +634,79 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className={styles.main}>
-        {activeTab === 'dashboard' && (
-          <DashboardTab
-            portfolioValue={portfolioValue}
-            totalGain={totalGain}
-            totalGainPercent={totalGainPercent}
-            totalCashPLN={totalCashPLN}
-            cash={cash}
-            totalNetWorth={totalNetWorth}
-            goal={goal}
-            goalProgress={goalProgress}
-            allocationData={allocationData}
-            prices={prices}
-            etfData={allTickers}
-            transactions={transactions}
-            exchangeRates={exchangeRates}
-            onNavigateToGoal={() => setActiveTab('investments')}
-          />
-        )}
+          {activeTab === 'dashboard' && (
+            <div>
+              <DashboardTab
+                portfolioValue={portfolioValue}
+                totalGain={totalGain}
+                totalGainPercent={totalGainPercent}
+                totalCashPLN={totalCashPLN}
+                cash={cash}
+                totalNetWorth={totalNetWorth}
+                goal={goal}
+                goalProgress={goalProgress}
+                allocationData={allocationData}
+                prices={prices}
+                etfData={allTickers}
+                transactions={transactions}
+                exchangeRates={exchangeRates}
+                onNavigateToGoal={() => setActiveTab('investments')}
+              />
+            </div>
+          )}
 
-        {activeTab === 'investments' && (
-          <InvestmentsTab
-            // Holdings & Portfolio data
-            holdingsData={holdingsData}
-            portfolioValue={portfolioValue}
-            totalGain={totalGain}
-            totalGainPercent={totalGainPercent}
-            // Transaction data
-            transactions={transactions}
-            prices={prices}
-            etfData={allTickers}
-            newTx={newTx}
-            onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
-            onAddTransaction={addTransaction}
-            onEditTransaction={editTransaction}
-            onDeleteTransaction={deleteTransaction}
-            onAddTicker={addCustomTicker}
-            customTickers={customTickers}
-            onEditTicker={editCustomTicker}
-            onDeleteTicker={deleteCustomTicker}
-            allTickers={allTickers}
-            // Goal data
-            goal={goal}
-            tempGoal={tempGoal}
-            editingGoal={editingGoal}
-            totalNetWorth={totalNetWorth}
-            goalProgress={goalProgress}
-            exchangeRates={exchangeRates}
-            onEditStart={handleGoalEditStart}
-            onEditCancel={handleGoalEditCancel}
-            onEditSave={handleGoalEditSave}
-            onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
-          />
-        )}
+          {activeTab === 'investments' && (
+            <div>
+              <InvestmentsTab
+                // Holdings & Portfolio data
+                holdingsData={holdingsData}
+                portfolioValue={portfolioValue}
+                totalGain={totalGain}
+                totalGainPercent={totalGainPercent}
+                // Transaction data
+                transactions={transactions}
+                prices={prices}
+                etfData={allTickers}
+                newTx={newTx}
+                onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
+                onAddTransaction={addTransaction}
+                onEditTransaction={editTransaction}
+                onDeleteTransaction={deleteTransaction}
+                onAddTicker={addCustomTicker}
+                customTickers={customTickers}
+                onEditTicker={editCustomTicker}
+                onDeleteTicker={deleteCustomTicker}
+                allTickers={allTickers}
+                // Goal data
+                goal={goal}
+                tempGoal={tempGoal}
+                editingGoal={editingGoal}
+                totalNetWorth={totalNetWorth}
+                goalProgress={goalProgress}
+                exchangeRates={exchangeRates}
+                onEditStart={handleGoalEditStart}
+                onEditCancel={handleGoalEditCancel}
+                onEditSave={handleGoalEditSave}
+                onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
+              />
+            </div>
+          )}
 
-        {activeTab === 'cash' && (
-          <CashTab
-            cash={cash}
-            cashTransactions={cashTransactions}
-            totalCashPLN={totalCashPLN}
-            newCash={newCash}
-            exchangeRates={exchangeRates}
-            onCashChange={(updates) => setNewCash((prev) => ({ ...prev, ...updates }))}
-            onAddCash={addCash}
-            onEditCashTransaction={editCashTransaction}
-            onDeleteCashTransaction={deleteCashTransaction}
-          />
-        )}
+          {activeTab === 'cash' && (
+            <div>
+              <CashTab
+                cash={cash}
+                cashTransactions={cashTransactions}
+                totalCashPLN={totalCashPLN}
+                newCash={newCash}
+                exchangeRates={exchangeRates}
+                onCashChange={(updates) => setNewCash((prev) => ({ ...prev, ...updates }))}
+                onAddCash={addCash}
+                onEditCashTransaction={editCashTransaction}
+                onDeleteCashTransaction={deleteCashTransaction}
+              />
+            </div>
+          )}
       </main>
 
       <Footer />

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Modal, Button } from '@/app/components/ui';
+import { AnimatedModal, Button } from '@/app/components/ui';
 import styles from './Modals.module.css';
 
 interface ExportModalProps {
@@ -17,7 +17,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onExportCSV,
 }) => {
   return (
-    <Modal
+    <AnimatedModal
       isOpen={isOpen}
       onClose={onClose}
       title="Export Data"
@@ -74,7 +74,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           useful for spreadsheet analysis but can't be imported back.
         </p>
       </div>
-    </Modal>
+    </AnimatedModal>
   );
 };
 

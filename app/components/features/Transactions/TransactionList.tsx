@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, Badge, SectionTitle, IconButton, Modal, Button, Input, Select } from '@/app/components/ui';
+import { Card, Badge, SectionTitle, IconButton, AnimatedModal, Button, Input, Select } from '@/app/components/ui';
 import { ETF_DATA } from '@/app/lib/constants';
 import { Transaction } from '@/app/lib/types';
 import styles from './Transactions.module.css';
@@ -226,7 +226,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       </Card>
 
       {/* Edit Modal */}
-      <Modal
+      <AnimatedModal
         isOpen={editingTransaction !== null}
         onClose={() => setEditingTransaction(null)}
         title="Edit Transaction"
@@ -275,10 +275,10 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             </div>
           </div>
         )}
-      </Modal>
+      </AnimatedModal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <AnimatedModal
         isOpen={deleteConfirmId !== null}
         onClose={() => setDeleteConfirmId(null)}
         title="Delete Transaction"
@@ -294,7 +294,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             Delete
           </Button>
         </div>
-      </Modal>
+      </AnimatedModal>
     </>
   );
 };

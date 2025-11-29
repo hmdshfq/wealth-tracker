@@ -1,4 +1,7 @@
+'use client';
 import React from 'react';
+import { motion } from 'motion/react';
+import { fadeVariants, transitions } from '@/app/lib/animations';
 import styles from './Spinner.module.css';
 
 interface SpinnerProps {
@@ -17,9 +20,15 @@ export const Spinner: React.FC<SpinnerProps> = ({
     .join(' ');
 
   return (
-    <div className={classes}>
+    <motion.div
+      className={classes}
+      variants={fadeVariants}
+      initial="initial"
+      animate="animate"
+      transition={{ ...transitions.normal, delay: 0.2 }}
+    >
       <div className={styles.ring} />
-    </div>
+    </motion.div>
   );
 };
 
