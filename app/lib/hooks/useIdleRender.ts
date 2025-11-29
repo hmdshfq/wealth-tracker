@@ -19,43 +19,31 @@ export function useIdleRender(options: UseIdleRenderOptions = {}): boolean {
   const { timeout = 2000, immediate = false } = options;
   const prefersReducedMotion = useReducedMotion();
   const [isReady, setIsReady] = useState(immediate || prefersReducedMotion);
-  const initializedRef = useRef(false);
 
   useEffect(() => {
-    // Skip if already ready or already set up
-    if (isReady || initializedRef.current) {
-      return;
-    }
-
-    initializedRef.current = true;
-
-    // If we should render immediately (due to accessibility), set up async
-    if (immediate || prefersReducedMotion) {
-      // Use microtask to avoid synchronous setState in effect
-      Promise.resolve().then(() => setIsReady(true));
+    // Already ready, no need to defer
+    if (isReady) {
       return;
     }
 
     // Feature detection for requestIdleCallback
     const supportsIdle = typeof window !== 'undefined' && 'requestIdleCallback' in window;
 
+    let handle: number;
+
     if (supportsIdle) {
       // Use requestIdleCallback with timeout
-      const idleId = window.requestIdleCallback(
+      handle = window.requestIdleCallback(
         () => setIsReady(true),
         { timeout }
       );
-      return () => {
-        window.cancelIdleCallback(idleId);
-      };
+      return () => window.cancelIdleCallback(handle);
     } else {
-      // Fallback for Safari and unsupported browsers
-      const timeoutId = setTimeout(() => setIsReady(true), 0);
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      // Fallback: use setTimeout to defer to next event loop
+      handle = window.setTimeout(() => setIsReady(true), 0);
+      return () => window.clearTimeout(handle);
     }
-  }, [immediate, prefersReducedMotion, timeout, isReady]);
+  }, [isReady]);
 
   return isReady;
 }
