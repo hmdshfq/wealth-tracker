@@ -6,6 +6,7 @@ export { Modal } from './Modal';
 export { AnimatedModal } from './Modal/AnimatedModal';
 export { Toast } from './Toast';
 export { Card } from './Card';
+export { ChartLoadingSkeleton } from './ChartLoadingSkeleton';
 export { StatCard } from './StatCard';
 export { ProgressBar } from './ProgressBar';
 export { Badge } from './Badge';

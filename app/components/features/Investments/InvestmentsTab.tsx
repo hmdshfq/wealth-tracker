@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Card, DataTable, SectionTitle, TabNav, TabButton, Input, Button, ProgressBar } from '@/app/components/ui';
+import { Card, DataTable, SectionTitle, TabNav, TabButton, Input, Button, ProgressBar, ChartLoadingSkeleton } from '@/app/components/ui';
+import { useIdleRender } from '@/app/lib/hooks';
 import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
 import { TransactionForm } from '../Transactions/TransactionForm';
 import { TransactionList } from '../Transactions/TransactionList';
@@ -96,6 +97,12 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onTempGoalChange,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
+
+  // Defer chart rendering until browser is idle (only in goal tab)
+  const chartReady = useIdleRender({
+    timeout: 3000,
+    immediate: activeSubTab !== 'goal',
+  });
 
   const remaining = goal.amount - totalNetWorth;
 
@@ -367,13 +374,17 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
 
           {/* Investment Goal Progress Chart */}
           {chartData.length > 0 && (
-            <InvestmentGoalChart
-              goal={goal}
-              projectionData={chartData}
-              currentNetWorth={portfolioValue}
-              totalActualContributions={totalActualContributions}
-              firstTransactionDate={firstTransactionDate}
-            />
+            chartReady ? (
+              <InvestmentGoalChart
+                goal={goal}
+                projectionData={chartData}
+                currentNetWorth={portfolioValue}
+                totalActualContributions={totalActualContributions}
+                firstTransactionDate={firstTransactionDate}
+              />
+            ) : (
+              <ChartLoadingSkeleton />
+            )
           )}
 
           {/* Holdings Section */}

@@ -1,0 +1,116 @@
+.skeleton {
+  padding: 1.5rem;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.titleBar {
+  height: 1.5rem;
+  width: 40%;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.controlButton {
+  height: 1.5rem;
+  width: 1.5rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.chartArea {
+  flex: 1;
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.yAxis {
+  width: 3rem;
+  height: 100%;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.chartLines {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.line {
+  flex: 1;
+  height: 40%;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.xAxis {
+  width: 100%;
+  height: 2rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.legendItem {
+  height: 1rem;
+  width: 8rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .titleBar,
+  .controlButton,
+  .yAxis,
+  .line,
+  .xAxis,
+  .legendItem {
+    animation: none;
+    opacity: 0.7;
+  }
+}

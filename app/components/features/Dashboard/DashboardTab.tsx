@@ -1,7 +1,8 @@
 'use client';
 import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
-import { StatCard } from '@/app/components/ui';
+import { StatCard, ChartLoadingSkeleton } from '@/app/components/ui';
+import { useIdleRender } from '@/app/lib/hooks';
 import { staggerContainerVariants, fadeVariants, transitions } from '@/app/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { GoalProgress } from './GoalProgress';
@@ -56,6 +57,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   exchangeRates = { EUR_PLN: 4.3, USD_PLN: 4.0 },
   onNavigateToGoal,
 }) => {
+  // Defer chart rendering until browser is idle
+  const chartsReady = useIdleRender({ timeout: 2000 });
+
   const cashFooter = (
     <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#94a3b8' }}>
       {cash.map((c) => (
@@ -126,13 +130,17 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
       {/* Investment Goal Mini Chart */}
       {chartData.length > 0 && (
-        <GoalChartMini
-          goal={goal}
-          projectionData={chartData}
-          currentNetWorth={totalNetWorth}
-          goalProgress={goalProgress}
-          onClick={onNavigateToGoal}
-        />
+        chartsReady ? (
+          <GoalChartMini
+            goal={goal}
+            projectionData={chartData}
+            currentNetWorth={totalNetWorth}
+            goalProgress={goalProgress}
+            onClick={onNavigateToGoal}
+          />
+        ) : (
+          <ChartLoadingSkeleton />
+        )
       )}
 
       {/* Main Content: 2-column layout on large screens */}
@@ -144,7 +152,11 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             currentValue={totalNetWorth}
             progress={goalProgress}
           />
-          <AllocationChart data={allocationData} />
+          {chartsReady ? (
+            <AllocationChart data={allocationData} />
+          ) : (
+            <ChartLoadingSkeleton />
+          )}
         </div>
 
         {/* Right Column: Live ETF Prices */}
