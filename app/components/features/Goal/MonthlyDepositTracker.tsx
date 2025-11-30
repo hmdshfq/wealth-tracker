@@ -268,20 +268,17 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </div>
 
       {/* Table */}
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key={viewMode}
-          className={styles.tableWrapper} 
-          role="tabpanel" 
-          id={`${viewMode}-panel`}
-          aria-labelledby={`${viewMode}-tab`}
-          tabIndex={0}
-          variants={slideFromBottomVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={transitions.fast}
-        >
+      <motion.div 
+        className={styles.tableWrapper} 
+        role="tabpanel" 
+        id={`${viewMode}-panel`}
+        aria-labelledby={`${viewMode}-tab`}
+        tabIndex={0}
+        variants={fadeVariants}
+        initial="initial"
+        animate="animate"
+        transition={transitions.fast}
+      >
         <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
           <caption id="investment-table-desc" className={styles.visuallyHidden}>
             {viewMode === 'monthly' 
@@ -385,8 +382,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             })}
           </tbody>
         </table>
-        </motion.div>
-      </AnimatePresence>
+      </motion.div>
 
       {/* Keyboard navigation hint */}
       <p className={styles.keyboardHint}>
