@@ -23,7 +23,7 @@ export const DepositsSubTab: React.FC<DepositsSubTabProps> = ({
   return (
     <motion.div
       variants={slideFromBottomVariants}
-      transition={transitions.normal}
+      transition={transitions.fast}
     >
       <MonthlyDepositTracker
         goal={goal}

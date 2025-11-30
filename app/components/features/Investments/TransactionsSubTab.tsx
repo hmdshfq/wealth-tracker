@@ -62,7 +62,7 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
       {/* Ticker Search */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
         <TickerSearchCard
           onAddTicker={onAddTicker}
@@ -78,7 +78,7 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
       {/* Add Transaction Form */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
         <TransactionForm
           newTx={newTx}
@@ -91,7 +91,7 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
       {/* Transaction History */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
         <TransactionList
           transactions={transactions}

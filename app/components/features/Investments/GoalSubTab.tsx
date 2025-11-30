@@ -29,7 +29,7 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   return (
     <motion.div
       variants={slideFromBottomVariants}
-      transition={transitions.normal}
+      transition={transitions.fast}
     >
       <Card>
         <SectionTitle

@@ -75,7 +75,7 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
       {/* Progress Card */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
         <GoalProgressCard
           goal={goal}
@@ -88,7 +88,7 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
       {chartData.length > 0 && (
         <motion.div
           variants={slideFromBottomVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           {chartReady ? (
             <InvestmentGoalChart
