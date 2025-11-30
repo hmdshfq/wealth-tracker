@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut, signIn } from 'next-auth/react';
+import { LogIn } from 'lucide-react';
 import { Button, IconButton } from '@/app/components/ui';
 import { useTheme } from '@/app/context/ThemeContext';
 import styles from './Header.module.css';
@@ -123,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* User Menu */}
-        {session?.user && (
+        {session?.user ? (
           <div className={styles.userMenuWrapper} ref={menuRef}>
             <button
               className={styles.userButton}
@@ -149,6 +150,16 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="small"
+            onClick={() => signIn('google')}
+            title="Sign in with Google"
+          >
+            <LogIn size={16} />
+            Sign in
+          </Button>
         )}
       </div>
     </header>
