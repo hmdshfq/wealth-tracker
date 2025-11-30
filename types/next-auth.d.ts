@@ -7,7 +7,7 @@ declare module 'next-auth' {
       id: string;
       email: string;
       name: string;
-      // optional google data
+      image?: string;
       google?: {
         accessToken?: string;
         refreshToken?: string;
@@ -20,6 +20,7 @@ declare module 'next-auth' {
     id: string;
     email: string;
     name: string;
+    image?: string;
     google?: {
       accessToken?: string;
       refreshToken?: string;

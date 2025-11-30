@@ -87,6 +87,8 @@
   font-family: inherit;
   transition: all 0.2s ease;
   border: 2px solid transparent;
+  object-fit: cover;
+  object-position: center;
 }
 
 .userButton:hover .avatar {

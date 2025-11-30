@@ -4,7 +4,6 @@ import { getUserByEmail, createUser, updateUser, type User } from '@/app/lib/use
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    // Google OAuth provider for sign-in and Drive access
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
@@ -19,40 +18,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      if (user) {
-        // For Google OAuth, we need to find or create the user in our database
-        // and use OUR user ID, not Google's profile ID
-        if (account && account.provider === 'google') {
-          try {
-            const email = (user as any).email || token.email;
-            let dbUser = await getUserByEmail(email);
-            
-            if (!dbUser) {
-              // Create a new user if they don't exist
-              dbUser = await createUser({
-                email: email as string,
-                name: (user as any).name || 'Google User',
-                password: Math.random().toString(36).slice(2, 10),
-              });
-            }
-            
-            // Always update with the latest Google tokens
-            await updateUser(dbUser.id, {
-              google: {
-                id: account.providerAccountId || undefined,
-                accessToken: (account as any).access_token,
-                refreshToken: (account as any).refresh_token,
-                expiresAt: (account as any).expires_at,
-              },
+      if (user && account?.provider === 'google') {
+        try {
+          const email = user.email as string;
+          let dbUser = await getUserByEmail(email);
+          
+          if (!dbUser) {
+            // Create a new user on first Google sign-in
+            dbUser = await createUser({
+              email,
+              name: user.name || 'Google User',
             });
-            
-            // Use OUR user ID in the token, not Google's
-            token.id = dbUser.id;
-            token.email = dbUser.email;
-            token.name = dbUser.name;
-          } catch (e) {
-            console.error('JWT Callback: Error handling Google auth', e);
           }
+          
+          // Update with latest Google tokens
+          await updateUser(dbUser.id, {
+            google: {
+              id: account.providerAccountId,
+              accessToken: (account as any).access_token,
+              refreshToken: (account as any).refresh_token,
+              expiresAt: (account as any).expires_at,
+            },
+          });
+          
+          token.id = dbUser.id;
+          token.email = dbUser.email;
+          token.name = dbUser.name;
+          (token as any).image = (user as any).image;
+        } catch (e) {
+          console.error('JWT Callback: Error handling Google auth', e);
         }
       }
       return token;
@@ -62,7 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        // surface minimal google info in session
+        (session.user as any).image = (token as any).image;
         if ((token as any).google) {
           (session as any).google = (token as any).google;
         }
