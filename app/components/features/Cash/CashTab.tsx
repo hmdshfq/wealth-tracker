@@ -1,8 +1,10 @@
 'use client';
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { Card, Input, Select, Button, SectionTitle, IconButton, Badge, Modal } from '@/app/components/ui';
 import { formatPLN, formatCurrency } from '@/app/lib/formatters';
 import { CashBalance, CashTransaction, NewCash } from '@/app/lib/types';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './Cash.module.css';
 
 interface ExchangeRates {
@@ -115,8 +117,17 @@ export const CashTab: React.FC<CashTabProps> = ({
   };
 
   return (
-    <div style={{ display: 'grid', gap: '24px' }}>
+    <motion.div 
+      style={{ display: 'grid', gap: '24px' }}
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Add Cash Transaction */}
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
       <Card>
         <SectionTitle>Add Cash Transaction</SectionTitle>
         <div className={styles.formGrid}>
@@ -154,8 +165,13 @@ export const CashTab: React.FC<CashTabProps> = ({
           </Button>
         </div>
       </Card>
+      </motion.div>
 
       {/* Cash Balances */}
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
       <Card>
         <SectionTitle>Cash Balances</SectionTitle>
         <div className={styles.balancesGrid}>
@@ -179,8 +195,13 @@ export const CashTab: React.FC<CashTabProps> = ({
           <p className={styles.totalValue}>{formatPLN(totalCashPLN)}</p>
         </div>
       </Card>
+      </motion.div>
 
       {/* Transaction History */}
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
       <Card>
         <SectionTitle>Transaction History ({cashTransactions.length})</SectionTitle>
         {cashTransactions.length === 0 ? (
@@ -280,8 +301,13 @@ export const CashTab: React.FC<CashTabProps> = ({
           </>
         )}
       </Card>
+      </motion.div>
 
       {/* Exchange Rates */}
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
       <Card>
         <SectionTitle>Exchange Rates</SectionTitle>
         <div className={styles.rates}>
@@ -299,6 +325,7 @@ export const CashTab: React.FC<CashTabProps> = ({
           </div>
         </div>
       </Card>
+      </motion.div>
 
       {/* Edit Modal */}
       <Modal
@@ -369,7 +396,7 @@ export const CashTab: React.FC<CashTabProps> = ({
           </Button>
         </div>
       </Modal>
-    </div>
+    </motion.div>
   );
 };
 

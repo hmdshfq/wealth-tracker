@@ -8,7 +8,7 @@ import { ChartSubTab } from './ChartSubTab';
 import { DepositsSubTab } from './DepositsSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
-import { fadeVariants, transitions } from '@/app/lib/animations';
+import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
 type InvestmentsSubTab = 'goal' | 'chart' | 'deposits' | 'transactions';
@@ -126,11 +126,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         {activeSubTab === 'goal' && (
           <motion.div
             key="goal"
-            variants={fadeVariants}
+            variants={slideFromBottomVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={transitions.normal}
+            transition={transitions.fast}
             className={styles.tabContent}
           >
             <GoalSubTab
@@ -149,11 +149,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         {activeSubTab === 'chart' && (
           <motion.div
             key="chart"
-            variants={fadeVariants}
+            variants={slideFromBottomVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={transitions.normal}
+            transition={transitions.fast}
             className={styles.tabContent}
           >
             <ChartSubTab
@@ -171,11 +171,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         {activeSubTab === 'deposits' && (
           <motion.div
             key="deposits"
-            variants={fadeVariants}
+            variants={slideFromBottomVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={transitions.normal}
+            transition={transitions.fast}
             className={styles.tabContent}
           >
             <DepositsSubTab
@@ -190,11 +190,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         {activeSubTab === 'transactions' && (
           <motion.div
             key="transactions"
-            variants={fadeVariants}
+            variants={slideFromBottomVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={transitions.normal}
+            transition={transitions.fast}
             className={styles.tabContent}
           >
             <TransactionsSubTab

@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { StatCard, ChartLoadingSkeleton } from '@/app/components/ui';
 import { useIdleRender } from '@/app/lib/hooks';
-import { staggerContainerVariants, fadeVariants, transitions } from '@/app/lib/animations';
+import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { GoalProgress } from './GoalProgress';
 import { GoalChartMini } from './GoalChartMini';
@@ -86,7 +86,12 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   }, [projectionData, transactions, exchangeRates, totalNetWorth]);
 
   return (
-    <div className={styles.dashboardContainer}>
+    <motion.div 
+      className={styles.dashboardContainer}
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Top Stats Row */}
       <motion.div
         className={styles.statsGrid}
@@ -130,23 +135,37 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
       {/* Investment Goal Mini Chart */}
       {chartData.length > 0 && (
-        chartsReady ? (
-          <GoalChartMini
-            goal={goal}
-            projectionData={chartData}
-            currentNetWorth={totalNetWorth}
-            goalProgress={goalProgress}
-            onClick={onNavigateToGoal}
-          />
-        ) : (
-          <ChartLoadingSkeleton />
-        )
+        <motion.div
+          variants={slideFromBottomVariants}
+          transition={transitions.normal}
+        >
+          {chartsReady ? (
+            <GoalChartMini
+              goal={goal}
+              projectionData={chartData}
+              currentNetWorth={totalNetWorth}
+              goalProgress={goalProgress}
+              onClick={onNavigateToGoal}
+            />
+          ) : (
+            <ChartLoadingSkeleton />
+          )}
+        </motion.div>
       )}
 
       {/* Main Content: 2-column layout on large screens */}
-      <div className={styles.mainContent}>
+      <motion.div 
+        className={styles.mainContent}
+        variants={staggerContainerVariants}
+        initial="initial"
+        animate="animate"
+      >
         {/* Left Column: Goal Progress + Allocation */}
-        <div className={styles.leftColumn}>
+        <motion.div 
+          className={styles.leftColumn}
+          variants={slideFromBottomVariants}
+          transition={transitions.normal}
+        >
           <GoalProgress
             goal={goal}
             currentValue={totalNetWorth}
@@ -157,14 +176,18 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           ) : (
             <ChartLoadingSkeleton />
           )}
-        </div>
+        </motion.div>
 
         {/* Right Column: Live ETF Prices */}
-        <div className={styles.rightColumn}>
+        <motion.div 
+          className={styles.rightColumn}
+          variants={slideFromBottomVariants}
+          transition={transitions.normal}
+        >
           <LivePrices prices={prices} etfData={etfData} />
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 };
 
