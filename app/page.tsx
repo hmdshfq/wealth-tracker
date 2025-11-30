@@ -1,4 +1,5 @@
-'use client';
+ 'use client';
+import { signIn } from 'next-auth/react';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 // Layout components
@@ -346,13 +347,27 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
     try {
       const filename = `investment-tracker-${new Date().toISOString().split('T')[0]}.json`;
-      const res = await fetch('/api/drive/upload', {
+      const res = await fetch('/api/drive/user-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename, content: JSON.stringify(data, null, 2) }),
       });
-      const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error || 'Upload failed');
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // If user is not authenticated or doesn't have Google tokens, redirect them
+        if (res.status === 401) {
+          // kick off the Google sign-in flow via next-auth helper
+          signIn('google');
+          return;
+        }
+        const errMsg = (json && json.error) ? String(json.error) : 'Upload failed';
+        // If server reports missing user Google tokens, prompt re-auth
+        if (errMsg.toLowerCase().includes('no google tokens')) {
+          signIn('google');
+          return;
+        }
+        throw new Error(errMsg);
+      }
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 3000);
     } catch (err) {

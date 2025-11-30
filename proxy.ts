@@ -5,7 +5,7 @@ import { getToken } from 'next-auth/jwt';
 // Routes that don't require authentication
 const publicRoutes = ['/auth/login', '/auth/signup'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Allow API auth routes to pass through
@@ -52,3 +52,5 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|public|api/prices|api/exchange-rates).*)',
   ],
 };
+
+export default proxy;
