@@ -12,6 +12,7 @@ import {
   ExportModal,
   ImportModal,
 } from '@/app/components/features';
+import DrivePicker from '@/app/components/features/Drive/DrivePicker';
 
 // UI components
 import { Toast, LocalStorageBanner } from '@/app/components/ui';
@@ -489,6 +490,103 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     }
   }, []);
 
+  // ---------------------------
+  // Google OAuth + simple Drive picker
+  // ---------------------------
+  const startOauthPopup = useCallback(async (scopes: string[]) => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) throw new Error('Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID');
+
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.set('client_id', clientId);
+    authUrl.searchParams.set('response_type', 'token');
+    authUrl.searchParams.set('scope', scopes.join(' '));
+    authUrl.searchParams.set('include_granted_scopes', 'true');
+    authUrl.searchParams.set('prompt', 'consent');
+    authUrl.searchParams.set('redirect_uri', window.location.origin + '/oauth-callback');
+
+    // Open popup and poll for hash containing access_token
+    const popup = window.open(authUrl.toString(), 'google_oauth', 'width=600,height=600');
+    if (!popup) throw new Error('Popup blocked');
+
+    return await new Promise<string>((resolve, reject) => {
+      const interval = setInterval(() => {
+        try {
+          if (!popup || popup.closed) {
+            clearInterval(interval);
+            reject(new Error('Auth popup closed'));
+            return;
+          }
+          // We expect the OAuth redirect to the same origin at /oauth-callback
+          if (popup.location && popup.location.hash) {
+            const hash = popup.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const token = params.get('access_token');
+            const expiresIn = params.get('expires_in');
+            if (token) {
+              clearInterval(interval);
+              popup.close();
+              resolve(token);
+            }
+          }
+        } catch (e) {
+          // cross-origin until redirect; ignore
+        }
+      }, 500);
+    });
+  }, []);
+
+  const openDrivePicker = useCallback(async () => {
+    // This function now opens a modal DrivePicker: authenticate, list files and show modal
+    try {
+      setPickerLoading(true);
+      const token = await startOauthPopup(['https://www.googleapis.com/auth/drive.readonly']);
+      const res = await fetch('https://www.googleapis.com/drive/v3/files?pageSize=50&fields=files(id,name,mimeType,createdTime,owners)', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to list Drive files');
+      const js = await res.json();
+      const files: Array<{ id: string; name: string; mimeType?: string; createdTime?: string }> = js.files || [];
+      setPickerFiles(files.map((f) => ({ id: f.id, name: f.name, mimeType: f.mimeType, createdTime: f.createdTime })));
+      setPickerToken(token);
+      setPickerOpen(true);
+      setPickerLoading(false);
+    } catch (err) {
+      console.error('Drive picker failed', err);
+      setImportError((err as Error).message || 'Drive picker failed');
+      setPickerLoading(false);
+    }
+  }, [startOauthPopup]);
+
+  // Drive picker modal state
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerLoading, setPickerLoading] = useState(false);
+  const [pickerFiles, setPickerFiles] = useState<Array<{ id: string; name: string; mimeType?: string; createdTime?: string }>>([]);
+  const [pickerToken, setPickerToken] = useState<string | null>(null);
+
+  const handlePickerSelect = useCallback(async (fileId: string) => {
+    if (!pickerToken) {
+      setImportError('Missing auth token');
+      return;
+    }
+    try {
+      setPickerLoading(true);
+      const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`, {
+        headers: { Authorization: `Bearer ${pickerToken}` },
+      });
+      if (!fileRes.ok) throw new Error('Failed to download file');
+      const text = await fileRes.text();
+      setImportData(text);
+      setImportError('');
+      setPickerOpen(false);
+    } catch (err) {
+      console.error('Picker download failed', err);
+      setImportError((err as Error).message || 'Failed to download file');
+    } finally {
+      setPickerLoading(false);
+    }
+  }, [pickerToken]);
+
   const addCustomTicker = useCallback((symbol: string, info: TickerInfo) => {
     setCustomTickers((prev) => ({ ...prev, [symbol]: info }));
   }, []);
@@ -764,6 +862,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
       <ImportModal
         isOpen={showImportModal}
+        onOpenPicker={openDrivePicker}
         onClose={() => setShowImportModal(false)}
         importData={importData}
         importError={importError}
@@ -771,6 +870,14 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         onFileUpload={handleFileUpload}
         onImport={handleImport}
         onImportFromDrive={importFromDrive}
+      />
+
+      <DrivePicker
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        files={pickerFiles}
+        loading={pickerLoading}
+        onSelect={handlePickerSelect}
       />
 
       {/* Toast */}
