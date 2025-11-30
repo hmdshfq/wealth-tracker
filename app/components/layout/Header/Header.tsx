@@ -127,9 +127,17 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowUserMenu(!showUserMenu)}
               title={session.user.name || session.user.email || 'User'}
             >
-              <span className={styles.avatar}>
-                {getInitials(session.user.name)}
-              </span>
+              {session.user.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User avatar'}
+                  className={styles.avatar}
+                />
+              ) : (
+                <span className={styles.avatar}>
+                  {getInitials(session.user.name)}
+                </span>
+              )}
             </button>
 
             {showUserMenu && (

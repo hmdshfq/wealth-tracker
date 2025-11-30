@@ -8,7 +8,6 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  password: string;
   createdAt: string;
   google?: {
     id?: string;
@@ -69,7 +68,6 @@ export async function getUserById(id: string): Promise<User | null> {
 export async function createUser(userData: {
   email: string;
   name: string;
-  password: string;
 }): Promise<User> {
   const data = readUsers();
   
@@ -77,7 +75,6 @@ export async function createUser(userData: {
     id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     email: userData.email.toLowerCase(),
     name: userData.name,
-    password: userData.password,
     createdAt: new Date().toISOString(),
   };
   
