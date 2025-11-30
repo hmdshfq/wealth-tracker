@@ -25,6 +25,28 @@
   filter: brightness(1.1);
 }
 
+.secondaryExport {
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.secondaryExport:hover {
+  border-color: var(--accent-green);
+  background: var(--bg-hover);
+}
+
 .exportTitle {
   margin-bottom: 4px;
 }
