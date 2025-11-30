@@ -1,19 +1,6 @@
 import { Variants } from 'motion/react';
 
-// ============================================================================
-// TIMING CONSTANTS
-// ============================================================================
 
-export const DURATION = {
-  fast: 0.1, // 100ms - button presses
-  normal: 0.15, // 150ms - most transitions
-  slow: 0.2, // 200ms - modals, complex transitions
-} as const;
-
-export const EASING = {
-  easeOut: [0.16, 1, 0.3, 1], // Smooth deceleration
-  easeInOut: [0.45, 0, 0.55, 1], // Balanced
-} as const;
 
 // ============================================================================
 // REUSABLE ANIMATION VARIANTS
@@ -42,9 +29,9 @@ export const slideFromBottomVariants: Variants = {
 
 /** Scale from center (modals) */
 export const scaleVariants: Variants = {
-  initial: { scale: 0.95, opacity: 0 },
-  animate: { scale: 1, opacity: 1 },
-  exit: { scale: 0.95, opacity: 0 },
+  initial: { x: "-50%", y: "-50%",scale: 0.95, opacity: 0 },
+  animate: { x: "-50%", y: "-50%",scale: 1, opacity: 1 },
+  exit: { x: "-50%", y: "-50%",scale: 0.95, opacity: 0 },
 };
 
 /** List item height collapse */
@@ -69,11 +56,11 @@ export const staggerContainerVariants: Variants = {
 };
 
 // ============================================================================
-// TRANSITION PRESETS
+// TRANSITION PRESETS (Spring Physics)
 // ============================================================================
 
 export const transitions = {
-  fast: { duration: DURATION.fast, ease: EASING.easeOut },
-  normal: { duration: DURATION.normal, ease: EASING.easeOut },
-  slow: { duration: DURATION.slow, ease: EASING.easeInOut },
+  fast: { type: 'spring', stiffness: 300, damping: 25, mass: 1 },
+  normal: { type: 'spring', stiffness: 100, damping: 12, mass: 1 },
+  slow: { type: 'spring', stiffness: 50, damping: 10, mass: 1 },
 } as const;
