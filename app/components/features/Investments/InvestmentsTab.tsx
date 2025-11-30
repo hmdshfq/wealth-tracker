@@ -11,7 +11,7 @@ import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } fro
 import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
-type InvestmentsSubTab = 'goal' | 'chart' | 'deposits' | 'transactions';
+type InvestmentsSubTab = 'chart' | 'deposits' | 'transactions' | 'goal';
 
 interface InvestmentsTabProps {
   // Transaction data
@@ -84,7 +84,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onEditSave,
   onTempGoalChange,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
+  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('chart');
 
   return (
     <motion.div 
@@ -95,13 +95,6 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
     >
       {/* Sub-tab Navigation */}
       <TabNav ariaLabel="Investment sections">
-        <TabButton
-          isActive={activeSubTab === 'goal'}
-          onClick={() => setActiveSubTab('goal')}
-          ariaLabel="View investment goal settings"
-        >
-          Goal
-        </TabButton>
         <TabButton
           isActive={activeSubTab === 'chart'}
           onClick={() => setActiveSubTab('chart')}
@@ -123,33 +116,17 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         >
           Transactions
         </TabButton>
+        <TabButton
+          isActive={activeSubTab === 'goal'}
+          onClick={() => setActiveSubTab('goal')}
+          ariaLabel="View investment goal settings"
+        >
+          Goal
+        </TabButton>
       </TabNav>
 
       {/* Sub-tab Content */}
       <AnimatePresence mode="wait">
-        {/* Goal Sub-tab */}
-        {activeSubTab === 'goal' && (
-          <motion.div
-            key="goal"
-            variants={slideFromBottomVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={transitions.fast}
-            className={styles.tabContent}
-          >
-            <GoalSubTab
-              goal={goal}
-              tempGoal={tempGoal}
-              editingGoal={editingGoal}
-              onEditStart={onEditStart}
-              onEditCancel={onEditCancel}
-              onEditSave={onEditSave}
-              onTempGoalChange={onTempGoalChange}
-            />
-          </motion.div>
-        )}
-
         {/* Chart Sub-tab */}
         {activeSubTab === 'chart' && (
           <motion.div
@@ -216,6 +193,29 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               onEditTicker={onEditTicker}
               onDeleteTicker={onDeleteTicker}
               holdingsData={holdingsData}
+            />
+          </motion.div>
+        )}
+
+        {/* Goal Sub-tab (moved last) */}
+        {activeSubTab === 'goal' && (
+          <motion.div
+            key="goal"
+            variants={slideFromBottomVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.fast}
+            className={styles.tabContent}
+          >
+            <GoalSubTab
+              goal={goal}
+              tempGoal={tempGoal}
+              editingGoal={editingGoal}
+              onEditStart={onEditStart}
+              onEditCancel={onEditCancel}
+              onEditSave={onEditSave}
+              onTempGoalChange={onTempGoalChange}
             />
           </motion.div>
         )}
