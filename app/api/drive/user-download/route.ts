@@ -5,8 +5,13 @@ import { getUserById } from '@/app/lib/users';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth(req);
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Get session using NextAuth's auth() - no need to pass request
+    // The session is automatically extracted from cookies
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const user = await getUserById(session.user.id as string);
     if (!user || !user.google || !user.google.accessToken) {

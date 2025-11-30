@@ -1,5 +1,5 @@
  'use client';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 // Layout components
@@ -68,6 +68,11 @@ const INITIAL_GOAL: Goal = {
 // ============================================================================
 
 export default function InvestmentTracker() {
+  // ---------------------------------------------------------------------------
+  // Auth Session
+  // ---------------------------------------------------------------------------
+  const { data: session } = useSession();
+
   // ---------------------------------------------------------------------------
   // Core State
   // ---------------------------------------------------------------------------
@@ -346,6 +351,13 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     };
 
     try {
+      // Check if user has a valid session with Google auth
+      if (!session?.user?.id) {
+        // No session at all - redirect to Google sign-in
+        signIn('google');
+        return;
+      }
+
       const filename = `investment-tracker-${new Date().toISOString().split('T')[0]}.json`;
       const res = await fetch('/api/drive/user-upload', {
         method: 'POST',
@@ -374,7 +386,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       console.error('Export to Drive failed', err);
       // Could show a toast or error state; using console for now
     }
-  }, [goal, transactions, cash, cashTransactions, customTickers]);
+  }, [goal, transactions, cash, cashTransactions, customTickers, session]);
 
   const exportToCSV = useCallback((type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => {
     let csv = '';

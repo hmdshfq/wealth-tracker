@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Readable } from 'stream';
 import { google } from 'googleapis';
 import { auth } from '@/auth';
 import { getUserById } from '@/app/lib/users';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth(req);
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Get session using NextAuth's auth() - no need to pass request
+    // The session is automatically extracted from cookies
+    const session = await auth();
+    
+    console.log('User Upload API: Session check', { userId: session?.user?.id, email: session?.user?.email });
+    
+    if (!session?.user?.id) {
+      console.log('User Upload API: No session found');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const user = await getUserById(session.user.id as string);
+    console.log('User Upload API: User record', { userId: user?.id, email: user?.email, hasGoogleTokens: !!user?.google?.accessToken });
+    
     if (!user || !user.google || !user.google.accessToken) {
+      console.log('User Upload API: Missing Google tokens', { userId: user?.id, hasGoogle: !!user?.google });
       return NextResponse.json({ error: 'No Google tokens available for user' }, { status: 400 });
     }
 
@@ -27,10 +39,14 @@ export async function POST(req: NextRequest) {
     // auto-refresh if needed
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
+    // Create a readable stream from the content
+    const buffer = Buffer.from(content, 'utf-8');
+    const stream = Readable.from(buffer);
+
     const media = {
       mimeType: 'application/json',
-      body: Buffer.from(content),
-    } as any;
+      body: stream,
+    };
 
     const res = await drive.files.create({
       requestBody: { name: filename },

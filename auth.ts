@@ -46,6 +46,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             password: hashedPassword,
           });
 
+          console.log('Credentials Provider: Created new user', { userId: newUser.id, email: newUser.email });
           return {
             id: newUser.id,
             email: newUser.email,
@@ -63,6 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error('Invalid email or password');
           }
 
+          console.log('Credentials Provider: Found user', { userId: user.id, email: user.email });
           return {
             id: user.id,
             email: user.email,
@@ -86,47 +88,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
+      console.log('JWT Callback: Called', { userId: (user as any)?.id, email: (user as any)?.email, hasAccount: !!account });
+      
       if (user) {
-        // When signing in with Google, NextAuth places profile info on user
-        token.id = (user as any).id || token.id;
-        token.email = (user as any).email || token.email;
-        token.name = (user as any).name || token.name;
-
-        // Persist tokens from OAuth provider to our user store if available
-        const acct = account || (user as any).account;
-        if (acct && acct.provider === 'google') {
+        // First, check if this is a Google sign-in by looking for the account
+        if (account && account.provider === 'google') {
+          // For Google OAuth, we need to find or create the user in our database
+          // and use OUR user ID, not Google's profile ID
+          console.log('JWT Callback: Google OAuth flow');
           try {
-            const u = await getUserByEmail(token.email as string);
-            if (u) {
-              await updateUser(u.id, {
-                google: {
-                  id: acct.providerAccountId || acct.id || undefined,
-                  accessToken: (acct as any).access_token,
-                  refreshToken: (acct as any).refresh_token,
-                  expiresAt: (acct as any).expires_at,
-                },
-              });
-            } else {
-              // Create a new user record if one doesn't exist (Google sign up)
-              const created = await createUser({
-                email: token.email as string,
-                name: token.name as string || 'Google User',
+            const email = (user as any).email || token.email;
+            let dbUser = await getUserByEmail(email);
+            
+            if (!dbUser) {
+              // Create a new user if they don't exist
+              console.log('JWT Callback: Creating new user from Google');
+              dbUser = await createUser({
+                email: email as string,
+                name: (user as any).name || 'Google User',
                 password: Math.random().toString(36).slice(2, 10),
               });
-              await updateUser(created.id, {
-                google: {
-                  id: acct.providerAccountId || acct.id || undefined,
-                  accessToken: (acct as any).access_token,
-                  refreshToken: (acct as any).refresh_token,
-                  expiresAt: (acct as any).expires_at,
-                },
-              });
-              token.id = created.id;
             }
+            
+            // Always update with the latest Google tokens
+            console.log('JWT Callback: Updating Google tokens for user', { userId: dbUser.id });
+            await updateUser(dbUser.id, {
+              google: {
+                id: account.providerAccountId || undefined,
+                accessToken: (account as any).access_token,
+                refreshToken: (account as any).refresh_token,
+                expiresAt: (account as any).expires_at,
+              },
+            });
+            
+            // Use OUR user ID in the token, not Google's
+            token.id = dbUser.id;
+            token.email = dbUser.email;
+            token.name = dbUser.name;
           } catch (e) {
-            console.warn('Failed to save Google tokens', e);
+            console.error('JWT Callback: Error handling Google auth', e);
           }
+        } else {
+          // For Credentials provider, use the ID directly
+          console.log('JWT Callback: Credentials auth flow');
+          token.id = (user as any).id || token.id;
+          token.email = (user as any).email || token.email;
+          token.name = (user as any).name || token.name;
         }
+
+        console.log('JWT Callback: Set token values', { tokenId: token.id, tokenEmail: token.email });
       }
       return token;
     },
