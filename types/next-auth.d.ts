@@ -7,6 +7,12 @@ declare module 'next-auth' {
       id: string;
       email: string;
       name: string;
+      // optional google data
+      google?: {
+        accessToken?: string;
+        refreshToken?: string;
+        expiresAt?: number;
+      };
     };
   }
 
@@ -14,6 +20,11 @@ declare module 'next-auth' {
     id: string;
     email: string;
     name: string;
+    google?: {
+      accessToken?: string;
+      refreshToken?: string;
+      expiresAt?: number;
+    };
   }
 }
 

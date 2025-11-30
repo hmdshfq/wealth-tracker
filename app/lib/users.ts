@@ -10,6 +10,12 @@ export interface User {
   name: string;
   password: string;
   createdAt: string;
+  google?: {
+    id?: string;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: number;
+  };
 }
 
 interface UsersData {
