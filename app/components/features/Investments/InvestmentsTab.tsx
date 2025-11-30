@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TabNav, TabButton } from '@/app/components/ui';
 import { SettingsSubTab } from './SettingsSubTab';
-import { ChartSubTab } from './ChartSubTab';
-import { DepositsSubTab } from './DepositsSubTab';
+import { GoalSubTab } from './GoalSubTab';
+import { TrackerSubTab } from './TrackerSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
 import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
-type InvestmentsSubTab = 'chart' | 'deposits' | 'transactions' | 'settings';
+type InvestmentsSubTab = 'goal' | 'tracker' | 'transactions' | 'settings';
 
 interface InvestmentsTabProps {
   // Transaction data
@@ -84,7 +84,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onEditSave,
   onTempGoalChange,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('chart');
+  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
 
   return (
     <motion.div 
@@ -96,18 +96,18 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       {/* Sub-tab Navigation */}
       <TabNav ariaLabel="Investment sections">
         <TabButton
-          isActive={activeSubTab === 'chart'}
-          onClick={() => setActiveSubTab('chart')}
+          isActive={activeSubTab === 'goal'}
+          onClick={() => setActiveSubTab('goal')}
           ariaLabel="View goal progress chart"
         >
-          Chart
+          Goal
         </TabButton>
         <TabButton
-          isActive={activeSubTab === 'deposits'}
-          onClick={() => setActiveSubTab('deposits')}
-          ariaLabel="View monthly deposit tracking"
+          isActive={activeSubTab === 'tracker'}
+          onClick={() => setActiveSubTab('tracker')}
+          ariaLabel="View monthly deposit tracker"
         >
-          Deposits
+          Tracker
         </TabButton>
         <TabButton
           isActive={activeSubTab === 'transactions'}
@@ -128,7 +128,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       {/* Sub-tab Content */}
       <AnimatePresence mode="wait">
         {/* Chart Sub-tab */}
-        {activeSubTab === 'chart' && (
+        {activeSubTab === 'goal' && (
           <motion.div
             key="chart"
             variants={slideFromBottomVariants}
@@ -138,7 +138,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transition={transitions.fast}
             className={styles.tabContent}
           >
-            <ChartSubTab
+            <GoalSubTab
               goal={goal}
               transactions={transactions}
               totalNetWorth={totalNetWorth}
@@ -150,7 +150,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         )}
 
         {/* Deposits Sub-tab */}
-        {activeSubTab === 'deposits' && (
+        {activeSubTab === 'tracker' && (
           <motion.div
             key="deposits"
             variants={slideFromBottomVariants}
@@ -160,7 +160,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transition={transitions.fast}
             className={styles.tabContent}
           >
-            <DepositsSubTab
+            <TrackerSubTab
               goal={goal}
               transactions={transactions}
               exchangeRates={exchangeRates}
