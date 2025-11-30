@@ -1,10 +1,8 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
-import { slideFromBottomVariants, fadeVariants, transitions } from '@/app/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
 interface MonthlyDepositTrackerProps {
@@ -208,13 +206,10 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </TabNav>
 
       {/* Summary Stats */}
-      <motion.div 
+      <div 
         className={styles.summaryRow} 
         role="region" 
         aria-label="Investment summary"
-        variants={fadeVariants}
-        transition={transitions.normal}
-        key={`summary-${viewMode}`}
       >
         <div className={styles.summaryItem}>
           <span className={styles.summaryLabel}>
@@ -245,7 +240,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             {currentPercentage.toFixed(0)}%
           </span>
         </div>
-      </motion.div>
+      </div>
 
       {/* Legend */}
       <div className={styles.legend} role="region" aria-label="Legend">
@@ -297,7 +292,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             </tr>
           </thead>
           <tbody>
-            {displayYears.map((yearData, yearIdx) => {
+            {displayYears && displayYears.map((yearData, yearIdx) => {
               const year = yearData[0].year;
               const yearsToGo = goal.retirementYear - year;
               const requiredForYear = goal.monthlyDeposits * Math.pow(1 + goal.depositIncreasePercentage, yearIdx);
