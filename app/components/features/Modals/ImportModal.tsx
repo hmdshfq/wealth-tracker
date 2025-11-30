@@ -11,6 +11,7 @@ interface ImportModalProps {
   onImportDataChange: (data: string) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onImport: () => void;
+  onImportFromDrive?: (fileId: string) => void;
 }
 
 export const ImportModal: React.FC<ImportModalProps> = ({
@@ -21,7 +22,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onImportDataChange,
   onFileUpload,
   onImport,
+  onImportFromDrive,
 }) => {
+  const [fileId, setFileId] = React.useState('');
   const handleClose = () => {
     onImportDataChange('');
     onClose();
@@ -80,6 +83,22 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         <Button onClick={onImport} disabled={!importData.trim()}>
           Import Data
         </Button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input
+            value={fileId}
+            onChange={(e) => setFileId(e.target.value)}
+            placeholder="Google Drive file ID"
+            className={styles.driveInput}
+            style={{ padding: '6px 8px' }}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => onImportFromDrive && onImportFromDrive(fileId)}
+            disabled={!fileId.trim()}
+          >
+            Import from Drive
+          </Button>
+        </div>
       </div>
     </AnimatedModal>
   );

@@ -332,6 +332,34 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     setTimeout(() => setExportSuccess(false), 3000);
   }, [goal, transactions, cash, cashTransactions, customTickers]);
 
+  const exportToDrive = useCallback(async () => {
+    const data = {
+      version: '1.1',
+      exportDate: new Date().toISOString(),
+      goal,
+      transactions,
+      cash,
+      cashTransactions,
+      customTickers,
+    };
+
+    try {
+      const filename = `investment-tracker-${new Date().toISOString().split('T')[0]}.json`;
+      const res = await fetch('/api/drive/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, content: JSON.stringify(data, null, 2) }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Upload failed');
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (err) {
+      console.error('Export to Drive failed', err);
+      // Could show a toast or error state; using console for now
+    }
+  }, [goal, transactions, cash, cashTransactions, customTickers]);
+
   const exportToCSV = useCallback((type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => {
     let csv = '';
     let filename = '';
@@ -442,6 +470,23 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       setImportError('Failed to read file');
     };
     reader.readAsText(file);
+  }, []);
+
+  const importFromDrive = useCallback(async (fileId: string) => {
+    if (!fileId.trim()) return;
+    try {
+      const res = await fetch(`/api/drive/download?fileId=${encodeURIComponent(fileId.trim())}`);
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || 'Download failed');
+      }
+      const text = await res.text();
+      setImportData(text);
+      setImportError('');
+    } catch (err) {
+      console.error('Import from Drive failed', err);
+      setImportError((err as Error).message || 'Failed to download file');
+    }
   }, []);
 
   const addCustomTicker = useCallback((symbol: string, info: TickerInfo) => {
@@ -714,6 +759,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         onClose={() => setShowExportModal(false)}
         onExportJSON={exportToJSON}
         onExportCSV={exportToCSV}
+        onExportToDrive={exportToDrive}
       />
 
       <ImportModal
@@ -724,6 +770,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         onImportDataChange={setImportData}
         onFileUpload={handleFileUpload}
         onImport={handleImport}
+        onImportFromDrive={importFromDrive}
       />
 
       {/* Toast */}
