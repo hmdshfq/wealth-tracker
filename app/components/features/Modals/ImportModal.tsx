@@ -12,6 +12,7 @@ interface ImportModalProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onImport: () => void;
   onImportFromDrive?: (fileId: string) => void;
+  onOpenPicker?: () => void;
 }
 
 export const ImportModal: React.FC<ImportModalProps> = ({
@@ -23,6 +24,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onFileUpload,
   onImport,
   onImportFromDrive,
+  onOpenPicker,
 }) => {
   const [fileId, setFileId] = React.useState('');
   const handleClose = () => {
@@ -97,6 +99,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             disabled={!fileId.trim()}
           >
             Import from Drive
+          </Button>
+          <Button variant="secondary" onClick={() => onOpenPicker && onOpenPicker()}>
+            Pick from Drive
           </Button>
         </div>
       </div>
