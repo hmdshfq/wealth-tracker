@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { TickerSearchCard } from './TickerSearchCard';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import { TransactionForm } from '../Transactions/TransactionForm';
 import { TransactionList } from '../Transactions/TransactionList';
 import { Transaction, NewTransaction, HoldingWithDetails, TickerInfo } from '@/app/lib/types';
@@ -51,33 +53,53 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
   }, [holdingsData]);
 
   return (
-    <>
+    <motion.div
+      style={{ display: 'grid', gap: '24px' }}
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Ticker Search */}
-      <TickerSearchCard
-        onAddTicker={onAddTicker}
-        existingTickers={Object.keys(etfData)}
-        customTickers={customTickers}
-        onEditTicker={onEditTicker}
-        onDeleteTicker={onDeleteTicker}
-        allTickers={allTickers}
-        heldTickers={heldTickers}
-      />
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
+        <TickerSearchCard
+          onAddTicker={onAddTicker}
+          existingTickers={Object.keys(etfData)}
+          customTickers={customTickers}
+          onEditTicker={onEditTicker}
+          onDeleteTicker={onDeleteTicker}
+          allTickers={allTickers}
+          heldTickers={heldTickers}
+        />
+      </motion.div>
 
       {/* Add Transaction Form */}
-      <TransactionForm
-        newTx={newTx}
-        onChange={onTxChange}
-        onSubmit={onAddTransaction}
-        etfData={etfData}
-      />
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
+        <TransactionForm
+          newTx={newTx}
+          onChange={onTxChange}
+          onSubmit={onAddTransaction}
+          etfData={etfData}
+        />
+      </motion.div>
 
       {/* Transaction History */}
-      <TransactionList
-        transactions={transactions}
-        prices={prices}
-        onEdit={onEditTransaction}
-        onDelete={onDeleteTransaction}
-      />
-    </>
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
+        <TransactionList
+          transactions={transactions}
+          prices={prices}
+          onEdit={onEditTransaction}
+          onDelete={onDeleteTransaction}
+        />
+      </motion.div>
+    </motion.div>
   );
 };

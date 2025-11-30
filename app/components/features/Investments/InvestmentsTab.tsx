@@ -8,7 +8,7 @@ import { ChartSubTab } from './ChartSubTab';
 import { DepositsSubTab } from './DepositsSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
-import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
+import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
 type InvestmentsSubTab = 'goal' | 'chart' | 'deposits' | 'transactions';
@@ -87,7 +87,12 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
 
   return (
-    <div className={styles.container}>
+    <motion.div 
+      className={styles.container}
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Sub-tab Navigation */}
       <TabNav ariaLabel="Investment sections">
         <TabButton
@@ -215,7 +220,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

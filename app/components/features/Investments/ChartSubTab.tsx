@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { ChartLoadingSkeleton } from '@/app/components/ui';
 import { useIdleRender } from '@/app/lib/hooks';
 import { GoalProgressCard, InvestmentGoalChart } from '../Goal';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import { Transaction, Goal } from '@/app/lib/types';
 import {
   generateProjectionData,
@@ -64,27 +66,43 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
   }, [projectionData, transactions, exchangeRates, portfolioValue]);
 
   return (
-    <>
+    <motion.div
+      style={{ display: 'grid', gap: '24px' }}
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Progress Card */}
-      <GoalProgressCard
-        goal={goal}
-        totalNetWorth={totalNetWorth}
-        goalProgress={goalProgress}
-      />
+      <motion.div
+        variants={slideFromBottomVariants}
+        transition={transitions.normal}
+      >
+        <GoalProgressCard
+          goal={goal}
+          totalNetWorth={totalNetWorth}
+          goalProgress={goalProgress}
+        />
+      </motion.div>
 
       {/* Investment Goal Progress Chart */}
-      {chartData.length > 0 &&
-        (chartReady ? (
-          <InvestmentGoalChart
-            goal={goal}
-            projectionData={chartData}
-            currentNetWorth={portfolioValue}
-            totalActualContributions={totalActualContributions}
-            firstTransactionDate={firstTransactionDate}
-          />
-        ) : (
-          <ChartLoadingSkeleton />
-        ))}
-    </>
+      {chartData.length > 0 && (
+        <motion.div
+          variants={slideFromBottomVariants}
+          transition={transitions.normal}
+        >
+          {chartReady ? (
+            <InvestmentGoalChart
+              goal={goal}
+              projectionData={chartData}
+              currentNetWorth={portfolioValue}
+              totalActualContributions={totalActualContributions}
+              firstTransactionDate={firstTransactionDate}
+            />
+          ) : (
+            <ChartLoadingSkeleton />
+          )}
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
