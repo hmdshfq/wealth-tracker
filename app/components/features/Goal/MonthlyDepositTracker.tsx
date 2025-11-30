@@ -1,8 +1,10 @@
 'use client';
 import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
+import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
 interface MonthlyDepositTrackerProps {
@@ -263,117 +265,204 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </div>
 
       {/* Table */}
-      <div 
-        className={styles.tableWrapper} 
-        role="tabpanel" 
-        id={`${viewMode}-panel`}
-        aria-labelledby={`${viewMode}-tab`}
-        tabIndex={0}
-      >
-        <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
-          <caption id="investment-table-desc" className={styles.visuallyHidden}>
-            {viewMode === 'monthly' 
-              ? 'Monthly investment tracking table showing required and actual investments for each month.'
-              : 'Cumulative investment tracking table showing running totals of investments vs requirements.'
-            }
-            Green cells indicate the goal was met, red cells indicate below target.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" className={styles.yearHeader}>
-                <span className={styles.yearHeaderText}>Year</span>
-                <span className={styles.yearHeaderSubtext}>Years to Go</span>
-              </th>
-              {MONTHS.map((month, idx) => (
-                <th key={month} scope="col" className={styles.monthHeader}>
-                  <abbr title={MONTH_FULL_NAMES[idx]}>{month}</abbr>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {displayYears && displayYears.map((yearData, yearIdx) => {
-              const year = yearData[0].year;
-              const yearsToGo = goal.retirementYear - year;
-              const requiredForYear = goal.monthlyDeposits * Math.pow(1 + goal.depositIncreasePercentage, yearIdx);
-
-              return (
-                <tr key={year}>
-                  <th scope="row" className={styles.yearCell}>
-                    <span className={styles.yearValue}>{year}</span>
-                    <span className={styles.yearsToGo}>{yearsToGo}y</span>
-                    {viewMode === 'monthly' && (
-                      <span className={styles.yearRequired}>
-                        Req: {formatPLN(requiredForYear)}
-                      </span>
-                    )}
+      <AnimatePresence mode="wait">
+        {viewMode === 'monthly' && (
+          <motion.div
+            key="monthly"
+            className={styles.tableWrapper}
+            role="tabpanel"
+            id="monthly-panel"
+            aria-labelledby="monthly-tab"
+            tabIndex={0}
+            variants={slideFromBottomVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.fast}
+          >
+            <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
+              <caption id="investment-table-desc" className={styles.visuallyHidden}>
+                Monthly investment tracking table showing required and actual investments for each month.
+                Green cells indicate the goal was met, red cells indicate below target.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={styles.yearHeader}>
+                    <span className={styles.yearHeaderText}>Year</span>
+                    <span className={styles.yearHeaderSubtext}>Years to Go</span>
                   </th>
-                  {yearData.map((monthData) => {
-                    const cellId = `cell-${viewMode}-${monthData.year}-${monthData.month}`;
-                    const isCurrentMonth = monthData.year === currentYear && monthData.month === currentMonth;
-                    
-                    // Use appropriate status based on view mode
-                    const cellStatus = viewMode === 'monthly' ? monthData.status : monthData.cumulativeStatus;
-                    const isActiveCell = cellStatus !== 'future' && cellStatus !== 'empty';
-
-                    return (
-                      <td
-                        key={monthData.month}
-                        id={cellId}
-                        className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
-                        role="gridcell"
-                        aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
-                          cellStatus === 'future'
-                            ? 'Future month'
-                            : cellStatus === 'empty'
-                            ? 'Before investment start date'
-                            : viewMode === 'monthly'
-                            ? `Invested ${formatPLN(monthData.invested)} of ${formatPLN(monthData.required)} required. ${
-                                cellStatus === 'met' ? 'Goal met.' : 'Below target.'
-                              }`
-                            : `Cumulative invested ${formatPLN(monthData.cumulativeInvested)} of ${formatPLN(monthData.cumulativeRequired)} required. ${
-                                cellStatus === 'met' ? 'On track.' : 'Behind.'
-                              }`
-                        }`}
-                        tabIndex={-1}
-                      >
-                        {isActiveCell && viewMode === 'monthly' && (
-                          <div className={styles.cellContent}>
-                            <span className={styles.investedAmount}>
-                              {formatPLN(monthData.invested)}
-                            </span>
-                            <span className={styles.requiredAmount}>
-                              / {formatPLN(monthData.required)}
-                            </span>
-                          </div>
-                        )}
-                        {isActiveCell && viewMode === 'cumulative' && (
-                          <div className={styles.cellContent}>
-                            <span className={styles.investedAmount}>
-                              {formatPLN(monthData.cumulativeInvested)}
-                            </span>
-                            <span className={styles.requiredAmount}>
-                              / {formatPLN(monthData.cumulativeRequired)}
-                            </span>
-                          </div>
-                        )}
-                        {!isActiveCell && (
-                          <span className={styles.futureText}>—</span>
-                        )}
-                        {isCurrentMonth && (
-                          <span className={styles.currentIndicator} aria-label="Current month">
-                            ●
-                          </span>
-                        )}
-                      </td>
-                    );
-                  })}
+                  {MONTHS.map((month, idx) => (
+                    <th key={month} scope="col" className={styles.monthHeader}>
+                      <abbr title={MONTH_FULL_NAMES[idx]}>{month}</abbr>
+                    </th>
+                  ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {displayYears && displayYears.map((yearData, yearIdx) => {
+                  const year = yearData[0].year;
+                  const yearsToGo = goal.retirementYear - year;
+                  const requiredForYear = goal.monthlyDeposits * Math.pow(1 + goal.depositIncreasePercentage, yearIdx);
+
+                  return (
+                    <tr key={year}>
+                      <th scope="row" className={styles.yearCell}>
+                        <span className={styles.yearValue}>{year}</span>
+                        <span className={styles.yearsToGo}>{yearsToGo}y</span>
+                        <span className={styles.yearRequired}>
+                          Req: {formatPLN(requiredForYear)}
+                        </span>
+                      </th>
+                      {yearData.map((monthData) => {
+                        const cellId = `cell-monthly-${monthData.year}-${monthData.month}`;
+                        const isCurrentMonth = monthData.year === currentYear && monthData.month === currentMonth;
+                        
+                        const cellStatus = monthData.status;
+                        const isActiveCell = cellStatus !== 'future' && cellStatus !== 'empty';
+
+                        return (
+                          <td
+                            key={monthData.month}
+                            id={cellId}
+                            className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
+                            role="gridcell"
+                            aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
+                              cellStatus === 'future'
+                                ? 'Future month'
+                                : cellStatus === 'empty'
+                                ? 'Before investment start date'
+                                : `Invested ${formatPLN(monthData.invested)} of ${formatPLN(monthData.required)} required. ${
+                                    cellStatus === 'met' ? 'Goal met.' : 'Below target.'
+                                  }`
+                            }`}
+                            tabIndex={-1}
+                          >
+                            {isActiveCell && (
+                              <div className={styles.cellContent}>
+                                <span className={styles.investedAmount}>
+                                  {formatPLN(monthData.invested)}
+                                </span>
+                                <span className={styles.requiredAmount}>
+                                  / {formatPLN(monthData.required)}
+                                </span>
+                              </div>
+                            )}
+                            {!isActiveCell && (
+                              <span className={styles.futureText}>—</span>
+                            )}
+                            {isCurrentMonth && (
+                              <span className={styles.currentIndicator} aria-label="Current month">
+                                ●
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </motion.div>
+        )}
+
+        {viewMode === 'cumulative' && (
+          <motion.div
+            key="cumulative"
+            className={styles.tableWrapper}
+            role="tabpanel"
+            id="cumulative-panel"
+            aria-labelledby="cumulative-tab"
+            tabIndex={0}
+            variants={slideFromBottomVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.fast}
+          >
+            <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
+              <caption id="investment-table-desc" className={styles.visuallyHidden}>
+                Cumulative investment tracking table showing running totals of investments vs requirements.
+                Green cells indicate on track, red cells indicate behind.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={styles.yearHeader}>
+                    <span className={styles.yearHeaderText}>Year</span>
+                    <span className={styles.yearHeaderSubtext}>Years to Go</span>
+                  </th>
+                  {MONTHS.map((month, idx) => (
+                    <th key={month} scope="col" className={styles.monthHeader}>
+                      <abbr title={MONTH_FULL_NAMES[idx]}>{month}</abbr>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {displayYears && displayYears.map((yearData, yearIdx) => {
+                  const year = yearData[0].year;
+                  const yearsToGo = goal.retirementYear - year;
+                  const requiredForYear = goal.monthlyDeposits * Math.pow(1 + goal.depositIncreasePercentage, yearIdx);
+
+                  return (
+                    <tr key={year}>
+                      <th scope="row" className={styles.yearCell}>
+                        <span className={styles.yearValue}>{year}</span>
+                        <span className={styles.yearsToGo}>{yearsToGo}y</span>
+                      </th>
+                      {yearData.map((monthData) => {
+                        const cellId = `cell-${viewMode}-${monthData.year}-${monthData.month}`;
+                        const isCurrentMonth = monthData.year === currentYear && monthData.month === currentMonth;
+                        
+                        const cellStatus = monthData.cumulativeStatus;
+                        const isActiveCell = cellStatus !== 'future' && cellStatus !== 'empty';
+
+                        return (
+                          <td
+                            key={monthData.month}
+                            id={cellId}
+                            className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
+                            role="gridcell"
+                            aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
+                              cellStatus === 'future'
+                                ? 'Future month'
+                                : cellStatus === 'empty'
+                                ? 'Before investment start date'
+                                : `Cumulative invested ${formatPLN(monthData.cumulativeInvested)} of ${formatPLN(monthData.cumulativeRequired)} required. ${
+                                    cellStatus === 'met' ? 'On track.' : 'Behind.'
+                                  }`
+                            }`}
+                            tabIndex={-1}
+                          >
+                            {isActiveCell && (
+                              <div className={styles.cellContent}>
+                                <span className={styles.investedAmount}>
+                                  {formatPLN(monthData.cumulativeInvested)}
+                                </span>
+                                <span className={styles.requiredAmount}>
+                                  / {formatPLN(monthData.cumulativeRequired)}
+                                </span>
+                              </div>
+                            )}
+                            {!isActiveCell && (
+                              <span className={styles.futureText}>—</span>
+                            )}
+                            {isCurrentMonth && (
+                              <span className={styles.currentIndicator} aria-label="Current month">
+                                ●
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Keyboard navigation hint */}
       <p className={styles.keyboardHint}>
