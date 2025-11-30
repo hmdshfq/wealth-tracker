@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TabNav, TabButton } from '@/app/components/ui';
-import { GoalSubTab } from './GoalSubTab';
+import { SettingsSubTab } from './SettingsSubTab';
 import { ChartSubTab } from './ChartSubTab';
 import { DepositsSubTab } from './DepositsSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
@@ -11,7 +11,7 @@ import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } fro
 import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
-type InvestmentsSubTab = 'chart' | 'deposits' | 'transactions' | 'goal';
+type InvestmentsSubTab = 'chart' | 'deposits' | 'transactions' | 'settings';
 
 interface InvestmentsTabProps {
   // Transaction data
@@ -117,11 +117,11 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
           Transactions
         </TabButton>
         <TabButton
-          isActive={activeSubTab === 'goal'}
-          onClick={() => setActiveSubTab('goal')}
-          ariaLabel="View investment goal settings"
+          isActive={activeSubTab === 'settings'}
+          onClick={() => setActiveSubTab('settings')}
+          ariaLabel="View investment settings"
         >
-          Goal
+          Settings
         </TabButton>
       </TabNav>
 
@@ -197,10 +197,10 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
           </motion.div>
         )}
 
-        {/* Goal Sub-tab (moved last) */}
-        {activeSubTab === 'goal' && (
+        {/* Settings Sub-tab (moved last) */}
+        {activeSubTab === 'settings' && (
           <motion.div
-            key="goal"
+            key="settings"
             variants={slideFromBottomVariants}
             initial="initial"
             animate="animate"
@@ -208,7 +208,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transition={transitions.fast}
             className={styles.tabContent}
           >
-            <GoalSubTab
+            <SettingsSubTab
               goal={goal}
               tempGoal={tempGoal}
               editingGoal={editingGoal}
