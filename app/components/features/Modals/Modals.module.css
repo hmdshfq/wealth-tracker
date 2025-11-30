@@ -171,6 +171,16 @@
   margin: 0;
 }
 
+.driveSection {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.fullWidthButton {
+  width: 100%;
+}
+
 .buttonRow {
   display: flex;
   gap: 12px;

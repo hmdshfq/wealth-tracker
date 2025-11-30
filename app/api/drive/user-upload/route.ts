@@ -34,6 +34,30 @@ export async function POST(req: NextRequest) {
     // auto-refresh if needed
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
+    // Find or create wealthtracker folder
+    const folderQuery = "name='wealthtracker' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+    const folderRes = await drive.files.list({
+      q: folderQuery,
+      spaces: 'drive',
+      fields: 'files(id)',
+      pageSize: 1,
+    });
+
+    let folderId: string;
+    if (folderRes.data.files && folderRes.data.files.length > 0) {
+      folderId = folderRes.data.files[0].id!;
+    } else {
+      // Create the folder if it doesn't exist
+      const createFolderRes = await drive.files.create({
+        requestBody: {
+          name: 'wealthtracker',
+          mimeType: 'application/vnd.google-apps.folder',
+        },
+        fields: 'id',
+      });
+      folderId = createFolderRes.data.id!;
+    }
+
     // Create a readable stream from the content
     const buffer = Buffer.from(content, 'utf-8');
     const stream = Readable.from(buffer);
@@ -44,7 +68,10 @@ export async function POST(req: NextRequest) {
     };
 
     const res = await drive.files.create({
-      requestBody: { name: filename },
+      requestBody: { 
+        name: filename,
+        parents: [folderId],
+      },
       media,
       fields: 'id, name, webViewLink, webContentLink',
     });

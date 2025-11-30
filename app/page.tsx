@@ -597,71 +597,37 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
   }, []);
 
   const openDrivePicker = useCallback(async () => {
-    // This function now opens a modal DrivePicker: authenticate, list files and show modal
+    // List files from wealthtracker folder via backend API
     try {
       setPickerLoading(true);
-      const token = await startOauthPopup(['https://www.googleapis.com/auth/drive.readonly']);
-      console.debug('Received OAuth token, validating tokeninfo. token length:', token?.length ?? 0);
-      try {
-        const infoRes = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${encodeURIComponent(token)}`);
-        if (infoRes.ok) {
-          const info = await infoRes.json();
-          console.debug('Token info:', info);
-          // Quick check for scope presence
-          const scopes = (info.scope || info.scopes || '').toString();
-          if (!scopes.includes('drive')) {
-            console.warn('OAuth token does not include Drive scopes:', scopes);
-          }
-        } else {
-          const txt = await infoRes.text().catch(() => '[unreadable body]');
-          console.warn('Failed to fetch tokeninfo:', infoRes.status, txt);
-        }
-      } catch (e) {
-        console.debug('tokeninfo fetch failed', e);
-      }
-      const res = await fetch('https://www.googleapis.com/drive/v3/files?pageSize=50&fields=files(id,name,mimeType,createdTime,owners)', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch('/api/drive/list-files');
       if (!res.ok) {
         const body = await res.text().catch(() => null);
         throw new Error(`Failed to list Drive files (${res.status}): ${body || res.statusText}`);
       }
-      const js = await res.json().catch(async () => {
-        const txt = await res.text().catch(() => '[unreadable body]');
-        throw new Error(`Failed to parse Drive files JSON: ${txt}`);
-      });
-      const files: Array<{ id: string; name: string; mimeType?: string; createdTime?: string }> = js.files || [];
+      const data = await res.json();
+      const files = data.files || [];
       console.debug('Drive files listed:', files.length);
-      setPickerFiles(files.map((f) => ({ id: f.id, name: f.name, mimeType: f.mimeType, createdTime: f.createdTime })));
-      setPickerToken(token);
+      setPickerFiles(files);
       setPickerOpen(true);
       setPickerLoading(false);
     } catch (err) {
       console.error('Drive picker failed', err instanceof Error ? err.message : err);
-      // If it's a fetch Response-like error, try to surface more info
-      if (err && typeof err === 'object' && 'status' in err) console.debug('Drive API error object:', err);
-      setImportError((err as Error).message || 'Drive picker failed');
+      setImportError((err as Error).message || 'Failed to load Drive files');
       setPickerLoading(false);
     }
-  }, [startOauthPopup]);
+  }, []);
 
   // Drive picker modal state
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerLoading, setPickerLoading] = useState(false);
   const [pickerFiles, setPickerFiles] = useState<Array<{ id: string; name: string; mimeType?: string; createdTime?: string }>>([]);
-  const [pickerToken, setPickerToken] = useState<string | null>(null);
 
   const handlePickerSelect = useCallback(async (fileId: string) => {
-    if (!pickerToken) {
-      setImportError('Missing auth token');
-      return;
-    }
     try {
       setPickerLoading(true);
-      const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`, {
-        headers: { Authorization: `Bearer ${pickerToken}` },
-      });
-      if (!fileRes.ok) throw new Error('Failed to download file');
+      const fileRes = await fetch(`/api/drive/user-download?fileId=${encodeURIComponent(fileId)}`);
+      if (!fileRes.ok) throw new Error(`Failed to download file (${fileRes.status})`);
       const text = await fileRes.text();
       setImportData(text);
       setImportError('');
@@ -672,7 +638,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     } finally {
       setPickerLoading(false);
     }
-  }, [pickerToken]);
+  }, []);
 
   const addCustomTicker = useCallback((symbol: string, info: TickerInfo) => {
     setCustomTickers((prev) => ({ ...prev, [symbol]: info }));
