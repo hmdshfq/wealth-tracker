@@ -126,7 +126,7 @@ export const CashTab: React.FC<CashTabProps> = ({
       {/* Add Cash Transaction */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
       <Card>
         <SectionTitle>Add Cash Transaction</SectionTitle>
@@ -170,7 +170,7 @@ export const CashTab: React.FC<CashTabProps> = ({
       {/* Cash Balances */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
       <Card>
         <SectionTitle>Cash Balances</SectionTitle>
@@ -200,7 +200,7 @@ export const CashTab: React.FC<CashTabProps> = ({
       {/* Transaction History */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
       <Card>
         <SectionTitle>Transaction History ({cashTransactions.length})</SectionTitle>
@@ -306,7 +306,7 @@ export const CashTab: React.FC<CashTabProps> = ({
       {/* Exchange Rates */}
       <motion.div
         variants={slideFromBottomVariants}
-        transition={transitions.normal}
+        transition={transitions.fast}
       >
       <Card>
         <SectionTitle>Exchange Rates</SectionTitle>

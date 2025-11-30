@@ -101,7 +101,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       >
         <motion.div
           variants={fadeVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           <StatCard
             label="Portfolio Value"
@@ -112,7 +112,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         </motion.div>
         <motion.div
           variants={fadeVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           <StatCard
             label="Total Cash"
@@ -122,7 +122,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         </motion.div>
         <motion.div
           variants={fadeVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           <StatCard
             label="Net Worth"
@@ -137,7 +137,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       {chartData.length > 0 && (
         <motion.div
           variants={slideFromBottomVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           {chartsReady ? (
             <GoalChartMini
@@ -164,7 +164,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <motion.div 
           className={styles.leftColumn}
           variants={slideFromBottomVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           <GoalProgress
             goal={goal}
@@ -182,7 +182,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <motion.div 
           className={styles.rightColumn}
           variants={slideFromBottomVariants}
-          transition={transitions.normal}
+          transition={transitions.fast}
         >
           <LivePrices prices={prices} etfData={etfData} />
         </motion.div>
