@@ -253,24 +253,36 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </AnimatePresence>
 
       {/* Legend */}
-      <div className={styles.legend} role="region" aria-label="Legend">
-        <div className={styles.legendItem}>
-          <span className={`${styles.legendDot} ${styles.legendMet}`} aria-hidden="true" />
-          <span>{viewMode === 'monthly' ? 'Goal Met' : 'On Track'}</span>
-        </div>
-        <div className={styles.legendItem}>
-          <span className={`${styles.legendDot} ${styles.legendUnmet}`} aria-hidden="true" />
-          <span>{viewMode === 'monthly' ? 'Below Target' : 'Behind'}</span>
-        </div>
-        <div className={styles.legendItem}>
-          <span className={`${styles.legendDot} ${styles.legendFuture}`} aria-hidden="true" />
-          <span>Future</span>
-        </div>
-        <div className={styles.legendItem}>
-          <span className={`${styles.legendDot} ${styles.legendEmpty}`} aria-hidden="true" />
-          <span>Before Start</span>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={viewMode}
+          className={styles.legend} 
+          role="region" 
+          aria-label="Legend"
+          variants={fadeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={transitions.fast}
+        >
+          <div className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendMet}`} aria-hidden="true" />
+            <span>{viewMode === 'monthly' ? 'Goal Met' : 'On Track'}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendUnmet}`} aria-hidden="true" />
+            <span>{viewMode === 'monthly' ? 'Below Target' : 'Behind'}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendFuture}`} aria-hidden="true" />
+            <span>Future</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.legendDot} ${styles.legendEmpty}`} aria-hidden="true" />
+            <span>Before Start</span>
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Table */}
       <AnimatePresence mode="wait">
