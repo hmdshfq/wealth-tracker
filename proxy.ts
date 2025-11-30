@@ -19,7 +19,11 @@ export async function proxy(request: NextRequest) {
     secret: process.env.AUTH_SECRET,
   });
   
-  const isLoggedIn = !!token;
+  // Check if guest mode is enabled via cookie
+  const guestCookie = request.cookies.get('wealth-tracker-guest')?.value;
+  const isGuestMode = guestCookie === 'true';
+  
+  const isLoggedIn = !!token || isGuestMode;
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = pathname.startsWith('/auth');
 
