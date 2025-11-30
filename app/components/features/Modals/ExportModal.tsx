@@ -8,6 +8,7 @@ interface ExportModalProps {
   onClose: () => void;
   onExportJSON: () => void;
   onExportCSV: (type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => void;
+  onExportToDrive?: () => void;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({
@@ -15,6 +16,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onClose,
   onExportJSON,
   onExportCSV,
+  onExportToDrive,
 }) => {
   return (
     <AnimatedModal
@@ -30,6 +32,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             <div className={styles.exportSubtitle}>
               All data • Can be imported back
             </div>
+          </div>
+          <span className={styles.arrow}>→</span>
+        </button>
+
+        <button onClick={onExportToDrive} className={styles.secondaryExport}>
+          <div>
+            <div className={styles.exportTitle}>Save to Google Drive</div>
+            <div className={styles.exportSubtitle}>Upload a full JSON backup to your Drive</div>
           </div>
           <span className={styles.arrow}>→</span>
         </button>
