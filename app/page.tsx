@@ -504,31 +504,65 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     authUrl.searchParams.set('prompt', 'consent');
     authUrl.searchParams.set('redirect_uri', window.location.origin + '/oauth-callback');
 
-    // Open popup and poll for hash containing access_token
+    // Open popup and use postMessage from the callback page as primary signal.
+    console.debug('Opening OAuth popup with URL:', authUrl.toString());
     const popup = window.open(authUrl.toString(), 'google_oauth', 'width=600,height=600');
     if (!popup) throw new Error('Popup blocked');
 
     return await new Promise<string>((resolve, reject) => {
+      let resolved = false;
+
+      const cleanup = () => {
+        window.removeEventListener('message', messageHandler);
+        if (popup && !popup.closed) popup.close();
+      };
+
+      const messageHandler = (ev: MessageEvent) => {
+        if (ev.origin !== window.location.origin) return;
+        const data = ev.data as { type?: string; token?: string; error?: string } | undefined;
+        if (data?.type === 'oauth_token') {
+          resolved = true;
+          cleanup();
+          if (data.error) return reject(new Error(data.error));
+          return resolve(data.token || '');
+        }
+      };
+
+      window.addEventListener('message', messageHandler);
+
+      // Fallback polling in case postMessage doesn't arrive (keeps previous behavior)
       const interval = setInterval(() => {
         try {
+          if (resolved) {
+            clearInterval(interval);
+            return;
+          }
           if (!popup || popup.closed) {
             clearInterval(interval);
+            cleanup();
             reject(new Error('Auth popup closed'));
             return;
           }
-          // We expect the OAuth redirect to the same origin at /oauth-callback
+          // If the popup has redirected to our origin, its location.hash will be readable
           if (popup.location && popup.location.hash) {
             const hash = popup.location.hash.substring(1);
             const params = new URLSearchParams(hash);
             const token = params.get('access_token');
-            const expiresIn = params.get('expires_in');
+            const error = params.get('error');
             if (token) {
+              resolved = true;
               clearInterval(interval);
-              popup.close();
-              resolve(token);
+              cleanup();
+              return resolve(token);
+            }
+            if (error) {
+              resolved = true;
+              clearInterval(interval);
+              cleanup();
+              return reject(new Error(`OAuth error in redirect hash: ${error}`));
             }
           }
-        } catch (e) {
+        } catch {
           // cross-origin until redirect; ignore
         }
       }, 500);
@@ -540,18 +574,45 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     try {
       setPickerLoading(true);
       const token = await startOauthPopup(['https://www.googleapis.com/auth/drive.readonly']);
+      console.debug('Received OAuth token, validating tokeninfo. token length:', token?.length ?? 0);
+      try {
+        const infoRes = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${encodeURIComponent(token)}`);
+        if (infoRes.ok) {
+          const info = await infoRes.json();
+          console.debug('Token info:', info);
+          // Quick check for scope presence
+          const scopes = (info.scope || info.scopes || '').toString();
+          if (!scopes.includes('drive')) {
+            console.warn('OAuth token does not include Drive scopes:', scopes);
+          }
+        } else {
+          const txt = await infoRes.text().catch(() => '[unreadable body]');
+          console.warn('Failed to fetch tokeninfo:', infoRes.status, txt);
+        }
+      } catch (e) {
+        console.debug('tokeninfo fetch failed', e);
+      }
       const res = await fetch('https://www.googleapis.com/drive/v3/files?pageSize=50&fields=files(id,name,mimeType,createdTime,owners)', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to list Drive files');
-      const js = await res.json();
+      if (!res.ok) {
+        const body = await res.text().catch(() => null);
+        throw new Error(`Failed to list Drive files (${res.status}): ${body || res.statusText}`);
+      }
+      const js = await res.json().catch(async () => {
+        const txt = await res.text().catch(() => '[unreadable body]');
+        throw new Error(`Failed to parse Drive files JSON: ${txt}`);
+      });
       const files: Array<{ id: string; name: string; mimeType?: string; createdTime?: string }> = js.files || [];
+      console.debug('Drive files listed:', files.length);
       setPickerFiles(files.map((f) => ({ id: f.id, name: f.name, mimeType: f.mimeType, createdTime: f.createdTime })));
       setPickerToken(token);
       setPickerOpen(true);
       setPickerLoading(false);
     } catch (err) {
-      console.error('Drive picker failed', err);
+      console.error('Drive picker failed', err instanceof Error ? err.message : err);
+      // If it's a fetch Response-like error, try to surface more info
+      if (err && typeof err === 'object' && 'status' in err) console.debug('Drive API error object:', err);
       setImportError((err as Error).message || 'Drive picker failed');
       setPickerLoading(false);
     }
