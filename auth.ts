@@ -1,78 +1,9 @@
 import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
-import bcrypt from 'bcryptjs';
 import { getUserByEmail, createUser, updateUser, type User } from '@/app/lib/users';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Credentials({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-        name: { label: 'Name', type: 'text' },
-        isSignUp: { label: 'Is Sign Up', type: 'text' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
-        }
-
-        const email = credentials.email as string;
-        const password = credentials.password as string;
-        const isSignUp = credentials.isSignUp === 'true';
-        const name = credentials.name as string;
-
-        if (isSignUp) {
-          // Sign up flow
-          const existingUser = await getUserByEmail(email);
-          if (existingUser) {
-            throw new Error('User already exists');
-          }
-
-          if (!name || name.trim().length < 2) {
-            throw new Error('Name must be at least 2 characters');
-          }
-
-          if (password.length < 6) {
-            throw new Error('Password must be at least 6 characters');
-          }
-
-          const hashedPassword = await bcrypt.hash(password, 12);
-          const newUser = await createUser({
-            email,
-            name: name.trim(),
-            password: hashedPassword,
-          });
-
-          console.log('Credentials Provider: Created new user', { userId: newUser.id, email: newUser.email });
-          return {
-            id: newUser.id,
-            email: newUser.email,
-            name: newUser.name,
-          };
-        } else {
-          // Sign in flow
-          const user = await getUserByEmail(email);
-          if (!user) {
-            throw new Error('Invalid email or password');
-          }
-
-          const isPasswordValid = await bcrypt.compare(password, user.password);
-          if (!isPasswordValid) {
-            throw new Error('Invalid email or password');
-          }
-
-          console.log('Credentials Provider: Found user', { userId: user.id, email: user.email });
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
-        }
-      },
-    }),
     // Google OAuth provider for sign-in and Drive access
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -88,21 +19,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      console.log('JWT Callback: Called', { userId: (user as any)?.id, email: (user as any)?.email, hasAccount: !!account });
-      
       if (user) {
-        // First, check if this is a Google sign-in by looking for the account
+        // For Google OAuth, we need to find or create the user in our database
+        // and use OUR user ID, not Google's profile ID
         if (account && account.provider === 'google') {
-          // For Google OAuth, we need to find or create the user in our database
-          // and use OUR user ID, not Google's profile ID
-          console.log('JWT Callback: Google OAuth flow');
           try {
             const email = (user as any).email || token.email;
             let dbUser = await getUserByEmail(email);
             
             if (!dbUser) {
               // Create a new user if they don't exist
-              console.log('JWT Callback: Creating new user from Google');
               dbUser = await createUser({
                 email: email as string,
                 name: (user as any).name || 'Google User',
@@ -111,7 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             
             // Always update with the latest Google tokens
-            console.log('JWT Callback: Updating Google tokens for user', { userId: dbUser.id });
             await updateUser(dbUser.id, {
               google: {
                 id: account.providerAccountId || undefined,
@@ -128,15 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           } catch (e) {
             console.error('JWT Callback: Error handling Google auth', e);
           }
-        } else {
-          // For Credentials provider, use the ID directly
-          console.log('JWT Callback: Credentials auth flow');
-          token.id = (user as any).id || token.id;
-          token.email = (user as any).email || token.email;
-          token.name = (user as any).name || token.name;
         }
-
-        console.log('JWT Callback: Set token values', { tokenId: token.id, tokenEmail: token.email });
       }
       return token;
     },
