@@ -10,18 +10,13 @@ export async function POST(req: NextRequest) {
     // The session is automatically extracted from cookies
     const session = await auth();
     
-    console.log('User Upload API: Session check', { userId: session?.user?.id, email: session?.user?.email });
-    
     if (!session?.user?.id) {
-      console.log('User Upload API: No session found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const user = await getUserById(session.user.id as string);
-    console.log('User Upload API: User record', { userId: user?.id, email: user?.email, hasGoogleTokens: !!user?.google?.accessToken });
     
     if (!user || !user.google || !user.google.accessToken) {
-      console.log('User Upload API: Missing Google tokens', { userId: user?.id, hasGoogle: !!user?.google });
       return NextResponse.json({ error: 'No Google tokens available for user' }, { status: 400 });
     }
 
@@ -56,7 +51,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ file: res.data });
   } catch (err: any) {
-    console.error('User Drive upload failed', err.message || err);
-    return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
