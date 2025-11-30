@@ -84,7 +84,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onEditSave,
   onTempGoalChange,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('transactions');
+  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
 
   return (
     <div className={styles.container}>
