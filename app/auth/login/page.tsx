@@ -39,6 +39,13 @@ export default function LoginPage() {
     }
   };
 
+  const handleGuestAccess = () => {
+    // Set a cookie to indicate guest mode
+    document.cookie = 'wealth-tracker-guest=true; path=/; max-age=31536000'; // 1 year
+    router.push(callbackUrl);
+    router.refresh();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -58,21 +65,32 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={isLoading}
-          className={styles.button}
-        >
-          {isLoading ? (
-            <>
-              <span className={styles.spinner} />
-              Signing in...
-            </>
-          ) : (
-            'Sign in with Google'
-          )}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className={styles.button}
+          >
+            {isLoading ? (
+              <>
+                <span className={styles.spinner} />
+                Signing in...
+              </>
+            ) : (
+              'Sign in with Google'
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGuestAccess}
+            disabled={isLoading}
+            className={styles.buttonSecondary}
+          >
+            Continue as Guest
+          </button>
+        </div>
       </div>
     </div>
   );
