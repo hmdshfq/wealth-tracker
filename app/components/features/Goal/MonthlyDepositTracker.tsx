@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
-import { slideFromBottomVariants, fadeVariants, transitions } from '@/app/lib/animations';
+import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
 interface MonthlyDepositTrackerProps {
@@ -214,7 +214,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
           className={styles.summaryRow} 
           role="region" 
           aria-label="Investment summary"
-          variants={fadeVariants}
+          variants={slideFromBottomVariants}
           initial="initial"
           animate="animate"
           exit="exit"
@@ -259,7 +259,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
           className={styles.legend} 
           role="region" 
           aria-label="Legend"
-          variants={fadeVariants}
+          variants={slideFromBottomVariants}
           initial="initial"
           animate="animate"
           exit="exit"
