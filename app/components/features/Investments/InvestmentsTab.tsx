@@ -1,40 +1,27 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Card, DataTable, SectionTitle, TabNav, TabButton, Input, Button, ProgressBar, ChartLoadingSkeleton } from '@/app/components/ui';
-import { useIdleRender } from '@/app/lib/hooks';
-import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
-import { TransactionForm } from '../Transactions/TransactionForm';
-import { TransactionList } from '../Transactions/TransactionList';
-import { MonthlyDepositTracker } from '../Goal/MonthlyDepositTracker';
-import { InvestmentGoalChart } from '../Goal/InvestmentGoalChart';
-import { TickerSearchCard } from './TickerSearchCard';
+import { TabNav, TabButton } from '@/app/components/ui';
+import { GoalSubTab } from './GoalSubTab';
+import { ChartSubTab } from './ChartSubTab';
+import { DepositsSubTab } from './DepositsSubTab';
+import { TransactionsSubTab } from './TransactionsSubTab';
 import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
-import {
-  generateProjectionData,
-  mergeProjectedWithActual,
-  calculateCumulativeContributions
-} from '@/app/lib/projectionCalculations';
 import { fadeVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
-type InvestmentsSubTab = 'goal' | 'transactions';
+type InvestmentsSubTab = 'goal' | 'chart' | 'deposits' | 'transactions';
 
 interface InvestmentsTabProps {
-  // Holdings & Portfolio data
-  holdingsData: HoldingWithDetails[];
-  portfolioValue: number;
-  totalGain: number;
-  totalGainPercent: number;
-  
   // Transaction data
   transactions: Transaction[];
   prices: Record<string, {
-  price: number;
-  change: number;
-  changePercent: number;
-  currency: string;
-}>;
+    price: number;
+    change: number;
+    changePercent: number;
+    currency: string;
+  }>;
   etfData: Record<string, TickerInfo>;
   newTx: NewTransaction;
   onTxChange: (updates: Partial<NewTransaction>) => void;
@@ -45,14 +32,17 @@ interface InvestmentsTabProps {
   customTickers: Record<string, TickerInfo>;
   onEditTicker: (symbol: string, info: TickerInfo) => void;
   onDeleteTicker: (symbol: string) => void;
-  allTickers: Record<string, TickerInfo>;
-  
+
+  // Holdings for ticker search
+  holdingsData: HoldingWithDetails[];
+
   // Goal data
   goal: Goal;
   tempGoal: Goal;
   editingGoal: boolean;
   totalNetWorth: number;
   goalProgress: number;
+  portfolioValue: number;
   exchangeRates: {
     EUR_PLN: number;
     USD_PLN: number;
@@ -64,12 +54,6 @@ interface InvestmentsTabProps {
 }
 
 export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
-  // Holdings & Portfolio
-  holdingsData,
-  portfolioValue,
-  totalGain,
-  totalGainPercent,
-  
   // Transactions
   transactions,
   prices,
@@ -83,141 +67,24 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   customTickers,
   onEditTicker,
   onDeleteTicker,
-  
+
+  // Holdings
+  holdingsData,
+
   // Goal
   goal,
   tempGoal,
   editingGoal,
   totalNetWorth,
   goalProgress,
+  portfolioValue,
   exchangeRates,
   onEditStart,
   onEditCancel,
   onEditSave,
   onTempGoalChange,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
-
-  // Defer chart rendering until browser is idle (only in goal tab)
-  const chartReady = useIdleRender({
-    timeout: 3000,
-    immediate: activeSubTab !== 'goal',
-  });
-
-  const remaining = goal.amount - totalNetWorth;
-
-  // Generate projection data for the chart
-  const projectionData = useMemo(() => {
-    return generateProjectionData(goal, totalNetWorth);
-  }, [goal, totalNetWorth]);
-
-  // Calculate total actual contributions from transactions
-  const totalActualContributions = useMemo(() => {
-    return calculateCumulativeContributions(transactions, exchangeRates);
-  }, [transactions, exchangeRates]);
-
-  // Find earliest transaction date
-  const firstTransactionDate = useMemo(() => {
-    if (transactions.length === 0) return undefined;
-    return transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date);
-  }, [transactions]);
-
-  // Merge projected data with actual transaction history
-  const chartData = useMemo(() => {
-    return mergeProjectedWithActual(
-      projectionData,
-      transactions,
-      exchangeRates,
-      portfolioValue
-    );
-  }, [projectionData, transactions, exchangeRates, portfolioValue]);
-
-  // Format date for display
-  const formatDisplayDate = (dateStr: string) => {
-    if (!dateStr) return 'Not set';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  };
-
-  const holdingsColumns = [
-    {
-      key: 'ticker' as const,
-      header: 'Ticker',
-      render: (h: HoldingWithDetails) => (
-        <span className={styles.ticker}>{h.ticker}</span>
-      ),
-    },
-    {
-      key: 'name' as const,
-      header: 'Name',
-      render: (h: HoldingWithDetails) => (
-        <span className={styles.name}>{h.name}</span>
-      ),
-    },
-    {
-      key: 'shares' as const,
-      header: 'Shares',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => h.shares.toFixed(2),
-    },
-    {
-      key: 'avgCost' as const,
-      header: 'Avg Cost',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => `€${h.avgCost.toFixed(2)}`,
-    },
-    {
-      key: 'price' as const,
-      header: 'Price',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => `€${h.price.toFixed(2)}`,
-    },
-    {
-      key: 'value' as const,
-      header: 'Value (EUR)',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => (
-        <span className={styles.valueCell}>{formatEUR(h.value)}</span>
-      ),
-    },
-    {
-      key: 'valuePLN' as const,
-      header: 'Value (PLN)',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => (
-        <span className={styles.valueCell}>{formatPLN(h.valuePLN)}</span>
-      ),
-    },
-    {
-      key: 'gain' as const,
-      header: 'Gain',
-      align: 'right' as const,
-      render: (h: HoldingWithDetails) => (
-        <span className={h.gain >= 0 ? styles.positive : styles.negative}>
-          {formatEUR(h.gain)} ({formatPercent(h.gainPercent)})
-        </span>
-      ),
-    },
-  ];
-
-  const holdingsFooter = (
-    <tr className={styles.footerRow}>
-      <td colSpan={5} className={styles.footerLabel}>
-        Total
-      </td>
-      <td className={styles.footerValue}>
-        {formatEUR(holdingsData.reduce((sum, h) => sum + h.value, 0))}
-      </td>
-      <td className={styles.footerValue}>{formatPLN(portfolioValue)}</td>
-      <td
-        className={`${styles.footerValue} ${
-          totalGain >= 0 ? styles.positive : styles.negative
-        }`}
-      >
-        {formatPLN(totalGain)} ({formatPercent(totalGainPercent)})
-      </td>
-    </tr>
-  );
+  const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('transactions');
 
   return (
     <div className={styles.container}>
@@ -226,9 +93,23 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         <TabButton
           isActive={activeSubTab === 'goal'}
           onClick={() => setActiveSubTab('goal')}
-          ariaLabel="View investment goal and progress"
+          ariaLabel="View investment goal settings"
         >
           Goal
+        </TabButton>
+        <TabButton
+          isActive={activeSubTab === 'chart'}
+          onClick={() => setActiveSubTab('chart')}
+          ariaLabel="View goal progress chart"
+        >
+          Chart
+        </TabButton>
+        <TabButton
+          isActive={activeSubTab === 'deposits'}
+          onClick={() => setActiveSubTab('deposits')}
+          ariaLabel="View monthly deposit tracking"
+        >
+          Deposits
         </TabButton>
         <TabButton
           isActive={activeSubTab === 'transactions'}
@@ -239,8 +120,9 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
         </TabButton>
       </TabNav>
 
-      {/* Goal Sub-tab Content */}
+      {/* Sub-tab Content */}
       <AnimatePresence mode="wait">
+        {/* Goal Sub-tab */}
         {activeSubTab === 'goal' && (
           <motion.div
             key="goal"
@@ -251,163 +133,60 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transition={transitions.normal}
             className={styles.tabContent}
           >
-          {/* Goal Settings */}
-          <Card>
-            <SectionTitle
-              action={
-                !editingGoal && (
-                  <Button variant="secondary" size="small" onClick={onEditStart}>
-                    Edit Goal
-                  </Button>
-                )
-              }
-            >
-              Investment Goal
-            </SectionTitle>
-
-            {editingGoal ? (
-              <div className={styles.editForm}>
-                <Input
-                  type="month"
-                  label="Investment Start Date"
-                  value={tempGoal.startDate ? tempGoal.startDate.substring(0, 7) : ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onTempGoalChange({ startDate: value ? `${value}-01` : '' });
-                  }}
-                  style={{ width: '140px' }}
-                />
-                <Input
-                  type="number"
-                  label="Retirement Year"
-                  value={tempGoal.retirementYear ?? 2050}
-                  onChange={(e) =>
-                    onTempGoalChange({ retirementYear: parseInt(e.target.value) || 2050 })
-                  }
-                  style={{ width: '100px' }}
-                />
-                <Input
-                  type="number"
-                  label="Annual Return (%)"
-                  value={((tempGoal.annualReturn ?? 0.05) * 100).toFixed(1)}
-                  onChange={(e) =>
-                    onTempGoalChange({ annualReturn: (parseFloat(e.target.value) || 0) / 100 })
-                  }
-                  step="0.1"
-                  style={{ width: '100px' }}
-                />
-                <Input
-                  type="number"
-                  label="Monthly Deposits (PLN)"
-                  value={tempGoal.monthlyDeposits ?? 0}
-                  onChange={(e) =>
-                    onTempGoalChange({ monthlyDeposits: parseInt(e.target.value) || 0 })
-                  }
-                  style={{ width: '140px' }}
-                />
-                <Input
-                  type="number"
-                  label="Annual Deposit Increase (%)"
-                  value={(tempGoal.depositIncreasePercentage ?? 0) * 100}
-                  onChange={(e) =>
-                    onTempGoalChange({ depositIncreasePercentage: (parseFloat(e.target.value) || 0) / 100 })
-                  }
-                  step="0.1"
-                  style={{ width: '100px' }}
-                />
-                <Button onClick={onEditSave}>Calculate & Save</Button>
-                <Button variant="secondary" onClick={onEditCancel}>
-                  Cancel
-                </Button>
-              </div>
-            ) : (
-              <div className={styles.statsGrid}>
-                <div>
-                  <p className={styles.statLabel}>Target Amount</p>
-                  <p className={styles.statValueBlue}>{formatPLN(goal.amount)}</p>
-                </div>
-                <div>
-                  <p className={styles.statLabel}>Start Date</p>
-                  <p className={styles.statValueWhite}>{formatDisplayDate(goal.startDate)}</p>
-                </div>
-                <div>
-                  <p className={styles.statLabel}>Retirement Year</p>
-                  <p className={styles.statValueWhite}>{goal.retirementYear}</p>
-                </div>
-                <div>
-                  <p className={styles.statLabel}>Annual Return</p>
-                  <p className={styles.statValueGreen}>{(goal.annualReturn * 100).toFixed(1)}%</p>
-                </div>
-                <div>
-                  <p className={styles.statLabel}>Monthly Deposits</p>
-                  <p className={styles.statValueYellow}>{formatPLN(goal.monthlyDeposits)}</p>
-                </div>
-                <div>
-                  <p className={styles.statLabel}>Annual Deposit Increase</p>
-                  <p className={styles.statValueWhite}>{(goal.depositIncreasePercentage * 100).toFixed(1)}%</p>
-                </div>
-              </div>
-            )}
-          </Card>
-
-          {/* Progress Card */}
-          <Card variant="gradient">
-            <div className={styles.progressHeader}>
-              <div>
-                <p className={styles.progressLabel}>Current Progress</p>
-                <p className={styles.progressPercent}>{goalProgress.toFixed(2)}%</p>
-              </div>
-              <div className={styles.progressRight}>
-                <p className={styles.progressLabel}>Net Worth</p>
-                <p className={styles.progressNetWorth}>{formatPLN(totalNetWorth)}</p>
-              </div>
-            </div>
-            <ProgressBar
-              progress={goalProgress}
-              size="large"
-              showLabels
-              startLabel={formatPLN(totalNetWorth)}
-              middleLabel={`${formatPLN(remaining)} to go`}
-              endLabel={formatPLN(goal.amount)}
+            <GoalSubTab
+              goal={goal}
+              tempGoal={tempGoal}
+              editingGoal={editingGoal}
+              onEditStart={onEditStart}
+              onEditCancel={onEditCancel}
+              onEditSave={onEditSave}
+              onTempGoalChange={onTempGoalChange}
             />
-          </Card>
-
-          {/* Investment Goal Progress Chart */}
-          {chartData.length > 0 && (
-            chartReady ? (
-              <InvestmentGoalChart
-                goal={goal}
-                projectionData={chartData}
-                currentNetWorth={portfolioValue}
-                totalActualContributions={totalActualContributions}
-                firstTransactionDate={firstTransactionDate}
-              />
-            ) : (
-              <ChartLoadingSkeleton />
-            )
-          )}
-
-          {/* Holdings Section */}
-          <Card>
-            <SectionTitle>Holdings</SectionTitle>
-            <DataTable
-              columns={holdingsColumns}
-              data={holdingsData}
-              keyExtractor={(h) => h.ticker}
-              footer={holdingsFooter}
-            />
-          </Card>
-
-          {/* Monthly Investment Tracker */}
-          <MonthlyDepositTracker
-            goal={goal}
-            transactions={transactions}
-            exchangeRates={exchangeRates}
-          />
           </motion.div>
         )}
 
-        {/* Transactions Sub-tab Content */}
+        {/* Chart Sub-tab */}
+        {activeSubTab === 'chart' && (
+          <motion.div
+            key="chart"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.normal}
+            className={styles.tabContent}
+          >
+            <ChartSubTab
+              goal={goal}
+              transactions={transactions}
+              totalNetWorth={totalNetWorth}
+              goalProgress={goalProgress}
+              portfolioValue={portfolioValue}
+              exchangeRates={exchangeRates}
+            />
+          </motion.div>
+        )}
+
+        {/* Deposits Sub-tab */}
+        {activeSubTab === 'deposits' && (
+          <motion.div
+            key="deposits"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transitions.normal}
+            className={styles.tabContent}
+          >
+            <DepositsSubTab
+              goal={goal}
+              transactions={transactions}
+              exchangeRates={exchangeRates}
+            />
+          </motion.div>
+        )}
+
+        {/* Transactions Sub-tab */}
         {activeSubTab === 'transactions' && (
           <motion.div
             key="transactions"
@@ -418,32 +197,21 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
             transition={transitions.normal}
             className={styles.tabContent}
           >
-          {/* Ticker Search */}
-          <TickerSearchCard
-            onAddTicker={onAddTicker}
-            existingTickers={Object.keys(etfData)}
-            customTickers={customTickers}
-            onEditTicker={onEditTicker}
-            onDeleteTicker={onDeleteTicker}
-            allTickers={etfData}
-            heldTickers={holdingsData.map(h => h.ticker)}
-          />
-
-          {/* Add Transaction Form */}
-          <TransactionForm
-            newTx={newTx}
-            onChange={onTxChange}
-            onSubmit={onAddTransaction}
-            etfData={etfData}
-          />
-
-          {/* Transaction History */}
-          <TransactionList
-            transactions={transactions}
-            prices={prices}
-            onEdit={onEditTransaction}
-            onDelete={onDeleteTransaction}
-          />
+            <TransactionsSubTab
+              transactions={transactions}
+              prices={prices}
+              etfData={etfData}
+              newTx={newTx}
+              onTxChange={onTxChange}
+              onAddTransaction={onAddTransaction}
+              onEditTransaction={onEditTransaction}
+              onDeleteTransaction={onDeleteTransaction}
+              customTickers={customTickers}
+              onAddTicker={onAddTicker}
+              onEditTicker={onEditTicker}
+              onDeleteTicker={onDeleteTicker}
+              holdingsData={holdingsData}
+            />
           </motion.div>
         )}
       </AnimatePresence>

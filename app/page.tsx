@@ -658,11 +658,6 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
           {activeTab === 'investments' && (
             <div>
               <InvestmentsTab
-                // Holdings & Portfolio data
-                holdingsData={holdingsData}
-                portfolioValue={portfolioValue}
-                totalGain={totalGain}
-                totalGainPercent={totalGainPercent}
                 // Transaction data
                 transactions={transactions}
                 prices={prices}
@@ -676,13 +671,15 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 customTickers={customTickers}
                 onEditTicker={editCustomTicker}
                 onDeleteTicker={deleteCustomTicker}
-                allTickers={allTickers}
+                // Holdings for ticker search
+                holdingsData={holdingsData}
                 // Goal data
                 goal={goal}
                 tempGoal={tempGoal}
                 editingGoal={editingGoal}
                 totalNetWorth={totalNetWorth}
                 goalProgress={goalProgress}
+                portfolioValue={portfolioValue}
                 exchangeRates={exchangeRates}
                 onEditStart={handleGoalEditStart}
                 onEditCancel={handleGoalEditCancel}
