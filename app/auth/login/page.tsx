@@ -118,6 +118,16 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            onClick={() => signIn('google')}
+            className={styles.button}
+          >
+            Sign in with Google
+          </button>
+        </div>
+
         <div className={styles.footer}>
           <p>
             Don&apos;t have an account?{' '}

@@ -1,7 +1,8 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
-import { getUserByEmail, createUser, type User } from '@/app/lib/users';
+import { getUserByEmail, createUser, updateUser, type User } from '@/app/lib/users';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -70,13 +71,62 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       },
     }),
+    // Google OAuth provider for sign-in and Drive access
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      authorization: {
+        params: {
+          scope: 'openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly',
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+        // When signing in with Google, NextAuth places profile info on user
+        token.id = (user as any).id || token.id;
+        token.email = (user as any).email || token.email;
+        token.name = (user as any).name || token.name;
+
+        // Persist tokens from OAuth provider to our user store if available
+        const acct = account || (user as any).account;
+        if (acct && acct.provider === 'google') {
+          try {
+            const u = await getUserByEmail(token.email as string);
+            if (u) {
+              await updateUser(u.id, {
+                google: {
+                  id: acct.providerAccountId || acct.id || undefined,
+                  accessToken: (acct as any).access_token,
+                  refreshToken: (acct as any).refresh_token,
+                  expiresAt: (acct as any).expires_at,
+                },
+              });
+            } else {
+              // Create a new user record if one doesn't exist (Google sign up)
+              const created = await createUser({
+                email: token.email as string,
+                name: token.name as string || 'Google User',
+                password: Math.random().toString(36).slice(2, 10),
+              });
+              await updateUser(created.id, {
+                google: {
+                  id: acct.providerAccountId || acct.id || undefined,
+                  accessToken: (acct as any).access_token,
+                  refreshToken: (acct as any).refresh_token,
+                  expiresAt: (acct as any).expires_at,
+                },
+              });
+              token.id = created.id;
+            }
+          } catch (e) {
+            console.warn('Failed to save Google tokens', e);
+          }
+        }
       }
       return token;
     },
@@ -85,6 +135,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        // surface minimal google info in session
+        if ((token as any).google) {
+          (session as any).google = (token as any).google;
+        }
       }
       return session;
     },
