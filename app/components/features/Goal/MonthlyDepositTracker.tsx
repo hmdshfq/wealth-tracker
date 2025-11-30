@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
 import { formatPLN } from '@/app/lib/formatters';
 import { Transaction, Goal } from '@/app/lib/types';
-import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
+import { slideFromBottomVariants, fadeVariants, transitions } from '@/app/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
 interface MonthlyDepositTrackerProps {
@@ -208,41 +208,49 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
       </TabNav>
 
       {/* Summary Stats */}
-      <div 
-        className={styles.summaryRow} 
-        role="region" 
-        aria-label="Investment summary"
-      >
-        <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>
-            {viewMode === 'monthly' ? 'Target/Month' : 'Total Invested'}
-          </span>
-          <span className={styles.summaryValue}>
-            {viewMode === 'monthly' 
-              ? formatPLN(goal.monthlyDeposits) 
-              : formatPLN(summary.totalInvested)
-            }
-          </span>
-        </div>
-        <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>
-            {viewMode === 'monthly' ? 'Months Met' : 'Months On Track'}
-          </span>
-          <span className={styles.summaryValueGreen}>{currentMonthsMet}</span>
-        </div>
-        <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>
-            {viewMode === 'monthly' ? 'Months Missed' : 'Months Behind'}
-          </span>
-          <span className={styles.summaryValueRed}>{currentMonthsUnmet}</span>
-        </div>
-        <div className={styles.summaryItem}>
-          <span className={styles.summaryLabel}>Success Rate</span>
-          <span className={currentPercentage >= 80 ? styles.summaryValueGreen : styles.summaryValueYellow}>
-            {currentPercentage.toFixed(0)}%
-          </span>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={viewMode}
+          className={styles.summaryRow} 
+          role="region" 
+          aria-label="Investment summary"
+          variants={fadeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={transitions.fast}
+        >
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>
+              {viewMode === 'monthly' ? 'Target/Month' : 'Total Invested'}
+            </span>
+            <span className={styles.summaryValue}>
+              {viewMode === 'monthly' 
+                ? formatPLN(goal.monthlyDeposits) 
+                : formatPLN(summary.totalInvested)
+              }
+            </span>
+          </div>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>
+              {viewMode === 'monthly' ? 'Months Met' : 'Months On Track'}
+            </span>
+            <span className={styles.summaryValueGreen}>{currentMonthsMet}</span>
+          </div>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>
+              {viewMode === 'monthly' ? 'Months Missed' : 'Months Behind'}
+            </span>
+            <span className={styles.summaryValueRed}>{currentMonthsUnmet}</span>
+          </div>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>Success Rate</span>
+            <span className={currentPercentage >= 80 ? styles.summaryValueGreen : styles.summaryValueYellow}>
+              {currentPercentage.toFixed(0)}%
+            </span>
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Legend */}
       <div className={styles.legend} role="region" aria-label="Legend">
