@@ -1,5 +1,5 @@
  'use client';
-import { signIn, useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 // Layout components
@@ -70,7 +70,7 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   // Auth Session
   // ---------------------------------------------------------------------------
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   // ---------------------------------------------------------------------------
   // Core State
@@ -353,7 +353,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       // Check if user has a valid session with Google auth
       if (!session?.user?.id) {
         // No session at all - redirect to Google sign-in
-        signIn('google');
+        await authClient.signIn.social({ provider: 'google' });
         return;
       }
 
@@ -367,14 +367,14 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       if (!res.ok) {
         // If user is not authenticated or doesn't have Google tokens, redirect them
         if (res.status === 401) {
-          // kick off the Google sign-in flow via next-auth helper
-          signIn('google');
+          // kick off the Google sign-in flow
+          await authClient.signIn.social({ provider: 'google' });
           return;
         }
         const errMsg = (json && json.error) ? String(json.error) : 'Upload failed';
         // If server reports missing user Google tokens, prompt re-auth
         if (errMsg.toLowerCase().includes('no google tokens')) {
-          signIn('google');
+          await authClient.signIn.social({ provider: 'google' });
           return;
         }
         throw new Error(errMsg);
