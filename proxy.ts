@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getSessionCookie } from 'better-auth/cookies';
 
 // Routes that don't require authentication
 const publicRoutes = ['/auth/login', '/auth/signup'];
@@ -13,17 +13,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session token
-  const token = await getToken({ 
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
+  // Check for session cookie
+  const sessionCookie = getSessionCookie(request);
   
   // Check if guest mode is enabled via cookie
   const guestCookie = request.cookies.get('wealth-tracker-guest')?.value;
   const isGuestMode = guestCookie === 'true';
   
-  const isLoggedIn = !!token || isGuestMode;
+  const isLoggedIn = !!sessionCookie || isGuestMode;
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = pathname.startsWith('/auth');
 

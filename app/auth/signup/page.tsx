@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 
 export default function SignupPage() {
   useEffect(() => {
-    // Redirect to Google sign-in
-    signIn('google', {
-      redirect: true,
-      callbackUrl: '/',
+    authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/',
     });
   }, []);
 
