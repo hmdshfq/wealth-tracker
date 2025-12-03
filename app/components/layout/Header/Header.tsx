@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { useSession, signOut, signIn } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { LogIn } from 'lucide-react';
 import { Button, IconButton } from '@/app/components/ui';
 import { useTheme } from '@/app/context/ThemeContext';
@@ -50,11 +50,10 @@ export const Header: React.FC<HeaderProps> = ({
   lastUpdate,
 }) => {
   const { theme, toggleTheme } = useTheme();
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -68,10 +67,15 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleSignOut = async () => {
     setShowUserMenu(false);
-    await signOut({ callbackUrl: '/auth/login' });
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = '/auth/login';
+        },
+      },
+    });
   };
 
-  // Get initials from name
   const getInitials = (name: string | null | undefined) => {
     if (!name) return '?';
     return name
@@ -119,7 +123,6 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* User Menu */}
         {session?.user ? (
           <div className={styles.userMenuWrapper} ref={menuRef}>
             <button
@@ -158,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Button
             variant="primary"
             size="small"
-            onClick={() => signIn('google')}
+            onClick={() => authClient.signIn.social({ provider: 'google' })}
             title="Sign in with Google"
           >
             <LogIn size={16} />

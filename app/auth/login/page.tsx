@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import styles from '../auth.module.css';
 
 export default function LoginPage() {
@@ -18,21 +18,22 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
     try {
-      const result = await signIn('google', {
-        redirect: false,
-        callbackUrl,
-      });
-
-      if (result?.error) {
-        setError('Failed to sign in with Google. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
-        router.push(callbackUrl);
-        router.refresh();
-      }
+      await authClient.signIn.social(
+        {
+          provider: 'google',
+          callbackURL: callbackUrl,
+        },
+        {
+          onSuccess: () => {
+            router.push(callbackUrl);
+            router.refresh();
+          },
+          onError: () => {
+            setError('Failed to sign in with Google. Please try again.');
+            setIsLoading(false);
+          },
+        }
+      );
     } catch {
       setError('Something went wrong. Please try again.');
       setIsLoading(false);
@@ -40,8 +41,7 @@ export default function LoginPage() {
   };
 
   const handleGuestAccess = () => {
-    // Set a cookie to indicate guest mode
-    document.cookie = 'wealth-tracker-guest=true; path=/; max-age=31536000'; // 1 year
+    document.cookie = 'wealth-tracker-guest=true; path=/; max-age=31536000';
     router.push(callbackUrl);
     router.refresh();
   };
