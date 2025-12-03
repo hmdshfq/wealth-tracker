@@ -3,12 +3,13 @@ import { Readable } from 'stream';
 import { google } from 'googleapis';
 import { auth } from '@/auth';
 import { getUserById } from '@/app/lib/users';
+import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get session using NextAuth's auth() - no need to pass request
-    // The session is automatically extracted from cookies
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

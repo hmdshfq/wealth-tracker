@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { auth } from '@/auth';
 import { getUserById } from '@/app/lib/users';
+import { headers } from 'next/headers';
 
 export async function GET(req: NextRequest) {
   try {
     console.log('Download request started');
-    // Get session using NextAuth's auth() - no need to pass request
-    // The session is automatically extracted from cookies
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
     console.log('Session retrieved:', !!session?.user?.id);
     
     if (!session?.user?.id) {
