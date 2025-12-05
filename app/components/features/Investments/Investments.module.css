@@ -21,8 +21,22 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+  }
 }
 
 .statLabel {
@@ -76,10 +90,16 @@
 }
 
 .progressPercent {
-  font-size: 48px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-green);
+}
+
+@media (min-width: 768px) {
+  .progressPercent {
+    font-size: 48px;
+  }
 }
 
 .progressRight {
@@ -87,10 +107,16 @@
 }
 
 .progressNetWorth {
-  font-size: 32px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .progressNetWorth {
+    font-size: 32px;
+  }
 }
 
 /* Holdings Table Styles */

@@ -6,22 +6,56 @@
 
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 12px;
   align-items: flex-end;
+}
+
+@media (min-width: 640px) {
+  .formGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+  }
 }
 
 .balancesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .balancesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .balancesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
 }
 
 .balanceCard {
   background: var(--bg-card);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--border-secondary);
+}
+
+@media (min-width: 768px) {
+  .balanceCard {
+    padding: 20px;
+  }
 }
 
 .currencyLabel {
@@ -31,10 +65,16 @@
 }
 
 .amount {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0 0 4px 0;
   color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .amount {
+    font-size: 28px;
+  }
 }
 
 .conversion {
@@ -58,16 +98,30 @@
 }
 
 .totalValue {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-green);
 }
 
+@media (min-width: 768px) {
+  .totalValue {
+    font-size: 32px;
+  }
+}
+
 .rates {
   display: flex;
-  gap: 24px;
-  font-size: 14px;
+  gap: 12px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .rates {
+    gap: 24px;
+    font-size: 14px;
+  }
 }
 
 .rateLabel {

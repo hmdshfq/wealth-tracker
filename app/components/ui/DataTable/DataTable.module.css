@@ -1,11 +1,12 @@
 .container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .headerRow {
@@ -13,7 +14,7 @@
 }
 
 .headerCell {
-  padding: 12px 8px;
+  padding: 10px 6px;
   color: #64748b;
   font-weight: 500;
 }
@@ -27,8 +28,22 @@
 }
 
 .bodyCell {
-  padding: 16px 8px;
+  padding: 12px 6px;
   color: #888;
+}
+
+@media (min-width: 768px) {
+  .table {
+    font-size: 13px;
+  }
+
+  .headerCell {
+    padding: 12px 8px;
+  }
+
+  .bodyCell {
+    padding: 16px 8px;
+  }
 }
 
 .left {

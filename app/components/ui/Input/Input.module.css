@@ -4,7 +4,7 @@
 }
 
 .label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-dimmed);
   margin-bottom: 4px;
 }
@@ -13,9 +13,9 @@
   background: var(--bg-input);
   border: 1px solid var(--border-input);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 9px 10px;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-family: inherit;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
@@ -27,4 +27,15 @@
 
 .input::placeholder {
   color: var(--text-dimmed);
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 11px;
+  }
+
+  .input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
 }
