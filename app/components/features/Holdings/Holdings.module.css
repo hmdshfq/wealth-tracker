@@ -26,16 +26,27 @@
 }
 
 .footerLabel {
-  padding: 16px 8px;
+  padding: 12px 8px;
   font-weight: 600;
   text-align: left;
   color: var(--text-primary);
 }
 
 .footerValue {
-  padding: 16px 8px;
+  padding: 12px 8px;
   text-align: right;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .footerLabel {
+    padding: 16px 8px;
+  }
+
+  .footerValue {
+    padding: 16px 8px;
+    font-size: 15px;
+  }
 }

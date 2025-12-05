@@ -7,8 +7,22 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+  }
 }
 
 .statLabel {
@@ -20,31 +34,40 @@
 }
 
 .statValueBlue {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-blue);
 }
 
 .statValueWhite {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
 }
 
 .statValueYellow {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-yellow);
 }
 
 .statValueGreen {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-green);
+}
+
+@media (min-width: 768px) {
+  .statValueBlue,
+  .statValueWhite,
+  .statValueYellow,
+  .statValueGreen {
+    font-size: 36px;
+  }
 }
 
 .progressHeader {
@@ -61,10 +84,16 @@
 }
 
 .progressPercent {
-  font-size: 48px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0;
   color: var(--accent-green);
+}
+
+@media (min-width: 768px) {
+  .progressPercent {
+    font-size: 48px;
+  }
 }
 
 .progressRight {
@@ -72,8 +101,14 @@
 }
 
 .progressNetWorth {
-  font-size: 32px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .progressNetWorth {
+    font-size: 32px;
+  }
 }
