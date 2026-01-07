@@ -19,24 +19,28 @@ interface GoogleAccount {
   expiresAt?: number;
 }
 
+const socialProviders = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+  ? {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        scopes: [
+          'openid',
+          'email',
+          'profile',
+          'https://www.googleapis.com/auth/drive.file',
+          'https://www.googleapis.com/auth/drive.readonly',
+        ],
+      },
+    }
+  : {};
+
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   basePath: '/api/auth',
   secret: process.env.BETTER_AUTH_SECRET,
   plugins: [nextCookies()],
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      scopes: [
-        'openid',
-        'email',
-        'profile',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.readonly',
-      ],
-    },
-  },
+  socialProviders,
   callbacks: {
     async onSignInSuccess({ user, account }: { user: BetterAuthUser; account?: GoogleAccount }) {
       try {
