@@ -18,7 +18,6 @@ import { Toast, LocalStorageBanner } from '@/app/components/ui';
 
 // Types and constants
 import {
-  Holding,
   HoldingWithDetails,
   Transaction,
   CashBalance,
@@ -239,7 +238,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
   useEffect(() => {
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60000);
+    const interval = setInterval(fetchPrices, 300000);
     return () => clearInterval(interval);
   }, [fetchPrices]);
 
