@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
 
 // Create instance (required in v3)
-const yahooFinance = new YahooFinance();
+const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 // Simple in-memory cache with TTL
 const cache = new Map<string, { data: any; expiry: number }>();
