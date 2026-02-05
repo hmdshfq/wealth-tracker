@@ -34,6 +34,11 @@
   align-items: center;
 }
 
+.userButton {
+  display: flex;
+  align-items: center;
+}
+
 .lastUpdate {
   font-size: 10px;
   color: var(--text-dimmed);

@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { Button, IconButton } from '@/app/components/ui';
 import { useTheme } from '@/app/context/ThemeContext';
 import styles from './Header.module.css';
@@ -69,6 +70,23 @@ export const Header: React.FC<HeaderProps> = ({
         >
           {isLoading ? '⟳ Loading...' : '↻ Refresh Prices'}
         </Button>
+        <SignedOut>
+          <SignInButton>
+            <Button variant="secondary" size="small">
+              Sign In
+            </Button>
+          </SignInButton>
+          <SignUpButton>
+            <Button variant="primary" size="small">
+              Create Account
+            </Button>
+          </SignUpButton>
+        </SignedOut>
+        <SignedIn>
+          <div className={styles.userButton}>
+            <UserButton afterSignOutUrl="/" />
+          </div>
+        </SignedIn>
         {lastUpdate && (
           <span className={styles.lastUpdate}>
             Updated: {lastUpdate.toLocaleTimeString()}
