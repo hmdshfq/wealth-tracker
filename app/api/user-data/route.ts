@@ -29,12 +29,12 @@ export async function GET() {
 
     await ensureTable();
 
-    const rows = await sql<{ data: UserDataPayload }[]>`
+    const rows = (await sql`
       SELECT data
       FROM user_data
       WHERE user_id = ${userId}
       LIMIT 1
-    `;
+    `) as { data: UserDataPayload }[];
 
     const row = rows[0];
     return Response.json({ data: row?.data ?? null });
