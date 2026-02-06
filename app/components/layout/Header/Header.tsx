@@ -9,8 +9,14 @@ interface HeaderProps {
   onImport: () => void;
   onExport: () => void;
   onRefresh: () => void;
+  onSyncCloud?: () => void;
+  onRetrySync?: () => void;
+  onToggleLocalOnly?: () => void;
   isLoading: boolean;
   lastUpdate: Date | null;
+  cloudSaveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  lastCloudSave?: Date | null;
+  isLocalOnly?: boolean;
 }
 
 const SunIcon = () => (
@@ -37,10 +43,23 @@ export const Header: React.FC<HeaderProps> = ({
   onImport,
   onExport,
   onRefresh,
+  onSyncCloud,
+  onRetrySync,
+  onToggleLocalOnly,
   isLoading,
   lastUpdate,
+  cloudSaveStatus = 'idle',
+  lastCloudSave = null,
+  isLocalOnly = false,
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const showCloudStatus = cloudSaveStatus !== 'idle';
+  const cloudStatusText =
+    cloudSaveStatus === 'saving'
+      ? 'Cloud: Saving...'
+      : cloudSaveStatus === 'saved'
+      ? `Cloud: Saved ${lastCloudSave ? lastCloudSave.toLocaleTimeString() : ''}`.trim()
+      : 'Cloud: Error';
 
   return (
     <header className={styles.header}>
@@ -83,6 +102,32 @@ export const Header: React.FC<HeaderProps> = ({
           </SignUpButton>
         </SignedOut>
         <SignedIn>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={onSyncCloud}
+            disabled={!onSyncCloud}
+          >
+            Sync Now
+          </Button>
+          {cloudSaveStatus === 'error' && (
+            <Button
+              variant="red"
+              size="small"
+              onClick={onRetrySync}
+              disabled={!onRetrySync}
+            >
+              Retry Sync
+            </Button>
+          )}
+          <Button
+            variant={isLocalOnly ? 'blue' : 'secondary'}
+            size="small"
+            onClick={onToggleLocalOnly}
+            disabled={!onToggleLocalOnly}
+          >
+            {isLocalOnly ? 'Local Only' : 'Use Cloud'}
+          </Button>
           <div className={styles.userButton}>
             <UserButton afterSignOutUrl="/" />
           </div>
@@ -91,6 +136,9 @@ export const Header: React.FC<HeaderProps> = ({
           <span className={styles.lastUpdate}>
             Updated: {lastUpdate.toLocaleTimeString()}
           </span>
+        )}
+        {showCloudStatus && (
+          <span className={styles.cloudStatus}>{cloudStatusText}</span>
         )}
       </div>
     </header>

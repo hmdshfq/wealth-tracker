@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useUser } from '@clerk/nextjs';
 
 // Layout components
 import { Header, Footer, Navigation, TabName } from '@/app/components/layout';
@@ -82,42 +83,164 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   // Data Persistence
   // ---------------------------------------------------------------------------
+  const { isLoaded: isAuthLoaded, isSignedIn } = useUser();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isLocalOnly, setIsLocalOnly] = useState(false);
+  const isCloudMode = isAuthLoaded && isSignedIn && !isLocalOnly;
+  const showLocalStorageBanner = isAuthLoaded && !isSignedIn;
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cloudSaveStatus, setCloudSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastCloudSave, setLastCloudSave] = useState<Date | null>(null);
+  const [cloudSaveToast, setCloudSaveToast] = useState(false);
+  const showCloudStatusFooter = isAuthLoaded && isSignedIn;
 
   useEffect(() => {
-    try {
-      const savedData = localStorage.getItem('investment-tracker-data');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.goal) setGoal(parsedData.goal);
-        if (parsedData.transactions) setTransactions(parsedData.transactions);
-        if (parsedData.cash) setCash(parsedData.cash);
-        if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
-        if (parsedData.customTickers) setCustomTickers(parsedData.customTickers);
-      }
-    } catch (error) {
-      console.error('Failed to load data from local storage:', error);
-    } finally {
-      setIsDataLoaded(true);
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('local-only-mode');
+    if (stored === 'true') {
+      setIsLocalOnly(true);
     }
-  }, []); // Empty array ensures this runs only once on mount
+  }, []);
+
+  const buildCloudPayload = useCallback(() => {
+    return {
+      goal,
+      transactions,
+      cash,
+      cashTransactions,
+      customTickers,
+    };
+  }, [goal, transactions, cash, cashTransactions, customTickers]);
+
+  const saveToCloud = useCallback(
+    async (showToast: boolean) => {
+      if (!isCloudMode) return;
+      setCloudSaveStatus('saving');
+      try {
+        const response = await fetch('/api/user-data', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(buildCloudPayload()),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save data');
+        }
+
+        setCloudSaveStatus('saved');
+        setLastCloudSave(new Date());
+        if (showToast) {
+          setCloudSaveToast(true);
+          setTimeout(() => setCloudSaveToast(false), 2500);
+        }
+      } catch (error) {
+        console.error('Failed to save data to database:', error);
+        setCloudSaveStatus('error');
+      }
+    },
+    [buildCloudPayload, isCloudMode]
+  );
+
+  const toggleLocalOnly = useCallback(() => {
+    setIsLocalOnly((prev) => {
+      const next = !prev;
+      localStorage.setItem('local-only-mode', String(next));
+      if (next) {
+        setCloudSaveStatus('idle');
+      }
+      if (!next && isSignedIn) {
+        void saveToCloud(true);
+      }
+      return next;
+    });
+  }, [isSignedIn, saveToCloud]);
+
+  useEffect(() => {
+    if (!isAuthLoaded) return;
+    let isActive = true;
+
+    const loadData = async () => {
+      if (isSignedIn) {
+        try {
+          const response = await fetch('/api/user-data', {
+            cache: 'no-store',
+            credentials: 'include',
+          });
+          if (!response.ok) {
+            const details = await response.text();
+            console.error('Failed to load user data:', response.status, details);
+            setCloudSaveStatus('error');
+            return;
+          }
+          const result = await response.json();
+          if (!isActive) return;
+          const data = result?.data;
+          if (data) {
+            if (data.goal) setGoal(data.goal);
+            if (data.transactions) setTransactions(data.transactions);
+            if (data.cash) setCash(data.cash);
+            if (data.cashTransactions) setCashTransactions(data.cashTransactions);
+            if (data.customTickers) setCustomTickers(data.customTickers);
+          }
+        } catch (error) {
+          console.error('Failed to load data from database:', error);
+          setCloudSaveStatus('error');
+        } finally {
+          if (isActive) setIsDataLoaded(true);
+        }
+        return;
+      }
+
+      try {
+        const savedData = localStorage.getItem('investment-tracker-data');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          if (parsedData.goal) setGoal(parsedData.goal);
+          if (parsedData.transactions) setTransactions(parsedData.transactions);
+          if (parsedData.cash) setCash(parsedData.cash);
+          if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
+          if (parsedData.customTickers) setCustomTickers(parsedData.customTickers);
+        }
+      } catch (error) {
+        console.error('Failed to load data from local storage:', error);
+      } finally {
+        if (isActive) setIsDataLoaded(true);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isAuthLoaded, isSignedIn]);
 
   useEffect(() => {
     if (!isDataLoaded) return;
 
-    try {
-      const dataToSave = {
-        goal,
-        transactions,
-        cash,
-        cashTransactions,
-        customTickers,
+    if (isCloudMode) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      saveTimeoutRef.current = setTimeout(() => {
+        void saveToCloud(false);
+      }, 800);
+
+      return () => {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
       };
-      localStorage.setItem('investment-tracker-data', JSON.stringify(dataToSave));
+    }
+
+    try {
+      localStorage.setItem('investment-tracker-data', JSON.stringify(buildCloudPayload()));
     } catch (error) {
       console.error('Failed to save data to local storage:', error);
     }
-  }, [goal, transactions, cash, cashTransactions, customTickers, isDataLoaded]);
+  }, [buildCloudPayload, isDataLoaded, isCloudMode, saveToCloud]);
 
   // ---------------------------------------------------------------------------
   // Prices State
@@ -621,13 +744,19 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
   // ---------------------------------------------------------------------------
   return (
     <div className={styles.container}>
-      <LocalStorageBanner />
+      {showLocalStorageBanner && <LocalStorageBanner />}
       <Header
         onImport={() => setShowImportModal(true)}
         onExport={() => setShowExportModal(true)}
         onRefresh={fetchPrices}
         isLoading={pricesLoading}
         lastUpdate={lastUpdate}
+        onSyncCloud={isCloudMode ? () => saveToCloud(true) : undefined}
+        onRetrySync={cloudSaveStatus === 'error' ? () => saveToCloud(true) : undefined}
+        onToggleLocalOnly={isAuthLoaded && isSignedIn ? toggleLocalOnly : undefined}
+        cloudSaveStatus={cloudSaveStatus}
+        lastCloudSave={lastCloudSave}
+        isLocalOnly={isLocalOnly}
       />
 
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -705,7 +834,11 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
           )}
       </main>
 
-      <Footer />
+      <Footer
+        lastCloudSave={lastCloudSave}
+        showCloudStatus={showCloudStatusFooter}
+        isLocalOnly={isLocalOnly}
+      />
 
       {/* Modals */}
       <ExportModal
@@ -727,6 +860,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
       {/* Toast */}
       <Toast message="Export successful!" isVisible={exportSuccess} />
+      <Toast message="Saved to cloud" isVisible={cloudSaveToast} />
     </div>
   );
 }

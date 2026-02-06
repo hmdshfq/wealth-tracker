@@ -6,3 +6,7 @@
   font-size: 11px;
   color: var(--text-dimmed);
 }
+
+.footerRow {
+  margin-top: 4px;
+}

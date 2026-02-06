@@ -44,6 +44,11 @@
   color: var(--text-dimmed);
 }
 
+.cloudStatus {
+  font-size: 10px;
+  color: var(--text-dimmed);
+}
+
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
