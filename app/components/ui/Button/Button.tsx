@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, type HTMLMotionProps } from 'motion/react';
 import { useReducedMotion } from '@/app/lib/hooks';
 import styles from './Button.module.css';
 
-interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'ref'> {
+interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   variant?: 'primary' | 'secondary' | 'blue' | 'red';
   size?: 'small' | 'medium' | 'large';
   children: React.ReactNode;
@@ -29,12 +29,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={classes}
         disabled={disabled}
         whileTap={!disabled && !prefersReducedMotion ? { scale: 0.97 } : undefined}
-        {...(props as any)}
+        {...props}
       >
         {children}
       </motion.button>
     );
   }
 );
+
+Button.displayName = 'Button';
 
 export default Button;

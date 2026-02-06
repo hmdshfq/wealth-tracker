@@ -12,6 +12,11 @@ interface AllocationChartProps {
 }
 
 export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
+  const chartData: Array<{ name: string; value: number }> = data.map((item) => ({
+    name: item.name,
+    value: item.value,
+  }));
+
   return (
     <Card>
       <p className={styles.chartTitle}>Allocation</p>
@@ -19,7 +24,7 @@ export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data as any}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={50}

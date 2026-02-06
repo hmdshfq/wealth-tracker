@@ -107,9 +107,14 @@ function useTheme() {
 }
 
 // Custom Tooltip Component
+interface TooltipPayloadItem {
+  dataKey?: string;
+  value?: number;
+}
+
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: TooltipPayloadItem[];
   label?: string;
   goalAmount: number;
   totalActualContributions: number;
@@ -295,23 +300,17 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
   // State
   const [selectedRange, setSelectedRange] = useState<string>('all');
-  const [customStartDate, setCustomStartDate] = useState<string>('');
-  const [customEndDate, setCustomEndDate] = useState<string>('');
+  const [customStartDate, setCustomStartDate] = useState<string>(() => {
+    if (!firstTransactionDate) return '';
+    return firstTransactionDate.substring(0, 7);
+  });
+  const [customEndDate, setCustomEndDate] = useState<string>(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  });
   const [showCustomRange, setShowCustomRange] = useState(false);
-
-  // Prefill date inputs when transaction history is available
-  useEffect(() => {
-    if (firstTransactionDate && !customStartDate) {
-      // Format YYYY-MM-DD to YYYY-MM
-      setCustomStartDate(firstTransactionDate.substring(0, 7));
-      
-      // Set end date to current month
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      setCustomEndDate(`${year}-${month}`);
-    }
-  }, [firstTransactionDate, customStartDate]);
 
   const [liveNetWorth, setLiveNetWorth] = useState(currentNetWorth);
   const [wsConnected, setWsConnected] = useState(false);

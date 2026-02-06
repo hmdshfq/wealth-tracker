@@ -4,8 +4,16 @@ import YahooFinance from 'yahoo-finance2';
 // Create instance (required in v3)
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
+type Quote = {
+  symbol?: string;
+  regularMarketPrice?: number;
+  regularMarketChange?: number;
+  regularMarketChangePercent?: number;
+  currency?: string;
+};
+
 // Simple in-memory cache with TTL
-const cache = new Map<string, { data: any; expiry: number }>();
+const cache = new Map<string, { data: Quote[] | Quote; expiry: number }>();
 const CACHE_TTL = 300000; // 5 minute cache
 
 // Helper function to sleep/delay
@@ -16,8 +24,8 @@ async function fetchWithRetry(
   tickers: string[], 
   maxRetries = 3, 
   baseDelay = 1000
-): Promise<any> {
-  let lastError;
+): Promise<Quote[] | Quote> {
+  let lastError: unknown;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -40,11 +48,11 @@ async function fetchWithRetry(
       });
       
       return quotes;
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
       
       // Check if it's a rate limit error
-      if (error?.message?.includes('429') || error?.message?.includes('Too Many Requests')) {
+      if (error instanceof Error && (error.message.includes('429') || error.message.includes('Too Many Requests'))) {
         const delay = baseDelay * Math.pow(2, attempt);
         console.log(`Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
         

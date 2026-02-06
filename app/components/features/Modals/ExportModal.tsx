@@ -71,7 +71,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       <div className={styles.tipBox}>
         <p>
           💡 <strong>Tip:</strong> Use JSON for full backups. CSV files are
-          useful for spreadsheet analysis but can't be imported back.
+          useful for spreadsheet analysis but can&apos;t be imported back.
         </p>
       </div>
     </AnimatedModal>

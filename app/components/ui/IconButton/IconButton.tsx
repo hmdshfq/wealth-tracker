@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, type HTMLMotionProps } from 'motion/react';
 import { useReducedMotion } from '@/app/lib/hooks';
 import styles from './IconButton.module.css';
 
-interface IconButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'ref'> {
+interface IconButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   icon: React.ReactNode;
   label?: string;
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -32,7 +32,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         className={classes}
         disabled={disabled}
         whileTap={!disabled && !prefersReducedMotion ? { scale: 0.97 } : undefined}
-        {...(props as any)}
+        {...props}
       >
         {iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
         {label && <span className={styles.label}>{label}</span>}
@@ -41,5 +41,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     );
   }
 );
+
+IconButton.displayName = 'IconButton';
 
 export default IconButton;
