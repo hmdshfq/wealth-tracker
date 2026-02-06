@@ -1,19 +1,12 @@
 import { NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
+import type { Quote, QuoteResponseArray } from 'yahoo-finance2/modules/quote';
 
 // Create instance (required in v3)
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
-type Quote = {
-  symbol?: string;
-  regularMarketPrice?: number;
-  regularMarketChange?: number;
-  regularMarketChangePercent?: number;
-  currency?: string;
-};
-
 // Simple in-memory cache with TTL
-const cache = new Map<string, { data: Quote[] | Quote; expiry: number }>();
+const cache = new Map<string, { data: QuoteResponseArray | Quote; expiry: number }>();
 const CACHE_TTL = 300000; // 5 minute cache
 
 // Helper function to sleep/delay
@@ -24,7 +17,7 @@ async function fetchWithRetry(
   tickers: string[], 
   maxRetries = 3, 
   baseDelay = 1000
-): Promise<Quote[] | Quote> {
+): Promise<QuoteResponseArray | Quote> {
   let lastError: unknown;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
