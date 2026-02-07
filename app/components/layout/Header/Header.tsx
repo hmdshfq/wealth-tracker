@@ -13,7 +13,6 @@ interface HeaderProps {
   onRetrySync?: () => void;
   onToggleLocalOnly?: () => void;
   isLoading: boolean;
-  lastUpdate: Date | null;
   cloudSaveStatus?: 'idle' | 'saving' | 'saved' | 'error';
   isLocalOnly?: boolean;
 }
@@ -46,7 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
   onRetrySync,
   onToggleLocalOnly,
   isLoading,
-  lastUpdate,
   cloudSaveStatus = 'idle',
   isLocalOnly = false,
 }) => {

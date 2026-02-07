@@ -15,7 +15,7 @@ import {
 } from '@/app/components/features';
 
 // UI components
-import { Toast, LocalStorageBanner, GuestModeBanner } from '@/app/components/ui';
+import { Toast, LocalStorageBanner } from '@/app/components/ui';
 
 // Types and constants
 import {
@@ -793,8 +793,6 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         cloudSaveStatus={cloudSaveStatus}
         isLocalOnly={isLocalOnly}
       />
-      {isGuestMode && <GuestModeBanner />}
-
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className={styles.main}>
