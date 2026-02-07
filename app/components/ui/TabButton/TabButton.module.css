@@ -11,6 +11,7 @@
   font-weight: 500;
   text-transform: capitalize;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 /* Hover state for inactive tabs */

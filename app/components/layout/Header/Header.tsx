@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { Button, IconButton } from '@/app/components/ui';
 import { useTheme } from '@/app/context/ThemeContext';
@@ -53,7 +53,9 @@ export const Header: React.FC<HeaderProps> = ({
   isLocalOnly = false,
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const showCloudStatus = cloudSaveStatus !== 'idle';
+  const showStatusRow = Boolean(lastUpdate || showCloudStatus);
   const cloudStatusText =
     cloudSaveStatus === 'saving'
       ? 'Cloud: Saving...'
@@ -61,42 +63,45 @@ export const Header: React.FC<HeaderProps> = ({
       ? `Cloud: Saved ${lastCloudSave ? lastCloudSave.toLocaleTimeString() : ''}`.trim()
       : 'Cloud: Error';
 
-  return (
-    <header className={styles.header}>
-      <div className={styles.titleWrapper}>
-        <h1 className={styles.title}>Wealth Tracker</h1>
-        <p className={styles.subtitle}>ETF Portfolio, Cash, & Goal Tracker</p>
-      </div>
-      <div className={styles.actions}>
+  const wrapAction = (handler?: () => void) => () => {
+    handler?.();
+    setIsMenuOpen(false);
+  };
+
+  const actionsContent = useMemo(
+    () => (
+      <>
         <IconButton
           icon={theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           variant="ghost"
           size="medium"
-          onClick={toggleTheme}
+          onClick={wrapAction(toggleTheme)}
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className={styles.actionIcon}
         />
-        <Button variant="secondary" size="small" onClick={onImport}>
+        <Button variant="secondary" size="small" onClick={wrapAction(onImport)} className={styles.actionButton}>
           ↓ Import
         </Button>
-        <Button variant="secondary" size="small" onClick={onExport}>
+        <Button variant="secondary" size="small" onClick={wrapAction(onExport)} className={styles.actionButton}>
           ↑ Export
         </Button>
         <Button
           variant="primary"
           size="small"
-          onClick={onRefresh}
+          onClick={wrapAction(onRefresh)}
           disabled={isLoading}
+          className={styles.actionButton}
         >
           {isLoading ? '⟳ Loading...' : '↻ Refresh Prices'}
         </Button>
         <SignedOut>
           <SignInButton>
-            <Button variant="secondary" size="small">
+            <Button variant="secondary" size="small" className={styles.actionButton} onClick={wrapAction()}>
               Sign In
             </Button>
           </SignInButton>
           <SignUpButton>
-            <Button variant="primary" size="small">
+            <Button variant="primary" size="small" className={styles.actionButton} onClick={wrapAction()}>
               Create Account
             </Button>
           </SignUpButton>
@@ -105,8 +110,9 @@ export const Header: React.FC<HeaderProps> = ({
           <Button
             variant="secondary"
             size="small"
-            onClick={onSyncCloud}
+            onClick={wrapAction(onSyncCloud)}
             disabled={!onSyncCloud}
+            className={styles.actionButton}
           >
             Sync Now
           </Button>
@@ -114,8 +120,9 @@ export const Header: React.FC<HeaderProps> = ({
             <Button
               variant="red"
               size="small"
-              onClick={onRetrySync}
+              onClick={wrapAction(onRetrySync)}
               disabled={!onRetrySync}
+              className={styles.actionButton}
             >
               Retry Sync
             </Button>
@@ -123,8 +130,9 @@ export const Header: React.FC<HeaderProps> = ({
           <Button
             variant={isLocalOnly ? 'blue' : 'secondary'}
             size="small"
-            onClick={onToggleLocalOnly}
+            onClick={wrapAction(onToggleLocalOnly)}
             disabled={!onToggleLocalOnly}
+            className={styles.actionButton}
           >
             {isLocalOnly ? 'Local Only' : 'Use Cloud'}
           </Button>
@@ -132,13 +140,61 @@ export const Header: React.FC<HeaderProps> = ({
             <UserButton afterSignOutUrl="/" />
           </div>
         </SignedIn>
-        {lastUpdate && (
-          <span className={styles.lastUpdate}>
-            Updated: {lastUpdate.toLocaleTimeString()}
-          </span>
-        )}
-        {showCloudStatus && (
-          <span className={styles.cloudStatus}>{cloudStatusText}</span>
+      </>
+    ),
+    [
+      cloudSaveStatus,
+      isLoading,
+      isLocalOnly,
+      onExport,
+      onImport,
+      onRefresh,
+      onRetrySync,
+      onSyncCloud,
+      onToggleLocalOnly,
+      theme,
+      toggleTheme,
+    ]
+  );
+
+  return (
+    <header className={styles.header}>
+      <div className={styles.titleWrapper}>
+        <h1 className={styles.title}>Wealth Tracker</h1>
+        <p className={styles.subtitle}>ETF Portfolio, Cash, & Goal Tracker</p>
+      </div>
+      <div className={styles.actions}>
+        <div className={styles.actionsDesktop}>
+          {actionsContent}
+        </div>
+        <div className={styles.actionsMobile}>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className={styles.menuButton}
+            aria-expanded={isMenuOpen}
+            aria-controls="header-menu"
+          >
+            ☰ Menu
+          </Button>
+          {isMenuOpen && (
+            <div id="header-menu" className={styles.menuPanel} role="menu">
+              {actionsContent}
+            </div>
+          )}
+        </div>
+        {showStatusRow && (
+          <div className={styles.statusRow}>
+            {lastUpdate && (
+              <div className={styles.lastUpdate}>
+                Updated: {lastUpdate.toLocaleTimeString()}
+              </div>
+            )}
+            {showCloudStatus && (
+              <span className={styles.cloudStatus}>{cloudStatusText}</span>
+            )}
+          </div>
         )}
       </div>
     </header>

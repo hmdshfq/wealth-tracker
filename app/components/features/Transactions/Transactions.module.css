@@ -5,6 +5,16 @@
   align-items: flex-end;
 }
 
+.formRow > * {
+  flex: 1 1 160px;
+}
+
+.addButton {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
 .ticker {
   color: var(--accent-green);
   font-weight: 600;
@@ -226,5 +236,23 @@
   .transactionHeader span:nth-child(7),
   .transactionRow span:nth-child(7) {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .formRow {
+    align-items: stretch;
+  }
+
+  .addButton {
+    flex: 1 1 100%;
+  }
+
+  .paginationControls {
+    align-items: flex-start;
+  }
+
+  .paginationInfo {
+    width: 100%;
   }
 }

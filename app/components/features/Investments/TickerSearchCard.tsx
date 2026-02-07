@@ -134,11 +134,12 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
                     {result.shortname} • {result.exchDisp}
                   </div>
                 </div>
-                <Button 
+                <Button
                   size="small" 
                   variant={isAdded ? "secondary" : "primary"}
                   disabled={isAdded}
                   onClick={() => handleAdd(result)}
+                  className={styles.tickerResultButton}
                 >
                   {isAdded ? 'Added' : 'Add'}
                 </Button>
@@ -162,8 +163,8 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
                     <div className={styles.tickerSymbol}>{symbol}</div>
                     <div className={styles.tickerName}>{info.name} ({info.currency})</div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button size="small" variant="secondary" onClick={() => startEdit(symbol, info)}>Edit</Button>
+                  <div className={styles.tickerResultActions}>
+                    <Button size="small" variant="secondary" onClick={() => startEdit(symbol, info)} className={styles.tickerResultButton}>Edit</Button>
                     {!isHeld && (
                       <Button 
                         size="small" 
@@ -172,6 +173,7 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
                           e.stopPropagation();
                           onDeleteTicker(symbol);
                         }}
+                        className={styles.tickerResultButton}
                       >
                         Delete
                       </Button>

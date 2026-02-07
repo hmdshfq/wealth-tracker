@@ -10,3 +10,13 @@
 .main {
   margin-top: 24px;
 }
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .main {
+    margin-top: 16px;
+  }
+}
