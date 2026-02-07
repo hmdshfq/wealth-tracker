@@ -102,7 +102,7 @@ export default function InvestmentTracker() {
   const [cloudSaveStatus, setCloudSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [lastCloudSave, setLastCloudSave] = useState<Date | null>(null);
   const [cloudSaveToast, setCloudSaveToast] = useState(false);
-  const showCloudStatusFooter = isAuthLoaded && isSignedIn;
+  const [cloudErrorToast, setCloudErrorToast] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -147,6 +147,10 @@ export default function InvestmentTracker() {
       } catch (error) {
         console.error('Failed to save data to database:', error);
         setCloudSaveStatus('error');
+        if (showToast) {
+          setCloudErrorToast(true);
+          setTimeout(() => setCloudErrorToast(false), 3000);
+        }
       }
     },
     [buildCloudPayload, isCloudMode]
@@ -427,6 +431,9 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const totalGain = portfolioValue - totalCost;
   const totalGainPercent = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
   const goalProgress = (totalNetWorth / goal.amount) * 100;
+  const cloudToastMessage = lastCloudSave
+    ? `Cloud synced at ${lastCloudSave.toLocaleTimeString()}`
+    : 'Cloud synced';
 
   const holdingsData: HoldingWithDetails[] = useMemo(() => {
     return holdings.map((h) => {
@@ -784,7 +791,6 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         onRetrySync={cloudSaveStatus === 'error' ? () => saveToCloud(true) : undefined}
         onToggleLocalOnly={isAuthLoaded && isSignedIn ? toggleLocalOnly : undefined}
         cloudSaveStatus={cloudSaveStatus}
-        lastCloudSave={lastCloudSave}
         isLocalOnly={isLocalOnly}
       />
       {isGuestMode && <GuestModeBanner />}
@@ -864,11 +870,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
           )}
       </main>
 
-      <Footer
-        lastCloudSave={lastCloudSave}
-        showCloudStatus={showCloudStatusFooter}
-        isLocalOnly={isLocalOnly}
-      />
+      <Footer lastUpdate={lastUpdate} />
 
       {/* Modals */}
       <ExportModal
@@ -890,7 +892,8 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
       {/* Toast */}
       <Toast message="Export successful!" isVisible={exportSuccess} />
-      <Toast message="Saved to cloud" isVisible={cloudSaveToast} />
+      <Toast message={cloudToastMessage} isVisible={cloudSaveToast} />
+      <Toast message="Cloud sync failed" isVisible={cloudErrorToast} />
     </div>
   );
 }

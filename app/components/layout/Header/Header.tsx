@@ -15,7 +15,6 @@ interface HeaderProps {
   isLoading: boolean;
   lastUpdate: Date | null;
   cloudSaveStatus?: 'idle' | 'saving' | 'saved' | 'error';
-  lastCloudSave?: Date | null;
   isLocalOnly?: boolean;
 }
 
@@ -49,19 +48,10 @@ export const Header: React.FC<HeaderProps> = ({
   isLoading,
   lastUpdate,
   cloudSaveStatus = 'idle',
-  lastCloudSave = null,
   isLocalOnly = false,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const showCloudStatus = cloudSaveStatus !== 'idle';
-  const showStatusRow = Boolean(lastUpdate || showCloudStatus);
-  const cloudStatusText =
-    cloudSaveStatus === 'saving'
-      ? 'Cloud: Saving...'
-      : cloudSaveStatus === 'saved'
-      ? `Cloud: Saved ${lastCloudSave ? lastCloudSave.toLocaleTimeString() : ''}`.trim()
-      : 'Cloud: Error';
 
   const wrapAction = (handler?: () => void) => () => {
     handler?.();
@@ -184,18 +174,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
         </div>
-        {showStatusRow && (
-          <div className={styles.statusRow}>
-            {lastUpdate && (
-              <div className={styles.lastUpdate}>
-                Updated: {lastUpdate.toLocaleTimeString()}
-              </div>
-            )}
-            {showCloudStatus && (
-              <span className={styles.cloudStatus}>{cloudStatusText}</span>
-            )}
-          </div>
-        )}
       </div>
     </header>
   );
