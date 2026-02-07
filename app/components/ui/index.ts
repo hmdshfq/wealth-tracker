@@ -16,4 +16,5 @@ export { PriceCard } from './PriceCard';
 export { DataTable } from './DataTable';
 export { SectionTitle } from './SectionTitle';
 export { LocalStorageBanner } from './LocalStorageBanner';
+export { GuestModeBanner } from './GuestModeBanner';
 export { AnimatedList } from './AnimatedList';

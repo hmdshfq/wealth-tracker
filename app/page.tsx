@@ -15,7 +15,7 @@ import {
 } from '@/app/components/features';
 
 // UI components
-import { Toast, LocalStorageBanner } from '@/app/components/ui';
+import { Toast, LocalStorageBanner, GuestModeBanner } from '@/app/components/ui';
 
 // Types and constants
 import {
@@ -32,6 +32,13 @@ import {
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
+import {
+  DEMO_CASH,
+  DEMO_CASH_TRANSACTIONS,
+  DEMO_CUSTOM_TICKERS,
+  DEMO_GOAL,
+  DEMO_TRANSACTIONS,
+} from '@/app/lib/demoData';
 
 
 // Styles
@@ -61,6 +68,8 @@ const INITIAL_GOAL: Goal = {
   startDate: new Date().toISOString().split('T')[0],
 };
 
+const STORAGE_KEY = 'investment-tracker-data';
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -87,6 +96,7 @@ export default function InvestmentTracker() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isLocalOnly, setIsLocalOnly] = useState(false);
   const isCloudMode = isAuthLoaded && isSignedIn && !isLocalOnly;
+  const isGuestMode = isAuthLoaded && !isSignedIn;
   const showLocalStorageBanner = isAuthLoaded && !isSignedIn;
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cloudSaveStatus, setCloudSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -193,7 +203,7 @@ export default function InvestmentTracker() {
       }
 
       try {
-        const savedData = localStorage.getItem('investment-tracker-data');
+        const savedData = localStorage.getItem(STORAGE_KEY);
         if (savedData) {
           const parsedData = JSON.parse(savedData);
           if (parsedData.goal) setGoal(parsedData.goal);
@@ -201,9 +211,28 @@ export default function InvestmentTracker() {
           if (parsedData.cash) setCash(parsedData.cash);
           if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
           if (parsedData.customTickers) setCustomTickers(parsedData.customTickers);
+        } else {
+          const demoPayload = {
+            goal: DEMO_GOAL,
+            transactions: DEMO_TRANSACTIONS,
+            cash: DEMO_CASH,
+            cashTransactions: DEMO_CASH_TRANSACTIONS,
+            customTickers: DEMO_CUSTOM_TICKERS,
+          };
+          setGoal(DEMO_GOAL);
+          setTransactions(DEMO_TRANSACTIONS);
+          setCash(DEMO_CASH);
+          setCashTransactions(DEMO_CASH_TRANSACTIONS);
+          setCustomTickers(DEMO_CUSTOM_TICKERS);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(demoPayload));
         }
       } catch (error) {
         console.error('Failed to load data from local storage:', error);
+        setGoal(DEMO_GOAL);
+        setTransactions(DEMO_TRANSACTIONS);
+        setCash(DEMO_CASH);
+        setCashTransactions(DEMO_CASH_TRANSACTIONS);
+        setCustomTickers(DEMO_CUSTOM_TICKERS);
       } finally {
         if (isActive) setIsDataLoaded(true);
       }
@@ -236,7 +265,7 @@ export default function InvestmentTracker() {
     }
 
     try {
-      localStorage.setItem('investment-tracker-data', JSON.stringify(buildCloudPayload()));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(buildCloudPayload()));
     } catch (error) {
       console.error('Failed to save data to local storage:', error);
     }
@@ -758,6 +787,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         lastCloudSave={lastCloudSave}
         isLocalOnly={isLocalOnly}
       />
+      {isGuestMode && <GuestModeBanner />}
 
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
