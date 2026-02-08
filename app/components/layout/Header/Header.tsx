@@ -12,6 +12,7 @@ interface HeaderProps {
   onSyncCloud?: () => void;
   onRetrySync?: () => void;
   onToggleLocalOnly?: () => void;
+  lastUpdate: Date | null;
   isLoading: boolean;
   cloudSaveStatus?: 'idle' | 'saving' | 'saved' | 'error';
   isLocalOnly?: boolean;
