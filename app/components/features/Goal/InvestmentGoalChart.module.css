@@ -931,3 +931,222 @@
     border-color: #cccccc;
   }
 }
+
+/* Scenario Analysis Controls */
+.scenarioAnalysisControls {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.scenarioAnalysisHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.scenarioAnalysisHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.scenarioAnalysisToggle {
+  margin-bottom: 16px;
+}
+
+.scenarioAnalysisToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.scenarioControls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scenarioLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.scenarioItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scenarioItem label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.scenarioColor {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+}
+
+.scenarioName {
+  font-weight: 500;
+}
+
+.scenarioComparison {
+  margin-top: 16px;
+}
+
+.scenarioComparison h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.scenarioTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scenarioTable th,
+.scenarioTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.scenarioTable th {
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card);
+}
+
+.scenarioTable td {
+  color: var(--text-primary);
+}
+
+.successMeter {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.successMeterFill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.successMeter span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme overrides */
+.dark .scenarioAnalysisControls {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+}
+
+.dark .scenarioTable th {
+  background: var(--bg-card);
+}
+
+.dark .successMeter {
+  background: var(--bg-card);
+}
+
+/* Contribution Optimization */
+.contributionOptimization {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.contributionOptimization h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.optimizationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.optimizationItem {
+  padding: 12px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.optimizationItem h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.optimizationItem p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.shortfall {
+  color: var(--accent-red);
+  font-weight: 500;
+}
+
+.surplus {
+  color: var(--accent-green);
+  font-weight: 500;
+}
+
+/* Print styles */
+@media print {
+  .scenarioAnalysisControls {
+    page-break-inside: avoid;
+  }
+
+  .scenarioTable {
+    font-size: 12px;
+  }
+
+  .optimizationGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}

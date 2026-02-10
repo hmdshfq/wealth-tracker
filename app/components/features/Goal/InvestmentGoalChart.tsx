@@ -16,15 +16,17 @@ import {
   ComposedChart,
 } from 'recharts';
 import { formatPLN } from '@/app/lib/formatters';
-import { Goal } from '@/app/lib/types';
+import { Goal, InvestmentScenario, ScenarioAnalysisResult } from '@/app/lib/types';
 import { ExtendedProjectionDataPoint } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
+import { calculateYearsToGoal, calculateRequiredContributions } from '@/app/lib/goalCalculations';
 import { 
   HelpTooltip,
   ConfidenceBandsHelp,
   MonteCarloLegendHelp,
   VolatilityGuide,
-  SuccessProbabilityGuide 
+  SuccessProbabilityGuide,
+  ScenarioAnalysisHelp
 } from './InvestmentGoalChartHelp';
 import styles from './InvestmentGoalChart.module.css';
 
@@ -69,6 +71,9 @@ interface InvestmentGoalChartProps {
   firstTransactionDate?: string;
   monteCarloResult?: MonteCarloSimulationResult;
   showMonteCarlo?: boolean;
+  scenarioAnalysisResult?: ScenarioAnalysisResult;
+  showScenarioAnalysis?: boolean;
+  scenarios?: InvestmentScenario[];
 }
 
 interface TimeRangeOption {
@@ -233,7 +238,7 @@ interface CustomLegendProps {
     value: string;
     color: string;
     dataKey: string;
-    type: 'projected' | 'actual' | 'target' | 'monte-carlo';
+    type: 'projected' | 'actual' | 'target' | 'monte-carlo' | 'scenario';
   }>;
   onToggle: (dataKey: string) => void;
   hiddenLines: Set<string>;
@@ -244,6 +249,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, hiddenLi
   const actualItems = payload.filter((p) => p.type === 'actual');
   const targetItems = payload.filter((p) => p.type === 'target');
   const monteCarloItems = payload.filter((p) => p.type === 'monte-carlo');
+  const scenarioItems = payload.filter((p) => p.type === 'scenario');
 
   const renderItem = (entry: typeof payload[0], index: number) => (
     <button
@@ -302,6 +308,17 @@ const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, hiddenLi
           </div>
         </div>
       )}
+
+      {scenarioItems.length > 0 && (
+        <div className={styles.legendGroup}>
+          <div className={styles.legendGroupHeader}>
+            <span className={styles.legendGroupTitle}>Scenarios</span>
+          </div>
+          <div className={styles.legendItems}>
+            {scenarioItems.map(renderItem)}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -318,6 +335,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   firstTransactionDate,
   monteCarloResult,
   showMonteCarlo,
+  scenarioAnalysisResult,
+  showScenarioAnalysis,
+  scenarios,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -347,6 +367,41 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [monteCarloVolatility, setMonteCarloVolatility] = useState(0.15);
   const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
   const [showHelpOverlay, setShowHelpOverlay] = useState(false);
+  const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(Boolean(showScenarioAnalysis));
+  const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarios || [
+    { id: 'base', name: 'Base Case', returnAdjustment: 0, color: '#4ECDC4', description: 'Your original plan', isActive: true },
+    { id: 'optimistic', name: 'Optimistic', returnAdjustment: 0.02, color: '#10b981', description: '+2% annual return', isActive: true },
+    { id: 'pessimistic', name: 'Pessimistic', returnAdjustment: -0.02, color: '#ef4444', description: '-2% annual return', isActive: true },
+  ]);
+
+  // Calculate years to goal
+  const yearsToGoal = useMemo(() => {
+    return calculateYearsToGoal(
+      goal.amount,
+      currentNetWorth,
+      goal.monthlyDeposits,
+      goal.annualReturn,
+      goal.depositIncreasePercentage
+    );
+  }, [goal.amount, currentNetWorth, goal.monthlyDeposits, goal.annualReturn, goal.depositIncreasePercentage]);
+
+  // Calculate required contributions for different target years
+  const requiredContributions = useMemo(() => {
+    const targets = [5, 10, 15, 20];
+    const result: Record<number, ReturnType<typeof calculateRequiredContributions>> = {};
+    
+    targets.forEach(years => {
+      result[years] = calculateRequiredContributions(
+        goal.amount,
+        currentNetWorth,
+        years,
+        goal.annualReturn,
+        goal.depositIncreasePercentage
+      );
+    });
+    
+    return result;
+  }, [goal.amount, currentNetWorth, goal.annualReturn, goal.depositIncreasePercentage]);
 
   const announceToScreenReader = useCallback((message: string) => {
     setAnnouncement(message);
@@ -425,11 +480,25 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       }
     }
 
-    return filtered.map((d) => ({
+    // Add scenario data to each point
+    const result = filtered.map((d) => ({
       ...d,
       goal: goal.amount,
     }));
-  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount]);
+
+    // Add scenario values if scenario analysis is enabled
+    if (showScenarioAnalysisLocal && scenarioAnalysisResult) {
+      result.forEach((point, index) => {
+        activeScenarios.forEach((scenario) => {
+          if (scenario.isActive && scenarioAnalysisResult.scenarios[scenario.id]?.[index]) {
+            (point as any)[scenario.id] = scenarioAnalysisResult.scenarios[scenario.id][index].value;
+          }
+        });
+      });
+    }
+
+    return result;
+  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios]);
 
   const handleLegendToggle = useCallback((dataKey: string) => {
     setHiddenLines((prev) => {
@@ -524,7 +593,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       { value: 'Median', color: colors.projectedValue, dataKey: 'p50', type: 'monte-carlo' as const },
       { value: '10% Confidence', color: colors.projectedValue, dataKey: 'p10', type: 'monte-carlo' as const },
     ] : []),
-  ], [colors, showMonteCarloLocal, monteCarloResult]);
+    ...(showScenarioAnalysisLocal && scenarioAnalysisResult ? activeScenarios
+      .filter(s => s.isActive && s.id !== 'base')
+      .map(scenario => ({
+        value: scenario.name,
+        color: scenario.color,
+        dataKey: scenario.id,
+        type: 'scenario' as const
+      })) : []),
+  ], [colors, showMonteCarloLocal, monteCarloResult, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios]);
 
   return (
     <div
@@ -576,6 +653,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               style={{ color: actualReturns >= 0 ? colors.actualReturns : colors.actualContributions }}
             >
               {formatPLN(actualReturns)} ({actualReturnsPercent >= 0 ? '+' : ''}{actualReturnsPercent.toFixed(1)}%)
+            </span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Years to Goal</span>
+            <span className={styles.statValue} style={{ color: colors.projectedValue }}>
+              {yearsToGoal.baseYears} years ({yearsToGoal.confidenceInterval[0]}-{yearsToGoal.confidenceInterval[1]})
             </span>
           </div>
         </div>
@@ -847,6 +930,27 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               />
             )}
 
+            {/* Scenario Analysis Lines */}
+            {showScenarioAnalysisLocal && scenarioAnalysisResult && activeScenarios
+              .filter(s => s.isActive && s.id !== 'base' && !hiddenLines.has(s.id))
+              .map((scenario) => {
+                const scenarioData = scenarioAnalysisResult.scenarios[scenario.id];
+                return (
+                  <Line
+                    key={scenario.id}
+                    type="monotone"
+                    dataKey={scenario.id}
+                    name={scenario.name}
+                    stroke={scenario.color}
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                    activeDot={{ r: 6, fill: scenario.color, stroke: colors.background, strokeWidth: 2 }}
+                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                  />
+                );
+              })}
+
             {/* Actual contributions (solid) */}
             {!hiddenLines.has('actualContributions') && (
               <Line
@@ -932,9 +1036,145 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         <span>Escape to reset</span>
       </div>
 
+    {/* Scenario Analysis Controls */}
+    {scenarioAnalysisResult && (
+      <div className={styles.scenarioAnalysisControls}>
+        <div className={styles.scenarioAnalysisHeader}>
+          <h4>Scenario Analysis</h4>
+          <button
+            onClick={() => setShowHelpOverlay(true)}
+            className={styles.helpButton}
+            aria-label="Learn about scenario analysis"
+          >
+            ⓘ Help
+          </button>
+        </div>
+        <div className={styles.scenarioAnalysisToggle}>
+          <label>
+            <input
+              type="checkbox"
+              checked={showScenarioAnalysisLocal}
+              onChange={() => setShowScenarioAnalysisLocal(!showScenarioAnalysisLocal)}
+            />
+            Show Scenario Analysis
+            <HelpTooltip content="Compare different return scenarios to understand potential outcomes">
+              <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+            </HelpTooltip>
+          </label>
+        </div>
+
+        {showScenarioAnalysisLocal && (
+          <div className={styles.scenarioControls}>
+            <div className={styles.scenarioLegend}>
+              {activeScenarios.map((scenario) => (
+                <div key={scenario.id} className={styles.scenarioItem}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={scenario.isActive}
+                      onChange={() => {
+                        setActiveScenarios(prev => 
+                          prev.map(s => 
+                            s.id === scenario.id ? { ...s, isActive: !s.isActive } : s
+                          )
+                        );
+                      }}
+                    />
+                    <span className={styles.scenarioColor} style={{ backgroundColor: scenario.color }} />
+                    <span className={styles.scenarioName}>{scenario.name}</span>
+                    <HelpTooltip content={scenario.description}>
+                      <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+                    </HelpTooltip>
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.scenarioComparison}>
+              <h5>Scenario Comparison</h5>
+              <table className={styles.scenarioTable}>
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Final Value</th>
+                    <th>Difference</th>
+                    <th>Success Probability</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeScenarios.filter(s => s.isActive).map((scenario) => {
+                    const scenarioData = scenarioAnalysisResult.scenarios[scenario.id];
+                    const finalValue = scenarioData?.[scenarioData.length - 1]?.value || 0;
+                    const baseFinalValue = scenarioAnalysisResult.baseScenario[scenarioAnalysisResult.baseScenario.length - 1]?.value || 0;
+                    const difference = finalValue - baseFinalValue;
+                    const differencePercent = baseFinalValue > 0 ? (difference / baseFinalValue) * 100 : 0;
+                    const successProbability = finalValue >= goal.amount ? 100 : Math.min(100, (finalValue / goal.amount) * 100);
+
+                    return (
+                      <tr key={scenario.id}>
+                        <td>
+                          <span className={styles.scenarioColor} style={{ backgroundColor: scenario.color }} />
+                          {scenario.name}
+                        </td>
+                        <td>{formatPLN(finalValue)}</td>
+                        <td style={{ color: difference >= 0 ? colors.actualReturns : colors.actualContributions }}>
+                          {formatPLN(difference)} ({difference >= 0 ? '+' : ''}{differencePercent.toFixed(1)}%)
+                        </td>
+                        <td>
+                          <div className={styles.successMeter}>
+                            <div 
+                              className={styles.successMeterFill}
+                              style={{ 
+                                width: `${successProbability}%`,
+                                backgroundColor: successProbability >= 75 ? '#10b981' : successProbability >= 50 ? '#f59e0b' : '#ef4444'
+                              }}
+                            />
+                            <span>{successProbability.toFixed(0)}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Contribution Optimization Section */}
+    <div className={styles.contributionOptimization}>
+      <h4>Contribution Optimization</h4>
+      <div className={styles.optimizationGrid}>
+        <div className={styles.optimizationItem}>
+          <h5>Current Plan</h5>
+          <p>Monthly: {formatPLN(goal.monthlyDeposits)}</p>
+          <p>Years to Goal: {yearsToGoal.baseYears}</p>
+        </div>
+        
+        {[5, 10, 15, 20].map((years) => {
+          const req = requiredContributions[years];
+          if (!req) return null;
+          
+          return (
+            <div key={years} className={styles.optimizationItem}>
+              <h5>Reach goal in {years} years</h5>
+              <p>Required: {formatPLN(req.requiredMonthly)}/month</p>
+              {req.currentShortfall > 0 ? (
+                <p className={styles.shortfall}>Increase by: {formatPLN(req.recommendedIncrease)}/month</p>
+              ) : (
+                <p className={styles.surplus}>You're on track!</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
     {/* Help Overlay */}
     {showHelpOverlay && (
-      <ConfidenceBandsHelp onClose={() => setShowHelpOverlay(false)} />
+      <ScenarioAnalysisHelp onClose={() => setShowHelpOverlay(false)} />
     )}
     </div>
   );

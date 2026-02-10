@@ -228,3 +228,105 @@ export const SuccessProbabilityGuide: React.FC = () => {
     </div>
   );
 };
+
+interface ScenarioAnalysisHelpProps {
+  onClose: () => void;
+}
+
+export const ScenarioAnalysisHelp: React.FC<ScenarioAnalysisHelpProps> = ({ onClose }) => {
+  return (
+    <div className={styles.helpOverlay} role="dialog" aria-labelledby="scenario-analysis-help-title">
+      <div className={styles.helpContent}>
+        <div className={styles.helpHeader}>
+          <h3 id="scenario-analysis-help-title" className={styles.helpTitle}>🔮 Understanding Scenario Analysis</h3>
+          <button 
+            onClick={onClose} 
+            className={styles.closeButton} 
+            aria-label="Close help"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className={styles.helpSection}>
+          <h4>What Is Scenario Analysis?</h4>
+          <p>Scenario analysis helps you understand how different market conditions could affect your investment outcomes by comparing multiple return scenarios.</p>
+          <ul>
+            <li><strong>Base Case:</strong> Your original plan with expected returns</li>
+            <li><strong>Optimistic:</strong> Higher returns scenario (+2% annual return)</li>
+            <li><strong>Pessimistic:</strong> Lower returns scenario (-2% annual return)</li>
+          </ul>
+        </div>
+
+        <div className={styles.helpSection}>
+          <h4>How to Use This Feature</h4>
+          <div className={styles.interpretationGuide}>
+            <div className={styles.guideItem}>
+              <div className={styles.guideVisual}>📊</div>
+              <div>
+                <strong>Compare scenarios:</strong> See how different return rates affect your final portfolio value
+              </div>
+            </div>
+            <div className={styles.guideItem}>
+              <div className={styles.guideVisual}>🎯</div>
+              <div>
+                <strong>Assess risk:</strong> Understand the range of possible outcomes
+              </div>
+            </div>
+            <div className={styles.guideItem}>
+              <div className={styles.guideVisual}>💡</div>
+              <div>
+                <strong>Plan strategically:</strong> Make informed decisions about your investment strategy
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.helpSection}>
+          <h4>Interpreting the Results</h4>
+          <div className={styles.scenarioInterpretation}>
+            <div className={styles.scenarioItem}>
+              <span className={styles.scenarioColor} style={{ backgroundColor: '#4ECDC4' }} />
+              <strong>Base Case:</strong> Your current plan - the most likely outcome based on your assumptions
+            </div>
+            <div className={styles.scenarioItem}>
+              <span className={styles.scenarioColor} style={{ backgroundColor: '#10b981' }} />
+              <strong>Optimistic:</strong> What could happen if markets perform better than expected
+            </div>
+            <div className={styles.scenarioItem}>
+              <span className={styles.scenarioColor} style={{ backgroundColor: '#ef4444' }} />
+              <strong>Pessimistic:</strong> What could happen if markets perform worse than expected
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.helpSection}>
+          <h4>Scenario Comparison Table</h4>
+          <p>The table shows key metrics for each scenario:</p>
+          <ul>
+            <li><strong>Final Value:</strong> Projected portfolio value at retirement</li>
+            <li><strong>Difference:</strong> How much more/less than your base case</li>
+            <li><strong>Success Probability:</strong> Likelihood of reaching your goal</li>
+          </ul>
+        </div>
+
+        <div className={styles.helpSection}>
+          <h4>Pro Tips</h4>
+          <ul>
+            <li>📈 <strong>Wide spread:</strong> Greater uncertainty - consider diversifying</li>
+            <li>🎯 <strong>All scenarios above goal:</strong> You're in great shape!</li>
+            <li>⚠️ <strong>Pessimistic below goal:</strong> Consider increasing contributions</li>
+            <li>🔄 <strong>Toggle scenarios:</strong> Focus on the scenarios most relevant to you</li>
+          </ul>
+        </div>
+
+        <div className={styles.helpActions}>
+          <button onClick={onClose} className={styles.primaryButton}>Got it!</button>
+          <a href="/help/scenario-analysis" className={styles.secondaryButton} target="_blank" rel="noopener noreferrer">
+            Learn More
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};

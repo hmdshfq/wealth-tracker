@@ -48,6 +48,22 @@ export interface Goal {
   startDate: string; // ISO date string (YYYY-MM-DD)
 }
 
+export interface InvestmentScenario {
+  id: string;
+  name: string;
+  returnAdjustment: number; // -0.02 to +0.02 (2% adjustment)
+  color: string;
+  description: string;
+  isActive: boolean;
+}
+
+export interface ScenarioAnalysisResult {
+  baseScenario: ProjectionDataPoint[];
+  optimisticScenario: ProjectionDataPoint[];
+  pessimisticScenario: ProjectionDataPoint[];
+  scenarios: Record<string, ProjectionDataPoint[]>;
+}
+
 export interface AllocationItem {
   name: string;
   value: number;
