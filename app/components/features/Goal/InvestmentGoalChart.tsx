@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo, useId } from 'react';
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -11,21 +10,18 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   Brush,
-  TooltipProps,
   Area,
   ComposedChart,
 } from 'recharts';
 import { formatPLN } from '@/app/lib/formatters';
-import { Goal, InvestmentScenario, ScenarioAnalysisResult } from '@/app/lib/types';
-import { ExtendedProjectionDataPoint } from '@/app/lib/projectionCalculations';
+import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint } from '@/app/lib/types';
+import { ExtendedProjectionDataPoint, generateProjectionData } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
 import { calculateYearsToGoal, calculateRequiredContributions } from '@/app/lib/goalCalculations';
 import { 
   HelpTooltip,
-  ConfidenceBandsHelp,
   MonteCarloLegendHelp,
   VolatilityGuide,
-  SuccessProbabilityGuide,
   ScenarioAnalysisHelp
 } from './InvestmentGoalChartHelp';
 import styles from './InvestmentGoalChart.module.css';
@@ -342,6 +338,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
   const colors = CHART_COLORS[theme];
+  const gradientId = useId();
 
   // State
   const [selectedRange, setSelectedRange] = useState<string>('all');
@@ -374,6 +371,28 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     { id: 'pessimistic', name: 'Pessimistic', returnAdjustment: -0.02, color: '#ef4444', description: '-2% annual return', isActive: true },
   ]);
 
+  // What-if Scenario State
+  const [showWhatIf, setShowWhatIf] = useState(false);
+  const [whatIfParams, setWhatIfParams] = useState({
+    annualReturn: goal.annualReturn,
+    monthlyDeposits: goal.monthlyDeposits,
+    yearsToGoal: 0, // Will be updated after yearsToGoal calculation
+  });
+
+  // Generate what-if projection when parameters change
+  const whatIfProjection = useMemo(() => {
+    if (!showWhatIf) return null;
+    
+    // Create a temporary goal with what-if parameters
+    const tempGoal = {
+      ...goal,
+      annualReturn: whatIfParams.annualReturn,
+      monthlyDeposits: whatIfParams.monthlyDeposits,
+    };
+    
+    return generateProjectionData(tempGoal, currentNetWorth);
+  }, [showWhatIf, whatIfParams, goal, currentNetWorth]);
+
   // Calculate years to goal
   const yearsToGoal = useMemo(() => {
     return calculateYearsToGoal(
@@ -384,6 +403,13 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       goal.depositIncreasePercentage
     );
   }, [goal.amount, currentNetWorth, goal.monthlyDeposits, goal.annualReturn, goal.depositIncreasePercentage]);
+
+  // Update what-if params with calculated years to goal
+  useEffect(() => {
+    if (yearsToGoal.baseYears > 0) {
+      setWhatIfParams(prev => ({ ...prev, yearsToGoal: yearsToGoal.baseYears }));
+    }
+  }, [yearsToGoal.baseYears]);
 
   // Calculate required contributions for different target years
   const requiredContributions = useMemo(() => {
@@ -497,8 +523,88 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       });
     }
 
+    // Add what-if values if what-if scenario is enabled
+    if (showWhatIf && whatIfProjection) {
+      result.forEach((point, index) => {
+        if (whatIfProjection[index]) {
+          (point as any).whatIfValue = whatIfProjection[index].value;
+        }
+      });
+    }
+
     return result;
-  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios]);
+  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection]);
+
+  // Benchmark Comparisons - generate benchmark projections
+  const benchmarkData = useMemo(() => {
+    interface Benchmark {
+      id: string;
+      name: string;
+      color: string;
+      annualReturn: number;
+      data: ProjectionDataPoint[];
+    }
+    
+    const benchmarks: Benchmark[] = [];
+    
+    // S&P 500 benchmark (historical average return ~7%)
+    const sp500Goal = { ...goal, annualReturn: 0.07 };
+    const sp500Projection = generateProjectionData(sp500Goal, currentNetWorth);
+    
+    // Industry average benchmark (conservative ~5%)
+    const industryGoal = { ...goal, annualReturn: 0.05 };
+    const industryProjection = generateProjectionData(industryGoal, currentNetWorth);
+    
+    benchmarks.push(
+      { id: 'sp500', name: 'S&P 500', color: '#3b82f6', annualReturn: 0.07, data: sp500Projection },
+      { id: 'industry', name: 'Industry Avg', color: '#8b5cf6', annualReturn: 0.05, data: industryProjection }
+    );
+    
+    return benchmarks;
+  }, [goal, currentNetWorth]);
+
+  // Goal Achievement Zones - calculate progress milestones
+  const goalAchievementZones = useMemo(() => {
+    interface Zone {
+      percentage: number;
+      value: number;
+      date: string | undefined;
+      color: string;
+    }
+    
+    const zones: Zone[] = [];
+    const milestonePercentages = [0.25, 0.5, 0.75, 1.0];
+    
+    milestonePercentages.forEach(percentage => {
+      const milestoneValue = goal.amount * percentage;
+      const milestoneDate = filteredData.find(point => point.value >= milestoneValue)?.date;
+      
+      zones.push({
+        percentage,
+        value: milestoneValue,
+        date: milestoneDate,
+        color: percentage === 1.0 ? '#10b981' : percentage >= 0.75 ? '#f59e0b' : percentage >= 0.5 ? '#f59e0b' : '#ef4444'
+      });
+    });
+    
+    return zones;
+  }, [goal.amount, filteredData]);
+
+  // Add benchmark data to filtered data after it's created
+  const filteredDataWithBenchmarks = useMemo(() => {
+    if (!filteredData.length || !benchmarkData.length) return filteredData;
+    
+    const result = [...filteredData];
+    benchmarkData.forEach((benchmark) => {
+      result.forEach((point, index) => {
+        if (benchmark.data[index]) {
+          (point as any)[benchmark.id] = benchmark.data[index].value;
+        }
+      });
+    });
+    
+    return result;
+  }, [filteredData, benchmarkData]);
 
   const handleLegendToggle = useCallback((dataKey: string) => {
     setHiddenLines((prev) => {
@@ -515,15 +621,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (!filteredData.length) return;
-      const maxIndex = filteredData.length - 1;
+      if (!filteredDataWithBenchmarks.length) return;
+      const maxIndex = filteredDataWithBenchmarks.length - 1;
 
       switch (event.key) {
         case 'ArrowRight':
           event.preventDefault();
           setFocusedDataIndex((prev) => {
             const newIndex = prev === null ? 0 : Math.min(prev + 1, maxIndex);
-            const point = filteredData[newIndex];
+            const point = filteredDataWithBenchmarks[newIndex];
             announceToScreenReader(
               `${point.date}: Portfolio ${formatPLN(point.value)}, ${((point.value / goal.amount) * 100).toFixed(1)}% of target`
             );
@@ -534,7 +640,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           event.preventDefault();
           setFocusedDataIndex((prev) => {
             const newIndex = prev === null ? maxIndex : Math.max(prev - 1, 0);
-            const point = filteredData[newIndex];
+            const point = filteredDataWithBenchmarks[newIndex];
             announceToScreenReader(`${point.date}: Portfolio ${formatPLN(point.value)}`);
             return newIndex;
           });
@@ -575,9 +681,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   };
 
   const chartSummary = useMemo(() => {
-    if (!filteredData.length) return 'No data available';
-    const first = filteredData[0];
-    const last = filteredData[filteredData.length - 1];
+    if (!filteredDataWithBenchmarks.length) return 'No data available';
+    const first = filteredDataWithBenchmarks[0];
+    const last = filteredDataWithBenchmarks[filteredDataWithBenchmarks.length - 1];
     return `Investment goal chart from ${first.date} to ${last.date}. Current: ${formatPLN(currentNetWorth)} (${progressPercent.toFixed(1)}% of ${formatPLN(goal.amount)} target). Actual contributions: ${formatPLN(totalActualContributions)}. Actual returns: ${formatPLN(actualReturns)} (${actualReturnsPercent.toFixed(1)}%).`;
   }, [filteredData, currentNetWorth, goal.amount, progressPercent, totalActualContributions, actualReturns, actualReturnsPercent]);
 
@@ -601,7 +707,16 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         dataKey: scenario.id,
         type: 'scenario' as const
       })) : []),
-  ], [colors, showMonteCarloLocal, monteCarloResult, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios]);
+    ...(showWhatIf && whatIfProjection ? [
+      { value: 'What-if Projection', color: '#f59e0b', dataKey: 'whatIfValue', type: 'scenario' as const }
+    ] : []),
+    ...benchmarkData.map(benchmark => ({
+      value: benchmark.name,
+      color: benchmark.color,
+      dataKey: benchmark.id,
+      type: 'scenario' as const
+    })),
+  ], [colors, showMonteCarloLocal, monteCarloResult, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection, benchmarkData]);
 
   return (
     <div
@@ -802,7 +917,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         aria-label={chartSummary}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <ComposedChart data={filteredDataWithBenchmarks} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
 
             <XAxis
@@ -847,6 +962,24 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               label={{ value: `Current: ${formatPLN(liveNetWorth)}`, position: 'right', fill: colors.actualValue, fontSize: 11 }}
             />
 
+            {/* Goal Achievement Zone Reference Lines */}
+            {goalAchievementZones.map((zone) => (
+              <ReferenceLine
+                key={`zone-${zone.percentage}`}
+                y={zone.value}
+                stroke={zone.color}
+                strokeDasharray="2 4"
+                strokeWidth={1}
+                label={{
+                  value: `${Math.round(zone.percentage * 100)}% Milestone`,
+                  position: 'right',
+                  fill: zone.color,
+                  fontSize: 10
+                }}
+                ifOverflow="extendDomain"
+              />
+            ))}
+
             {/* Target goal line */}
             {!hiddenLines.has('goal') && (
               <Line
@@ -877,16 +1010,29 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               />
             )}
 
-            {/* Monte Carlo Confidence Bands */}
+            {/* Monte Carlo Confidence Bands with Gradient */}
             {showMonteCarloLocal && monteCarloResult && (
               <>
-                {/* 90th-10th percentile band (main confidence area) */}
+                {/* Custom Gradient Definitions with unique IDs */}
+                <defs>
+                  <linearGradient id={`confidenceGradient-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={colors.projectedValue} stopOpacity={0.3}/>
+                    <stop offset="50%" stopColor={colors.projectedValue} stopOpacity={0.15}/>
+                    <stop offset="100%" stopColor={colors.projectedValue} stopOpacity={0.05}/>
+                  </linearGradient>
+                  <linearGradient id={`confidenceGradientDark-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={colors.projectedValue} stopOpacity={0.4}/>
+                    <stop offset="50%" stopColor={colors.projectedValue} stopOpacity={0.2}/>
+                    <stop offset="100%" stopColor={colors.projectedValue} stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                
+                {/* 90th-10th percentile band with gradient (main confidence area) */}
                 <Area
                   type="monotone"
                   dataKey="p90"
                   stroke="none"
-                  fill={colors.projectedValue}
-                  fillOpacity={0.1}
+                  fill={`url(#confidenceGradient${theme === 'dark' ? 'Dark' : ''}-${gradientId})`}
                   activeDot={false}
                   isAnimationActive={false}
                 />
@@ -950,6 +1096,37 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                   />
                 );
               })}
+
+            {/* What-if Scenario Line */}
+            {showWhatIf && whatIfProjection && (
+              <Line
+                type="monotone"
+                dataKey="whatIfValue"
+                name="What-if Projection"
+                stroke="#f59e0b"
+                strokeWidth={3}
+                strokeDasharray="6 3"
+                dot={false}
+                activeDot={{ r: 8, fill: '#f59e0b', stroke: colors.background, strokeWidth: 3 }}
+                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+              />
+            )}
+
+            {/* Benchmark Comparison Lines */}
+            {benchmarkData.map((benchmark) => (
+              <Line
+                key={benchmark.id}
+                type="monotone"
+                dataKey={benchmark.id}
+                name={benchmark.name}
+                stroke={benchmark.color}
+                strokeWidth={2}
+                strokeDasharray="3 3"
+                dot={false}
+                activeDot={{ r: 6, fill: benchmark.color, stroke: colors.background, strokeWidth: 2 }}
+                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+              />
+            ))}
 
             {/* Actual contributions (solid) */}
             {!hiddenLines.has('actualContributions') && (
@@ -1142,6 +1319,144 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         )}
       </div>
     )}
+
+    {/* What-if Scenario Controls */}
+    <div className={styles.whatIfControls}>
+      <div className={styles.whatIfHeader}>
+        <h4>What-if Scenarios</h4>
+        <button
+          onClick={() => setShowWhatIf(!showWhatIf)}
+          className={styles.helpButton}
+          aria-label={showWhatIf ? "Hide what-if scenarios" : "Show what-if scenarios"}
+        >
+          {showWhatIf ? '🔽 Hide' : '🔾 Show'}
+        </button>
+      </div>
+      
+      {showWhatIf && (
+        <div className={styles.whatIfSliders}>
+          <div className={styles.whatIfSlider}>
+            <label>
+              Annual Return: {Math.round(whatIfParams.annualReturn * 100)}%
+              <input
+                type="range"
+                min="0.01"
+                max="0.2"
+                step="0.01"
+                value={whatIfParams.annualReturn}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  setWhatIfParams(prev => ({ ...prev, annualReturn: value }));
+                }}
+                aria-label="Adjust annual return rate"
+              />
+            </label>
+            <span className={styles.sliderValue}>{Math.round(whatIfParams.annualReturn * 100)}%</span>
+          </div>
+
+          <div className={styles.whatIfSlider}>
+            <label>
+              Monthly Contributions: {formatPLN(whatIfParams.monthlyDeposits)}
+              <input
+                type="range"
+                min="100"
+                max="10000"
+                step="100"
+                value={whatIfParams.monthlyDeposits}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setWhatIfParams(prev => ({ ...prev, monthlyDeposits: value }));
+                }}
+                aria-label="Adjust monthly contributions"
+              />
+            </label>
+            <span className={styles.sliderValue}>{formatPLN(whatIfParams.monthlyDeposits)}</span>
+          </div>
+
+          <div className={styles.whatIfResults}>
+            <h5>Projected Results</h5>
+            {whatIfProjection && whatIfProjection.length > 0 && (
+              <div className={styles.whatIfMetrics}>
+                <p>Final Value: {formatPLN(whatIfProjection[whatIfProjection.length - 1].value)}</p>
+                <p>Goal Progress: {Math.min(100, (whatIfProjection[whatIfProjection.length - 1].value / goal.amount) * 100).toFixed(1)}%</p>
+                <p>Difference from Base: {formatPLN(whatIfProjection[whatIfProjection.length - 1].value - projectionData[projectionData.length - 1].value)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Goal Achievement Zones Summary */}
+    <div className={styles.goalAchievementZones}>
+      <h4>Goal Progress Milestones</h4>
+      <div className={styles.zonesGrid}>
+        {goalAchievementZones.map((zone) => (
+          <div key={`zone-summary-${zone.percentage}`} className={styles.zoneItem}>
+            <div className={styles.zoneHeader}>
+              <span className={styles.zoneMilestone}>{Math.round(zone.percentage * 100)}% Milestone</span>
+              <span className={styles.zoneValue}>{formatPLN(zone.value)}</span>
+            </div>
+            <div className={styles.zoneProgress}>
+              <div className={styles.zoneProgressBar} style={{ width: `${zone.percentage * 100}%`, backgroundColor: zone.color }} />
+            </div>
+            <div className={styles.zoneDetails}>
+              {zone.date ? (
+                <span className={styles.zoneDate}>Projected: {new Date(zone.date).toLocaleDateString()}</span>
+              ) : (
+                <span className={styles.zoneDate}>Not yet reached</span>
+              )}
+              <span className={styles.zoneStatus}>
+                {zone.percentage === 1.0 ? '🎯 Goal Achieved!' : 
+                 zone.percentage >= 0.75 ? '🚀 Almost There!' : 
+                 zone.percentage >= 0.5 ? '📈 Making Progress' : '💪 Keep Going!'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Benchmark Comparison Summary */}
+    <div className={styles.benchmarkComparison}>
+      <h4>Benchmark Performance Comparison</h4>
+      <div className={styles.benchmarkGrid}>
+        {benchmarkData.map((benchmark) => {
+          const finalValue = benchmark.data[benchmark.data.length - 1]?.value || 0;
+          const baseFinalValue = projectionData[projectionData.length - 1]?.value || 0;
+          const difference = finalValue - baseFinalValue;
+          const differencePercent = baseFinalValue > 0 ? (difference / baseFinalValue) * 100 : 0;
+          
+          return (
+            <div key={benchmark.id} className={styles.benchmarkItem}>
+              <div className={styles.benchmarkHeader}>
+                <span className={styles.benchmarkName} style={{ color: benchmark.color }}>
+                  {benchmark.name} ({Math.round(benchmark.annualReturn * 100)}% return)
+                </span>
+                <span className={styles.benchmarkValue}>{formatPLN(finalValue)}</span>
+              </div>
+              <div className={styles.benchmarkProgress}>
+                <div 
+                  className={styles.benchmarkProgressBar}
+                  style={{ 
+                    width: `${Math.min(100, (finalValue / goal.amount) * 100)}%`, 
+                    backgroundColor: benchmark.color
+                  }}
+                />
+              </div>
+              <div className={styles.benchmarkDetails}>
+                <span className={styles.benchmarkDifference} style={{ color: difference >= 0 ? '#10b981' : '#ef4444' }}>
+                  {difference >= 0 ? '+' : ''}{differencePercent.toFixed(1)}% vs Your Plan
+                </span>
+                <span className={styles.benchmarkStatus}>
+                  {finalValue >= goal.amount ? '🎯 Goal Achieved' : '📊 On Track'}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
 
     {/* Contribution Optimization Section */}
     <div className={styles.contributionOptimization}>

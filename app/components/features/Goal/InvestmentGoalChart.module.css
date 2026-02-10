@@ -1150,3 +1150,285 @@
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 }
+
+/* What-if Scenario Controls */
+.whatIfControls {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.whatIfHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.whatIfHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.whatIfSliders {
+  display: grid;
+  gap: 20px;
+}
+
+.whatIfSlider {
+  display: grid;
+  gap: 8px;
+}
+
+.whatIfSlider label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.whatIfSlider input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.whatIfSlider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+}
+
+.whatIfSlider input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+}
+
+.sliderValue {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--accent-yellow);
+  color: var(--text-inverse);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.whatIfResults {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-yellow);
+}
+
+.whatIfResults h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.whatIfMetrics {
+  display: grid;
+  gap: 6px;
+}
+
+.whatIfMetrics p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.whatIfMetrics p:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .whatIfSliders {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Goal Achievement Zones */
+.goalAchievementZones {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.goalAchievementZones h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.zonesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.zoneItem {
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border: 1px solid var(--border-tertiary);
+}
+
+.zoneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.zoneMilestone {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.zoneValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.zoneProgress {
+  height: 6px;
+  background: var(--bg-quaternary);
+  border-radius: 3px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.zoneProgressBar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.zoneDetails {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.zoneStatus {
+  font-weight: 500;
+}
+
+/* Responsive adjustments for zones */
+@media (max-width: 600px) {
+  .zonesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Benchmark Comparison */
+.benchmarkComparison {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.benchmarkComparison h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.benchmarkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.benchmarkItem {
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border: 1px solid var(--border-tertiary);
+}
+
+.benchmarkHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.benchmarkName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.benchmarkValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.benchmarkProgress {
+  height: 6px;
+  background: var(--bg-quaternary);
+  border-radius: 3px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.benchmarkProgressBar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.benchmarkDetails {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.benchmarkDifference {
+  font-weight: 500;
+}
+
+.benchmarkStatus {
+  font-weight: 500;
+}
+
+/* Responsive adjustments for benchmarks */
+@media (max-width: 600px) {
+  .benchmarkGrid {
+    grid-template-columns: 1fr;
+  }
+}
