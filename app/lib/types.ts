@@ -103,6 +103,28 @@ export interface MonteCarloSimulationResult {
   };
 }
 
+// Risk Metrics Types
+export interface RiskMetrics {
+  sharpeRatio: number;
+  sortinoRatio: number;
+  maxDrawdown: number;
+  volatility: number;
+  rollingReturns: Record<string, number>;
+  valueAtRisk: number;
+  conditionalValueAtRisk: number;
+}
+
+export interface RiskAnalysisResult {
+  metrics: RiskMetrics;
+  riskAdjustedProjections: ProjectionDataPoint[];
+  drawdownPeriods: {
+    startDate: string;
+    endDate: string;
+    drawdownPercent: number;
+    recoveryDate?: string;
+  }[];
+}
+
 export type TimeRange = '1m' | '3m' | '6m' | 'ytd' | '1y' | '3y' | '5y' | 'all';
 
 export type ProjectionMetric =
