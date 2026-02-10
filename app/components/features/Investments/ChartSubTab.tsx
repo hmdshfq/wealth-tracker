@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { ChartLoadingSkeleton } from '@/app/components/ui';
 import { useIdleRender } from '@/app/lib/hooks';
-import { GoalProgressCard, InvestmentGoalChart } from '../Goal';
+import { InvestmentGoalChart } from '../Goal';
 import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import { Transaction, Goal } from '@/app/lib/types';
 import {
@@ -72,18 +72,6 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
       initial="initial"
       animate="animate"
     >
-      {/* Progress Card */}
-      <motion.div
-        variants={slideFromBottomVariants}
-        transition={transitions.fast}
-      >
-        <GoalProgressCard
-          goal={goal}
-          totalNetWorth={totalNetWorth}
-          goalProgress={goalProgress}
-        />
-      </motion.div>
-
       {/* Investment Goal Progress Chart */}
       {chartData.length > 0 && (
         <motion.div

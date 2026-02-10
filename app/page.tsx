@@ -805,14 +805,11 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 totalCashPLN={totalCashPLN}
                 cash={cash}
                 totalNetWorth={totalNetWorth}
-                goal={goal}
-                goalProgress={goalProgress}
                 allocationData={allocationData}
                 prices={prices}
                 etfData={allTickers}
-                transactions={transactions}
-                exchangeRates={exchangeRates}
-                onNavigateToGoal={() => setActiveTab('investments')}
+                goal={goal}
+                goalProgress={goalProgress}
               />
             </div>
           )}
