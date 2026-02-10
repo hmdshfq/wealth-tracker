@@ -14,10 +14,10 @@ import {
   ComposedChart,
 } from 'recharts';
 import { formatPLN } from '@/app/lib/formatters';
-import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint } from '@/app/lib/types';
-import { ExtendedProjectionDataPoint, generateProjectionData } from '@/app/lib/projectionCalculations';
+import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult } from '@/app/lib/types';
+import { ExtendedProjectionDataPoint, generateProjectionData, performTimeBasedAnalysis } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
-import { calculateYearsToGoal, calculateRequiredContributions } from '@/app/lib/goalCalculations';
+import { calculateYearsToGoal, calculateRequiredContributions, performBehavioralAnalysis } from '@/app/lib/goalCalculations';
 import { 
   HelpTooltip,
   MonteCarloLegendHelp,
@@ -70,6 +70,10 @@ interface InvestmentGoalChartProps {
   scenarioAnalysisResult?: ScenarioAnalysisResult;
   showScenarioAnalysis?: boolean;
   scenarios?: InvestmentScenario[];
+  timeBasedAnalysisResult?: TimeBasedAnalysisResult;
+  showTimeBasedAnalysis?: boolean;
+  behavioralAnalysisResult?: BehavioralAnalysisResult;
+  showBehavioralAnalysis?: boolean;
 }
 
 interface TimeRangeOption {
@@ -334,6 +338,10 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   scenarioAnalysisResult,
   showScenarioAnalysis,
   scenarios,
+  timeBasedAnalysisResult,
+  showTimeBasedAnalysis,
+  behavioralAnalysisResult,
+  showBehavioralAnalysis,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -365,6 +373,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
   const [showHelpOverlay, setShowHelpOverlay] = useState(false);
   const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(Boolean(showScenarioAnalysis));
+  const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(Boolean(showTimeBasedAnalysis));
+  const [showBehavioralAnalysisLocal, setShowBehavioralAnalysisLocal] = useState(Boolean(showBehavioralAnalysis));
   const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarios || [
     { id: 'base', name: 'Base Case', returnAdjustment: 0, color: '#4ECDC4', description: 'Your original plan', isActive: true },
     { id: 'optimistic', name: 'Optimistic', returnAdjustment: 0.02, color: '#10b981', description: '+2% annual return', isActive: true },
@@ -438,6 +448,18 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const actualReturns = useMemo(() => {
     return currentNetWorth - totalActualContributions;
   }, [currentNetWorth, totalActualContributions]);
+
+  // Helper function for heatmap colors
+  const getHeatmapColor = useCallback((returnPercent: number): string => {
+    if (returnPercent > 10) return '#10b981'; // Strong positive
+    if (returnPercent > 5) return '#34d399';
+    if (returnPercent > 2) return '#6ee7b7';
+    if (returnPercent > 0) return '#a7f3d0';
+    if (returnPercent > -2) return '#fecaca';
+    if (returnPercent > -5) return '#fca5a5';
+    if (returnPercent > -10) return '#f87171';
+    return '#ef4444'; // Strong negative
+  }, []);
 
   // WebSocket connection
   useEffect(() => {
@@ -903,6 +925,271 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           </div>
         )}
       </div>
+
+      {/* Time-Based Analysis Controls */}
+      {timeBasedAnalysisResult && (
+        <div className={styles.timeBasedAnalysisControls}>
+          <div className={styles.timeBasedAnalysisHeader}>
+            <h4>Time-Based Analysis</h4>
+            <button
+              onClick={() => setShowHelpOverlay(true)}
+              className={styles.helpButton}
+              aria-label="Learn about time-based analysis"
+            >
+              ⓘ Help
+            </button>
+          </div>
+          <div className={styles.timeBasedAnalysisToggle}>
+            <label>
+              <input
+                type="checkbox"
+                checked={showTimeBasedAnalysisLocal}
+                onChange={() => setShowTimeBasedAnalysisLocal(!showTimeBasedAnalysisLocal)}
+              />
+              Show Time-Based Analysis
+              <HelpTooltip content="Analyze seasonal patterns and year-over-year performance trends">
+                <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+              </HelpTooltip>
+            </label>
+          </div>
+
+          {showTimeBasedAnalysisLocal && (
+            <div className={styles.timeBasedAnalysisContent}>
+              {/* Seasonal Patterns */}
+              <div className={styles.seasonalPatterns}>
+                <h5>Seasonal Patterns</h5>
+                <div className={styles.patternsGrid}>
+                  {timeBasedAnalysisResult.seasonalPatterns.map((pattern) => (
+                    <div key={`pattern-${pattern.month}`} className={styles.patternItem}>
+                      <div className={styles.patternHeader}>
+                        <span className={styles.patternMonth}>{new Date(0, pattern.month - 1).toLocaleString('default', { month: 'short' })}</span>
+                        <span 
+                          className={styles.patternReturn}
+                          style={{ color: pattern.averageReturn >= 0 ? '#10b981' : '#ef4444' }}
+                        >
+                          {(pattern.averageReturn * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className={styles.patternStrength}>
+                        <div 
+                          className={styles.patternStrengthBar}
+                          style={{ width: `${pattern.patternStrength * 100}%` }}
+                        />
+                        <span>Strength: {Math.round(pattern.patternStrength * 100)}%</span>
+                      </div>
+                      <div className={styles.patternDetails}>
+                        <span>Best: {pattern.bestYear}</span>
+                        <span>Worst: {pattern.worstYear}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Best and Worst Months */}
+              <div className={styles.bestWorstMonths}>
+                <div className={styles.bestMonths}>
+                  <h5>Best Months</h5>
+                  {timeBasedAnalysisResult.bestMonths.map((month) => (
+                    <div key={`best-${month.month}`} className={styles.monthItem}>
+                      <span className={styles.monthName}>{new Date(0, month.month - 1).toLocaleString('default', { month: 'long' })}</span>
+                      <span className={styles.monthValue} style={{ color: '#10b981' }}>
+                        +{(month.averageReturn * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={styles.worstMonths}>
+                  <h5>Worst Months</h5>
+                  {timeBasedAnalysisResult.worstMonths.map((month) => (
+                    <div key={`worst-${month.month}`} className={styles.monthItem}>
+                      <span className={styles.monthName}>{new Date(0, month.month - 1).toLocaleString('default', { month: 'long' })}</span>
+                      <span className={styles.monthValue} style={{ color: '#ef4444' }}>
+                        {(month.averageReturn * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Year-over-Year Comparison */}
+              <div className={styles.yoyComparison}>
+                <h5>Year-over-Year Performance</h5>
+                <table className={styles.yoyTable}>
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th>Start Value</th>
+                      <th>End Value</th>
+                      <th>Annual Return</th>
+                      <th>Annual Growth</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {timeBasedAnalysisResult.yearOverYearComparisons.map((yoy) => (
+                      <tr key={`yoy-${yoy.year}`}>
+                        <td>{yoy.year}</td>
+                        <td>{formatPLN(yoy.startValue)}</td>
+                        <td>{formatPLN(yoy.endValue)}</td>
+                        <td style={{ color: yoy.annualReturn >= 0 ? '#10b981' : '#ef4444' }}>
+                          {(yoy.annualReturn * 100).toFixed(1)}%
+                        </td>
+                        <td style={{ color: yoy.annualGrowth >= 0 ? '#10b981' : '#ef4444' }}>
+                          {formatPLN(yoy.annualGrowth)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Performance Heatmap */}
+              <div className={styles.performanceHeatmap}>
+                <h5>Performance Heatmap</h5>
+                <div className={styles.heatmapLegend}>
+                  <span>Low Performance</span>
+                  <div className={styles.heatmapGradient} />
+                  <span>High Performance</span>
+                </div>
+                <div className={styles.heatmapGrid}>
+                  {Object.entries(timeBasedAnalysisResult.performanceHeatmap).map(([monthKey, returnPercent]) => (
+                    <div 
+                      key={`heatmap-${monthKey}`}
+                      className={styles.heatmapCell}
+                      style={{ 
+                        backgroundColor: getHeatmapColor(returnPercent),
+                        color: Math.abs(returnPercent) > 5 ? '#ffffff' : '#1e293b'
+                      }}
+                      title={`${monthKey}: ${returnPercent.toFixed(1)}%`}
+                    >
+                      {returnPercent.toFixed(1)}%
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Behavioral Analysis Controls */}
+      {behavioralAnalysisResult && (
+        <div className={styles.behavioralAnalysisControls}>
+          <div className={styles.behavioralAnalysisHeader}>
+            <h4>Behavioral Finance Analysis</h4>
+            <button
+              onClick={() => setShowHelpOverlay(true)}
+              className={styles.helpButton}
+              aria-label="Learn about behavioral finance analysis"
+            >
+              ⓘ Help
+            </button>
+          </div>
+          <div className={styles.behavioralAnalysisToggle}>
+            <label>
+              <input
+                type="checkbox"
+                checked={showBehavioralAnalysisLocal}
+                onChange={() => setShowBehavioralAnalysisLocal(!showBehavioralAnalysisLocal)}
+              />
+              Show Behavioral Analysis
+              <HelpTooltip content="Identify behavioral biases and get motivational insights">
+                <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+              </HelpTooltip>
+            </label>
+          </div>
+
+          {showBehavioralAnalysisLocal && (
+            <div className={styles.behavioralAnalysisContent}>
+              {/* Progress Milestones */}
+              <div className={styles.progressMilestones}>
+                <h5>Progress Milestones</h5>
+                <div className={styles.milestonesGrid}>
+                  {behavioralAnalysisResult.progressMilestones.map((milestone) => (
+                    <div key={`milestone-${milestone.percentage}`} className={styles.milestoneItem}>
+                      <div className={styles.milestoneHeader}>
+                        <span className={styles.milestonePercentage}>{Math.round(milestone.percentage * 100)}%</span>
+                        {milestone.achieved ? (
+                          <span className={styles.milestoneStatus} style={{ color: '#10b981' }}>✓ Achieved</span>
+                        ) : (
+                          <span className={styles.milestoneStatus} style={{ color: '#f59e0b' }}>🔜 Coming Soon</span>
+                        )}
+                      </div>
+                      <div className={styles.milestoneCelebration}>
+                        <span className={styles.milestoneBadge}>{milestone.badge}</span>
+                        <p className={styles.milestoneMessage}>{milestone.celebrationMessage}</p>
+                      </div>
+                      {milestone.date && (
+                        <div className={styles.milestoneDate}>
+                          Projected: {new Date(milestone.date).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Behavioral Biases */}
+              <div className={styles.behavioralBiases}>
+                <h5>Behavioral Biases</h5>
+                {behavioralAnalysisResult.behavioralBiases.length > 0 ? (
+                  <div className={styles.biasesList}>
+                    {behavioralAnalysisResult.behavioralBiases.map((bias) => (
+                      <div key={`bias-${bias.type}`} className={styles.biasItem}>
+                        <div className={styles.biasHeader}>
+                          <span className={styles.biasType}>{bias.type}</span>
+                          <span 
+                            className={styles.biasSeverity}
+                            style={{ 
+                              color: bias.severity === 'high' ? '#ef4444' : bias.severity === 'medium' ? '#f59e0b' : '#10b981'
+                            }}
+                          >
+                            {bias.severity}
+                          </span>
+                        </div>
+                        <p className={styles.biasDescription}>{bias.description}</p>
+                        <p className={styles.biasRecommendation}><strong>Recommendation:</strong> {bias.recommendation}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.noBiases}>No significant behavioral biases detected. Your investment approach appears balanced!</p>
+                )}
+              </div>
+
+              {/* Motivational Messages */}
+              <div className={styles.motivationalMessages}>
+                <h5>Motivational Insights</h5>
+                <div className={styles.messagesList}>
+                  {behavioralAnalysisResult.motivationalMessages.map((message, index) => (
+                    <div key={`message-${index}`} className={styles.messageItem}>
+                      <span className={styles.messageIcon}>💡</span>
+                      <span className={styles.messageText}>{message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Achievement Badges */}
+              <div className={styles.achievementBadges}>
+                <h5>Your Achievements</h5>
+                {behavioralAnalysisResult.achievementBadges.length > 0 ? (
+                  <div className={styles.badgesList}>
+                    {behavioralAnalysisResult.achievementBadges.map((badge, index) => (
+                      <div key={`badge-${index}`} className={styles.badgeItem}>
+                        <span className={styles.badgeIcon}>{badge}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.noBadges}>Keep up the great work! You'll earn badges as you progress toward your goals.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Legend */}
       <CustomLegend payload={legendPayload} onToggle={handleLegendToggle} hiddenLines={hiddenLines} />

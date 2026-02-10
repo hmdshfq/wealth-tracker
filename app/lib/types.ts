@@ -125,6 +125,55 @@ export interface RiskAnalysisResult {
   }[];
 }
 
+// Time-Based Analysis Types
+export interface SeasonalPattern {
+  month: number; // 1-12
+  averageReturn: number;
+  bestYear: number;
+  worstYear: number;
+  patternStrength: number; // 0-1 scale
+}
+
+export interface YoYComparison {
+  year: number;
+  startValue: number;
+  endValue: number;
+  annualReturn: number;
+  annualContributions: number;
+  annualGrowth: number;
+}
+
+export interface TimeBasedAnalysisResult {
+  seasonalPatterns: SeasonalPattern[];
+  yearOverYearComparisons: YoYComparison[];
+  bestMonths: SeasonalPattern[];
+  worstMonths: SeasonalPattern[];
+  performanceHeatmap: Record<string, number>; // "YYYY-MM" -> return percentage
+}
+
+// Behavioral Finance Types
+export interface BehavioralBias {
+  type: 'overconfidence' | 'lossAversion' | 'herdBehavior' | 'recencyBias' | 'confirmationBias';
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  recommendation: string;
+}
+
+export interface ProgressMilestone {
+  percentage: number;
+  achieved: boolean;
+  date?: string;
+  celebrationMessage: string;
+  badge?: string;
+}
+
+export interface BehavioralAnalysisResult {
+  behavioralBiases: BehavioralBias[];
+  progressMilestones: ProgressMilestone[];
+  motivationalMessages: string[];
+  achievementBadges: string[];
+}
+
 export type TimeRange = '1m' | '3m' | '6m' | 'ytd' | '1y' | '3y' | '5y' | 'all';
 
 export type ProjectionMetric =

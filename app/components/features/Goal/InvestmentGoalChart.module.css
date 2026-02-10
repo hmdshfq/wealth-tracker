@@ -1432,3 +1432,475 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Time-Based Analysis Controls */
+.timeBasedAnalysisControls {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.timeBasedAnalysisHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timeBasedAnalysisHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timeBasedAnalysisToggle {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeBasedAnalysisToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.timeBasedAnalysisContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Seasonal Patterns */
+.seasonalPatterns h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.patternsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.patternItem {
+  padding: 12px;
+  background: var(--bg-quaternary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.patternHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.patternMonth {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.patternReturn {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.patternStrength {
+  margin-bottom: 8px;
+}
+
+.patternStrengthBar {
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+
+.patternDetails {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Best and Worst Months */
+.bestWorstMonths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.bestMonths,
+.worstMonths {
+  flex: 1;
+}
+
+.bestMonths h5,
+.worstMonths h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.monthItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--bg-quaternary);
+  border-radius: 6px;
+  border: 1px solid var(--border-secondary);
+}
+
+.monthName {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.monthValue {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Year-over-Year Comparison */
+.yoyComparison h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.yoyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.yoyTable th,
+.yoyTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.yoyTable th {
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card);
+}
+
+.yoyTable td {
+  color: var(--text-primary);
+}
+
+/* Performance Heatmap */
+.performanceHeatmap h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.heatmapLegend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.heatmapGradient {
+  flex: 1;
+  height: 8px;
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 25%, #fca5a5 50%, #fecaca 75%, #a7f3d0 100%);
+  border-radius: 4px;
+}
+
+.heatmapGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 4px;
+}
+
+.heatmapCell {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.heatmapCell:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+/* Responsive adjustments for time-based analysis */
+@media (max-width: 768px) {
+  .bestWorstMonths {
+    grid-template-columns: 1fr;
+  }
+
+  .patternsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+/* Behavioral Analysis Controls */
+.behavioralAnalysisControls {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.behavioralAnalysisHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.behavioralAnalysisHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.behavioralAnalysisToggle {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.behavioralAnalysisToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.behavioralAnalysisContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Progress Milestones */
+.progressMilestones h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.milestonesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.milestoneItem {
+  padding: 16px;
+  background: var(--bg-quaternary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.milestoneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.milestonePercentage {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.milestoneStatus {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 133, 0.1);
+}
+
+.milestoneCelebration {
+  margin-bottom: 12px;
+}
+
+.milestoneBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  background: var(--accent-blue);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.milestoneMessage {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.milestoneDate {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Behavioral Biases */
+.behavioralBiases h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.biasesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.biasItem {
+  padding: 12px;
+  background: var(--bg-quaternary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.biasHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.biasType {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.biasSeverity {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.biasDescription {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.biasRecommendation {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.noBiases {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px;
+}
+
+/* Motivational Messages */
+.motivationalMessages h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.messagesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.messageItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-quaternary);
+  border-radius: 6px;
+  border: 1px solid var(--border-secondary);
+}
+
+.messageIcon {
+  font-size: 16px;
+}
+
+.messageText {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* Achievement Badges */
+.achievementBadges h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.badgesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badgeItem {
+  padding: 6px 12px;
+  background: var(--accent-blue);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.noBadges {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px;
+}
+
+/* Responsive adjustments for behavioral analysis */
+@media (max-width: 600px) {
+  .milestonesGrid {
+    grid-template-columns: 1fr;
+  }
+}
