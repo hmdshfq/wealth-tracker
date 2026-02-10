@@ -19,6 +19,13 @@ import { formatPLN } from '@/app/lib/formatters';
 import { Goal } from '@/app/lib/types';
 import { ExtendedProjectionDataPoint } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
+import { 
+  HelpTooltip,
+  ConfidenceBandsHelp,
+  MonteCarloLegendHelp,
+  VolatilityGuide,
+  SuccessProbabilityGuide 
+} from './InvestmentGoalChartHelp';
 import styles from './InvestmentGoalChart.module.css';
 
 // Theme-aware color palette using CSS variable values
@@ -286,7 +293,10 @@ const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, hiddenLi
 
       {monteCarloItems.length > 0 && (
         <div className={styles.legendGroup}>
-          <span className={styles.legendGroupTitle}>Confidence Bands</span>
+          <div className={styles.legendGroupHeader}>
+            <span className={styles.legendGroupTitle}>Confidence Bands</span>
+            <MonteCarloLegendHelp />
+          </div>
           <div className={styles.legendItems}>
             {monteCarloItems.map(renderItem)}
           </div>
@@ -336,6 +346,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [showMonteCarloLocal, setShowMonteCarloLocal] = useState(Boolean(showMonteCarlo));
   const [monteCarloVolatility, setMonteCarloVolatility] = useState(0.15);
   const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
+  const [showHelpOverlay, setShowHelpOverlay] = useState(false);
 
   const announceToScreenReader = useCallback((message: string) => {
     setAnnouncement(message);
@@ -659,6 +670,16 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         {/* Monte Carlo Controls */}
         {monteCarloResult && (
           <div className={styles.monteCarloControls}>
+            <div className={styles.monteCarloHeader}>
+              <h4>Confidence Bands</h4>
+              <button
+                onClick={() => setShowHelpOverlay(true)}
+                className={styles.helpButton}
+                aria-label="Learn about confidence bands"
+              >
+                ⓘ Help
+              </button>
+            </div>
             <div className={styles.monteCarloToggle}>
               <label>
                 <input
@@ -667,6 +688,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                   onChange={() => setShowMonteCarloLocal(!showMonteCarloLocal)}
                 />
                 Show Confidence Bands
+                <HelpTooltip content="Visualize the range of possible outcomes based on market volatility">
+                  <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+                </HelpTooltip>
               </label>
             </div>
 
@@ -675,6 +699,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 <div className={styles.paramGroup}>
                   <label>
                     Volatility: {Math.round(monteCarloVolatility * 100)}%
+                    <HelpTooltip content="Adjust based on your portfolio's risk level (5% for bonds, 15% for balanced, 30% for aggressive growth)">
+                      <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+                    </HelpTooltip>
                     <input
                       type="range"
                       min="0.05"
@@ -683,12 +710,16 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                       value={monteCarloVolatility}
                       onChange={(e) => setMonteCarloVolatility(parseFloat(e.target.value))}
                     />
+                    <VolatilityGuide />
                   </label>
                 </div>
 
                 <div className={styles.paramGroup}>
                   <label>
                     Simulations: {monteCarloSimulations}
+                    <HelpTooltip content="More simulations provide more accurate percentiles (1,000 recommended for good balance)">
+                      <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+                    </HelpTooltip>
                     <input
                       type="range"
                       min="100"
@@ -941,6 +972,17 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         <span>Arrow keys to navigate</span>
         <span>Escape to reset</span>
       </div>
+    {/* Instructions */}
+    <div className={styles.instructions} aria-hidden="true">
+      <span>Drag brush below chart to zoom</span>
+      <span>Arrow keys to navigate</span>
+      <span>Escape to reset</span>
+    </div>
+
+    {/* Help Overlay */}
+    {showHelpOverlay && (
+      <ConfidenceBandsHelp onClose={() => setShowHelpOverlay(false)} />
+    )}
     </div>
   );
 };

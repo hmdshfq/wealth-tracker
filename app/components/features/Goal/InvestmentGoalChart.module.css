@@ -538,6 +538,41 @@
   border: 1px solid var(--border-secondary);
 }
 
+.monteCarloHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.monteCarloHeader h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helpButton {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.helpButton:hover {
+  background: var(--bg-hover);
+  color: var(--accent-blue);
+}
+
 .monteCarloToggle {
   margin-bottom: 12px;
 }
@@ -606,6 +641,34 @@
   background: var(--accent-blue);
   cursor: pointer;
   border: none;
+}
+
+/* Help Icon */
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  margin-left: 4px;
+  color: var(--text-dimmed);
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.helpIcon:hover {
+  color: var(--accent-blue);
+  background: rgba(var(--accent-blue-rgb), 0.1);
+}
+
+/* Legend Group Header */
+.legendGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 /* Confidence Band Styles */
