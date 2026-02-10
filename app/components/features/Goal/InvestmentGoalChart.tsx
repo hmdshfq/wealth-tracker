@@ -18,6 +18,7 @@ import {
 import { formatPLN } from '@/app/lib/formatters';
 import { Goal } from '@/app/lib/types';
 import { ExtendedProjectionDataPoint } from '@/app/lib/projectionCalculations';
+import { MonteCarloSimulationResult } from '@/app/lib/types';
 import styles from './InvestmentGoalChart.module.css';
 
 // Theme-aware color palette using CSS variable values
@@ -59,6 +60,8 @@ interface InvestmentGoalChartProps {
   websocketUrl?: string;
   className?: string;
   firstTransactionDate?: string;
+  monteCarloResult?: MonteCarloSimulationResult;
+  showMonteCarlo?: boolean;
 }
 
 interface TimeRangeOption {
@@ -223,7 +226,7 @@ interface CustomLegendProps {
     value: string;
     color: string;
     dataKey: string;
-    type: 'projected' | 'actual' | 'target';
+    type: 'projected' | 'actual' | 'target' | 'monte-carlo';
   }>;
   onToggle: (dataKey: string) => void;
   hiddenLines: Set<string>;
@@ -233,6 +236,7 @@ const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, hiddenLi
   const projectedItems = payload.filter((p) => p.type === 'projected');
   const actualItems = payload.filter((p) => p.type === 'actual');
   const targetItems = payload.filter((p) => p.type === 'target');
+  const monteCarloItems = payload.filter((p) => p.type === 'monte-carlo');
 
   const renderItem = (entry: typeof payload[0], index: number) => (
     <button
@@ -279,6 +283,15 @@ const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, hiddenLi
           </div>
         </div>
       )}
+
+      {monteCarloItems.length > 0 && (
+        <div className={styles.legendGroup}>
+          <span className={styles.legendGroupTitle}>Confidence Bands</span>
+          <div className={styles.legendItems}>
+            {monteCarloItems.map(renderItem)}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -293,6 +306,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   websocketUrl,
   className = '',
   firstTransactionDate,
+  monteCarloResult,
+  showMonteCarlo,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -318,6 +333,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [focusedDataIndex, setFocusedDataIndex] = useState<number | null>(null);
   const [brushRange, setBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({});
   const [announcement, setAnnouncement] = useState('');
+  const [showMonteCarloLocal, setShowMonteCarloLocal] = useState(Boolean(showMonteCarlo));
+  const [monteCarloVolatility, setMonteCarloVolatility] = useState(0.15);
+  const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
 
   const announceToScreenReader = useCallback((message: string) => {
     setAnnouncement(message);
@@ -531,7 +549,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     { value: 'Projected Value', color: colors.projectedValue, dataKey: 'value', type: 'projected' as const },
     { value: 'Projected Contributions', color: colors.projectedContributions, dataKey: 'cumulativeContributions', type: 'projected' as const },
     { value: 'Target Goal', color: colors.target, dataKey: 'goal', type: 'target' as const },
-  ], [colors]);
+    ...(showMonteCarloLocal && monteCarloResult ? [
+      { value: '90% Confidence', color: colors.projectedValue, dataKey: 'p90', type: 'monte-carlo' as const },
+      { value: 'Median', color: colors.projectedValue, dataKey: 'p50', type: 'monte-carlo' as const },
+      { value: '10% Confidence', color: colors.projectedValue, dataKey: 'p10', type: 'monte-carlo' as const },
+    ] : []),
+  ], [colors, showMonteCarloLocal, monteCarloResult]);
 
   return (
     <div
@@ -632,6 +655,65 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             Reset Zoom
           </button>
         </div>
+
+        {/* Monte Carlo Controls */}
+        {monteCarloResult && (
+          <div className={styles.monteCarloControls}>
+            <div className={styles.monteCarloToggle}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showMonteCarloLocal}
+                  onChange={() => setShowMonteCarloLocal(!showMonteCarloLocal)}
+                />
+                Show Confidence Bands
+              </label>
+            </div>
+
+            {showMonteCarloLocal && (
+              <div className={styles.monteCarloParams}>
+                <div className={styles.paramGroup}>
+                  <label>
+                    Volatility: {Math.round(monteCarloVolatility * 100)}%
+                    <input
+                      type="range"
+                      min="0.05"
+                      max="0.3"
+                      step="0.01"
+                      value={monteCarloVolatility}
+                      onChange={(e) => setMonteCarloVolatility(parseFloat(e.target.value))}
+                    />
+                  </label>
+                </div>
+
+                <div className={styles.paramGroup}>
+                  <label>
+                    Simulations: {monteCarloSimulations}
+                    <input
+                      type="range"
+                      min="100"
+                      max="5000"
+                      step="100"
+                      value={monteCarloSimulations}
+                      onChange={(e) => setMonteCarloSimulations(parseInt(e.target.value))}
+                    />
+                  </label>
+                </div>
+
+                <button
+                  onClick={() => {
+                    // Reset to defaults
+                    setMonteCarloVolatility(0.15);
+                    setMonteCarloSimulations(1000);
+                  }}
+                  className={styles.resetButton}
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Legend */}
@@ -720,6 +802,44 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 activeDot={{ r: 4, fill: colors.projectedContributions, stroke: colors.background, strokeWidth: 2 }}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
+            )}
+
+            {/* Monte Carlo Confidence Bands */}
+            {showMonteCarloLocal && monteCarloResult && (
+              <>
+                {/* 90th-10th percentile band (main confidence area) */}
+                <Area
+                  type="monotone"
+                  dataKey="p90"
+                  stroke="none"
+                  fill={colors.projectedValue}
+                  fillOpacity={0.1}
+                  activeDot={false}
+                  isAnimationActive={false}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="p10"
+                  stroke="none"
+                  fill={colors.background}
+                  fillOpacity={1}
+                  activeDot={false}
+                  isAnimationActive={false}
+                />
+                
+                {/* 50th percentile (median) line */}
+                <Line
+                  type="monotone"
+                  dataKey="p50"
+                  name="Median Projection"
+                  stroke={colors.projectedValue}
+                  strokeWidth={1}
+                  strokeDasharray="2 2"
+                  dot={false}
+                  activeDot={false}
+                  isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                />
+              </>
             )}
 
             {/* Projected portfolio value (dashed) */}

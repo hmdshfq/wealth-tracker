@@ -11,6 +11,7 @@ import {
   generateProjectionData,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
+  runMonteCarloSimulation,
 } from '@/app/lib/projectionCalculations';
 
 interface GoalSubTabProps {
@@ -44,6 +45,11 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
     return generateProjectionData(goal, totalNetWorth);
   }, [goal, totalNetWorth]);
 
+  // Run Monte Carlo simulation
+  const monteCarloResult = useMemo(() => {
+    return runMonteCarloSimulation(goal, totalNetWorth);
+  }, [goal, totalNetWorth]);
+
   // Calculate total actual contributions from transactions
   const totalActualContributions = useMemo(() => {
     return calculateCumulativeContributions(transactions, exchangeRates);
@@ -61,9 +67,10 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
       projectionData,
       transactions,
       exchangeRates,
-      portfolioValue
+      portfolioValue,
+      monteCarloResult
     );
-  }, [projectionData, transactions, exchangeRates, portfolioValue]);
+  }, [projectionData, transactions, exchangeRates, portfolioValue, monteCarloResult]);
 
   return (
     <motion.div
@@ -85,6 +92,8 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               currentNetWorth={portfolioValue}
               totalActualContributions={totalActualContributions}
               firstTransactionDate={firstTransactionDate}
+              monteCarloResult={monteCarloResult}
+              showMonteCarlo={true}
             />
           ) : (
             <ChartLoadingSkeleton />
