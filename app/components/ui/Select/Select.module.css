@@ -6,14 +6,14 @@
 .label {
   font-size: 11px;
   color: var(--text-dimmed);
-  margin-bottom: 4px;
+  margin-bottom: var(--spacing-xxs);
 }
 
 .select {
   background: var(--bg-input);
   border: 1px solid var(--border-input);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;

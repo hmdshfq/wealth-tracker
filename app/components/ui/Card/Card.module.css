@@ -19,13 +19,13 @@
 }
 
 .padding-small {
-  padding: 16px;
+  padding: var(--spacing-md);
 }
 
 .padding-medium {
-  padding: 24px;
+  padding: var(--spacing-lg);
 }
 
 .padding-large {
-  padding: 32px;
+  padding: var(--spacing-xl);
 }

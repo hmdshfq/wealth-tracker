@@ -431,47 +431,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     }));
   }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount]);
 
-  // WebSocket connection
-  useEffect(() => {
-    if (!enableRealTimeUpdates || !websocketUrl) return;
-
-    let ws: WebSocket | null = null;
-    let reconnectTimeout: NodeJS.Timeout;
-
-    const connect = () => {
-      try {
-        ws = new WebSocket(websocketUrl);
-        ws.onopen = () => {
-          setWsConnected(true);
-          announceToScreenReader('Real-time updates connected');
-        };
-        ws.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            if (data.type === 'portfolio_update' && typeof data.netWorth === 'number') {
-              setLiveNetWorth(data.netWorth);
-            }
-          } catch (e) {
-            console.error('WebSocket message parse error:', e);
-          }
-        };
-        ws.onclose = () => {
-          setWsConnected(false);
-          reconnectTimeout = setTimeout(connect, 5000);
-        };
-        ws.onerror = () => ws?.close();
-      } catch (error) {
-        reconnectTimeout = setTimeout(connect, 5000);
-      }
-    };
-
-    connect();
-    return () => {
-      ws?.close();
-      clearTimeout(reconnectTimeout);
-    };
-  }, [enableRealTimeUpdates, websocketUrl, announceToScreenReader]);
-
   const handleLegendToggle = useCallback((dataKey: string) => {
     setHiddenLines((prev) => {
       const newSet = new Set(prev);
@@ -972,12 +931,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         <span>Arrow keys to navigate</span>
         <span>Escape to reset</span>
       </div>
-    {/* Instructions */}
-    <div className={styles.instructions} aria-hidden="true">
-      <span>Drag brush below chart to zoom</span>
-      <span>Arrow keys to navigate</span>
-      <span>Escape to reset</span>
-    </div>
 
     {/* Help Overlay */}
     {showHelpOverlay && (

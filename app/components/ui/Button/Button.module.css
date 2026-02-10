@@ -1,5 +1,5 @@
 .button {
-  padding: 10px 20px;
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -8,7 +8,7 @@
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xxs);
   transition: all 0.2s ease;
 }
 
@@ -56,11 +56,11 @@
 }
 
 .small {
-  padding: 8px 16px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-size: 12px;
 }
 
 .large {
-  padding: 12px 24px;
+  padding: var(--spacing-sm) var(--spacing-lg);
   font-size: 14px;
 }

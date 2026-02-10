@@ -1,39 +1,50 @@
+/* Consistent Spacing System */
+:root {
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+}
+
 .formRow {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-sm);
   align-items: flex-end;
 }
 
 .formGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
+  gap: var(--spacing-md);
   align-items: flex-end;
 }
 
 .balancesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .balanceCard {
   background: var(--bg-card);
   border-radius: 12px;
-  padding: 20px;
+  padding: var(--spacing-xl);
   border: 1px solid var(--border-secondary);
 }
 
 .currencyLabel {
   font-size: 12px;
   color: var(--text-dimmed);
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--spacing-xs) 0;
 }
 
 .amount {
   font-size: 28px;
   font-weight: 700;
-  margin: 0 0 4px 0;
+  margin: 0 0 var(--spacing-xxs) 0;
   color: var(--text-primary);
 }
 
@@ -44,8 +55,8 @@
 }
 
 .totalCard {
-  margin-top: 24px;
-  padding: 20px;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-xl);
   background: var(--gradient-card-highlight);
   border-radius: 12px;
   border: 1px solid var(--success-border);
@@ -54,7 +65,7 @@
 .totalLabel {
   font-size: 12px;
   color: var(--text-dimmed);
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--spacing-xs) 0;
 }
 
 .totalValue {
@@ -66,7 +77,7 @@
 
 .rates {
   display: flex;
-  gap: 24px;
+  gap: var(--spacing-lg);
   font-size: 14px;
 }
 

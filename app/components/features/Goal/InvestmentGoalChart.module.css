@@ -163,6 +163,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-md);
 }
 
 /* Time Range Buttons */
@@ -301,7 +302,6 @@
   flex-wrap: wrap;
   margin-bottom: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border-secondary);
 }
 
 .legendGroup {
@@ -518,7 +518,6 @@
   gap: 16px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--border-secondary);
   font-size: 0.75rem;
   color: var(--text-dimmed);
 }

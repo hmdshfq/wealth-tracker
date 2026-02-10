@@ -1,7 +1,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--spacing-xxs);
 }
 
 .label {
@@ -14,7 +14,7 @@
 
 .required {
   color: #ef4444;
-  margin-left: 2px;
+  margin-left: var(--spacing-xxs);
 }
 
 .inputWrapper {
