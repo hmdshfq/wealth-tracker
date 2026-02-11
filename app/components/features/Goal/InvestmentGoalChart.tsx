@@ -110,6 +110,15 @@ const TIME_RANGES: TimeRangeOption[] = [
   { label: 'All', value: 'all', months: null },
 ];
 
+type ChartSeriesType = 'projected' | 'actual' | 'target' | 'monte-carlo' | 'scenario';
+
+interface LegendEntry {
+  value: string;
+  color: string;
+  dataKey: string;
+  type: ChartSeriesType;
+}
+
 // Custom hook to detect theme
 function useTheme() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -144,6 +153,8 @@ function useTheme() {
 interface TooltipPayloadItem {
   dataKey?: string;
   value?: number;
+  name?: string;
+  stroke?: string;
 }
 
 interface CustomTooltipProps {
@@ -154,6 +165,7 @@ interface CustomTooltipProps {
   totalActualContributions: number;
   currentNetWorth: number;
   colors: typeof CHART_COLORS.dark;
+  legendEntries: LegendEntry[];
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -164,8 +176,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   totalActualContributions,
   currentNetWorth,
   colors,
+  legendEntries,
 }) => {
   if (!active || !payload || payload.length === 0) return null;
+
+  const legendLookup = new Map(legendEntries.map((entry) => [entry.dataKey, entry]));
 
   const getValue = (key: string) => {
     const item = payload.find((p) => p.dataKey === key);
@@ -188,6 +203,36 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   const actualReturns = actualValue !== undefined && actualContributions !== undefined
     ? actualValue - actualContributions
     : currentNetWorth - totalActualContributions;
+
+  const payloadByType = payload.reduce<Record<ChartSeriesType, TooltipPayloadItem[]>>((acc, entry) => {
+    const key = entry.dataKey ?? entry.name ?? '';
+    const legendEntry = legendLookup.get(key);
+    const type = legendEntry?.type ?? 'projected';
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(entry);
+    return acc;
+  }, {} as Record<ChartSeriesType, TooltipPayloadItem[]>);
+
+  const renderEntries = (entries: TooltipPayloadItem[]) =>
+    entries
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ entry }) => entry.value !== undefined)
+      .map(({ entry, index }) => {
+        const key = entry.dataKey ?? entry.name ?? 'value';
+        const legendEntry = legendLookup.get(entry.dataKey ?? '');
+        const displayName = legendEntry?.value ?? entry.name ?? key;
+        const color = entry.stroke ?? legendEntry?.color ?? colors.text;
+        return (
+          <p key={`${displayName}-${key}-${index}`} style={{ color }}>
+            {displayName}: {formatPLN(entry.value!)}
+          </p>
+        );
+      });
+
+  const monteCarloEntries = payloadByType['monte-carlo'] || [];
+  const scenarioEntries = payloadByType['scenario'] || [];
+  const targetEntries = payloadByType['target'] || [];
+  const hasTarget = targetEntries.length > 0;
 
   return (
     <div className={styles.customTooltip} role="tooltip" aria-live="polite">
@@ -242,23 +287,33 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         </div>
       )}
 
-      <div className={styles.tooltipSection}>
-        <p style={{ color: colors.target }}>
-          Target: {formatPLN(goalAmount)}
-        </p>
-      </div>
+      {monteCarloEntries.length > 0 && (
+        <div className={styles.tooltipSection}>
+          <p className={styles.tooltipSectionTitle}>Confidence Bands</p>
+          {renderEntries(monteCarloEntries)}
+        </div>
+      )}
+
+      {scenarioEntries.length > 0 && (
+        <div className={styles.tooltipSection}>
+          <p className={styles.tooltipSectionTitle}>Scenarios & Benchmarks</p>
+          {renderEntries(scenarioEntries)}
+        </div>
+      )}
+
+      {hasTarget && (
+        <div className={styles.tooltipSection}>
+          <p className={styles.tooltipSectionTitle}>Target</p>
+          {renderEntries(targetEntries)}
+        </div>
+      )}
     </div>
   );
 };
 
 // Custom Legend Component
 interface CustomLegendProps {
-  payload: Array<{
-    value: string;
-    color: string;
-    dataKey: string;
-    type: 'projected' | 'actual' | 'target' | 'monte-carlo' | 'scenario';
-  }>;
+  payload: LegendEntry[];
   onToggle: (dataKey: string) => void;
   hiddenLines: Set<string>;
 }
@@ -939,7 +994,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   }, [filteredData, currentNetWorth, goal.amount, progressPercent, totalActualContributions, actualReturns, actualReturnsPercent]);
 
   // Legend items with theme colors
-  const legendPayload = useMemo(() => [
+  const legendPayload = useMemo<LegendEntry[]>(() => [
     { value: 'Portfolio Value', color: colors.actualValue, dataKey: 'actualValue', type: 'actual' as const },
     { value: 'Contributions', color: colors.actualContributions, dataKey: 'actualContributions', type: 'actual' as const },
     { value: 'Projected Value', color: colors.projectedValue, dataKey: 'value', type: 'projected' as const },
@@ -1505,6 +1560,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                   totalActualContributions={totalActualContributions}
                   currentNetWorth={currentNetWorth}
                   colors={colors}
+                  legendEntries={legendPayload}
                 />
               }
               cursor={{ stroke: colors.grid, strokeWidth: 1 }}
