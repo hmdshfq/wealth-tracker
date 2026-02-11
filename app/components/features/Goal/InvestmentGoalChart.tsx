@@ -38,6 +38,7 @@ import {
 } from '@/app/lib/sonification';
 import { 
   HelpTooltip,
+  ConfidenceBandsHelp,
   MonteCarloLegendHelp,
   VolatilityGuide,
   ScenarioAnalysisHelp
@@ -365,6 +366,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const theme = useTheme();
   const colors = CHART_COLORS[theme];
   const gradientId = useId();
+  const monteCarloColors = useMemo(() => ({
+    p90: theme === 'dark' ? '#60a5fa' : '#2563eb',
+    p50: theme === 'dark' ? '#f59e0b' : '#d97706',
+    p10: theme === 'dark' ? '#f87171' : '#dc2626',
+  }), [theme]);
   
   // WebWorker hook for heavy computations
   const {
@@ -412,16 +418,20 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [showMonteCarloLocal, setShowMonteCarloLocal] = useState(Boolean(showMonteCarlo));
   const [monteCarloVolatility, setMonteCarloVolatility] = useState(0.15);
   const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
-  const [showHelpOverlay, setShowHelpOverlay] = useState(false);
+  const [activeHelpOverlay, setActiveHelpOverlay] = useState<'confidence-bands' | 'scenario-analysis' | null>(null);
   const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(Boolean(showScenarioAnalysis));
   const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(Boolean(showTimeBasedAnalysis));
   const [showBehavioralAnalysisLocal, setShowBehavioralAnalysisLocal] = useState(Boolean(showBehavioralAnalysis));
   const [timeBasedAnalysisResultLocal, setTimeBasedAnalysisResultLocal] = useState<TimeBasedAnalysisResult | null>(null);
-  const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarios || [
+  const defaultScenarios = useMemo<InvestmentScenario[]>(() => [
     { id: 'base', name: 'Base Case', returnAdjustment: 0, color: '#4ECDC4', description: 'Your original plan', isActive: true },
     { id: 'optimistic', name: 'Optimistic', returnAdjustment: 0.02, color: '#10b981', description: '+2% annual return', isActive: true },
     { id: 'pessimistic', name: 'Pessimistic', returnAdjustment: -0.02, color: '#ef4444', description: '-2% annual return', isActive: true },
-  ]);
+  ], []);
+  const scenarioDefinitions = useMemo<InvestmentScenario[]>(() => scenarios && scenarios.length > 0 ? scenarios : defaultScenarios, [scenarios, defaultScenarios]);
+  const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarioDefinitions);
+  const [monteCarloResultLocal, setMonteCarloResultLocal] = useState<MonteCarloSimulationResult | null>(monteCarloResult || null);
+  const [scenarioAnalysisResultLocal, setScenarioAnalysisResultLocal] = useState<ScenarioAnalysisResult | null>(scenarioAnalysisResult || null);
 
   // What-if Scenario State
   const [showWhatIf, setShowWhatIf] = useState(false);
@@ -433,6 +443,60 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
   // State for what-if projection
   const [whatIfProjection, setWhatIfProjection] = useState<ProjectionDataPoint[] | null>(null);
+
+  useEffect(() => {
+    setActiveScenarios(scenarioDefinitions);
+  }, [scenarioDefinitions]);
+
+  useEffect(() => {
+    if (monteCarloResult) {
+      setMonteCarloResultLocal(monteCarloResult);
+    }
+  }, [monteCarloResult]);
+
+  useEffect(() => {
+    if (scenarioAnalysisResult) {
+      setScenarioAnalysisResultLocal(scenarioAnalysisResult);
+    }
+  }, [scenarioAnalysisResult]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    // Keep confidence bands in sync with slider values.
+    withFallback(
+      () => runMonteCarloSimulation(goal, currentNetWorth, { numSimulations: monteCarloSimulations, volatility: monteCarloVolatility }),
+      () => runMonteCarloSimulationMain(goal, currentNetWorth, { numSimulations: monteCarloSimulations, volatility: monteCarloVolatility })
+    ).then((result) => {
+      if (!isCancelled) {
+        setMonteCarloResultLocal(result);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [goal, currentNetWorth, monteCarloSimulations, monteCarloVolatility, withFallback, runMonteCarloSimulation]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    withFallback(
+      () => runScenarioAnalysis(goal, currentNetWorth, scenarioDefinitions),
+      () => runScenarioAnalysisMain(goal, currentNetWorth, scenarioDefinitions)
+    ).then((result) => {
+      if (!isCancelled) {
+        setScenarioAnalysisResultLocal(result);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
+
+  const effectiveMonteCarloResult = monteCarloResultLocal || monteCarloResult;
+  const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
   
   // Generate what-if projection when parameters change
   useEffect(() => {
@@ -613,11 +677,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     }));
 
     // Add scenario values if scenario analysis is enabled
-    if (showScenarioAnalysisLocal && scenarioAnalysisResult) {
+    if (showScenarioAnalysisLocal && effectiveScenarioAnalysisResult) {
       result.forEach((point, index) => {
         activeScenarios.forEach((scenario) => {
-          if (scenario.isActive && scenarioAnalysisResult.scenarios[scenario.id]?.[index]) {
-            (point as any)[scenario.id] = scenarioAnalysisResult.scenarios[scenario.id][index].value;
+          if (scenario.isActive && effectiveScenarioAnalysisResult.scenarios[scenario.id]?.[index]) {
+            (point as any)[scenario.id] = effectiveScenarioAnalysisResult.scenarios[scenario.id][index].value;
           }
         });
       });
@@ -633,7 +697,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     }
 
     return result;
-  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection]);
+  }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, effectiveScenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection]);
 
   // State for benchmark data
   const [benchmarkData, setBenchmarkData] = useState<{
@@ -881,12 +945,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     { value: 'Projected Value', color: colors.projectedValue, dataKey: 'value', type: 'projected' as const },
     { value: 'Projected Contributions', color: colors.projectedContributions, dataKey: 'cumulativeContributions', type: 'projected' as const },
     { value: 'Target Goal', color: colors.target, dataKey: 'goal', type: 'target' as const },
-    ...(showMonteCarloLocal && monteCarloResult ? [
-      { value: '90% Confidence', color: colors.projectedValue, dataKey: 'p90', type: 'monte-carlo' as const },
-      { value: 'Median', color: colors.projectedValue, dataKey: 'p50', type: 'monte-carlo' as const },
-      { value: '10% Confidence', color: colors.projectedValue, dataKey: 'p10', type: 'monte-carlo' as const },
+    ...(showMonteCarloLocal && effectiveMonteCarloResult ? [
+      { value: '90% Confidence', color: monteCarloColors.p90, dataKey: 'p90', type: 'monte-carlo' as const },
+      { value: 'Median', color: monteCarloColors.p50, dataKey: 'p50', type: 'monte-carlo' as const },
+      { value: '10% Confidence', color: monteCarloColors.p10, dataKey: 'p10', type: 'monte-carlo' as const },
     ] : []),
-    ...(showScenarioAnalysisLocal && scenarioAnalysisResult ? activeScenarios
+    ...(showScenarioAnalysisLocal && effectiveScenarioAnalysisResult ? activeScenarios
       .filter(s => s.isActive && s.id !== 'base')
       .map(scenario => ({
         value: scenario.name,
@@ -903,7 +967,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       dataKey: benchmark.id,
       type: 'scenario' as const
     })),
-  ], [colors, showMonteCarloLocal, monteCarloResult, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection, benchmarkData]);
+  ], [colors, showMonteCarloLocal, effectiveMonteCarloResult, showScenarioAnalysisLocal, effectiveScenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection, benchmarkData, monteCarloColors]);
 
   return (
     <div
@@ -1053,12 +1117,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         </div>
 
         {/* Monte Carlo Controls */}
-        {monteCarloResult && (
+        {effectiveMonteCarloResult && (
           <div className={styles.monteCarloControls}>
             <div className={styles.monteCarloHeader}>
               <h4>Confidence Bands</h4>
               <button
-                onClick={() => setShowHelpOverlay(true)}
+                onClick={() => setActiveHelpOverlay('confidence-bands')}
                 className={styles.helpButton}
                 aria-label="Learn about confidence bands"
               >
@@ -1138,7 +1202,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           <div className={styles.timeBasedAnalysisHeader}>
             <h4>Time-Based Analysis</h4>
             <button
-              onClick={() => setShowHelpOverlay(true)}
+              onClick={() => setActiveHelpOverlay('scenario-analysis')}
               className={styles.helpButton}
               aria-label="Learn about time-based analysis"
             >
@@ -1285,7 +1349,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           <div className={styles.behavioralAnalysisHeader}>
             <h4>Behavioral Finance Analysis</h4>
             <button
-              onClick={() => setShowHelpOverlay(true)}
+              onClick={() => setActiveHelpOverlay('scenario-analysis')}
               className={styles.helpButton}
               aria-label="Learn about behavioral finance analysis"
             >
@@ -1504,8 +1568,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             )}
 
             {/* Monte Carlo Confidence Bands with Gradient */}
-            {showMonteCarloLocal && monteCarloResult && (
+            {showMonteCarloLocal && effectiveMonteCarloResult && (
               <>
+                {(() => {
+                  const showP90 = !hiddenLines.has('p90');
+                  const showP50 = !hiddenLines.has('p50');
+                  const showP10 = !hiddenLines.has('p10');
+
+                  return (
+                    <>
                 {/* Custom Gradient Definitions with unique IDs */}
                 <defs>
                   <linearGradient id={`confidenceGradient-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
@@ -1521,36 +1592,73 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 </defs>
                 
                 {/* 90th-10th percentile band with gradient (main confidence area) */}
-                <Area
-                  type="monotone"
-                  dataKey="p90"
-                  stroke="none"
-                  fill={`url(#confidenceGradient${theme === 'dark' ? 'Dark' : ''}-${gradientId})`}
-                  activeDot={false}
-                  isAnimationActive={false}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="p10"
-                  stroke="none"
-                  fill={colors.background}
-                  fillOpacity={1}
-                  activeDot={false}
-                  isAnimationActive={false}
-                />
+                {showP90 && showP10 && (
+                  <>
+                    <Area
+                      type="monotone"
+                      dataKey="p90"
+                      stroke="none"
+                      fill={`url(#confidenceGradient${theme === 'dark' ? 'Dark' : ''}-${gradientId})`}
+                      activeDot={false}
+                      isAnimationActive={false}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="p10"
+                      stroke="none"
+                      fill={colors.background}
+                      fillOpacity={1}
+                      activeDot={false}
+                      isAnimationActive={false}
+                    />
+                  </>
+                )}
                 
                 {/* 50th percentile (median) line */}
-                <Line
-                  type="monotone"
-                  dataKey="p50"
-                  name="Median Projection"
-                  stroke={colors.projectedValue}
-                  strokeWidth={1}
-                  strokeDasharray="2 2"
-                  dot={false}
-                  activeDot={false}
-                  isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                />
+                {showP90 && (
+                  <Line
+                    type="monotone"
+                    dataKey="p90"
+                    name="90% Confidence"
+                    stroke={monteCarloColors.p90}
+                    strokeWidth={1}
+                    strokeOpacity={0.65}
+                    strokeDasharray="3 3"
+                    dot={false}
+                    activeDot={false}
+                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                  />
+                )}
+                {showP50 && (
+                  <Line
+                    type="monotone"
+                    dataKey="p50"
+                    name="Median Projection"
+                    stroke={monteCarloColors.p50}
+                    strokeWidth={1}
+                    strokeDasharray="2 2"
+                    dot={false}
+                    activeDot={false}
+                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                  />
+                )}
+                {showP10 && (
+                  <Line
+                    type="monotone"
+                    dataKey="p10"
+                    name="10% Confidence"
+                    stroke={monteCarloColors.p10}
+                    strokeWidth={1}
+                    strokeOpacity={0.65}
+                    strokeDasharray="3 3"
+                    dot={false}
+                    activeDot={false}
+                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                  />
+                )}
+                    </>
+                  );
+                })()}
               </>
             )}
 
@@ -1570,10 +1678,10 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             )}
 
             {/* Scenario Analysis Lines */}
-            {showScenarioAnalysisLocal && scenarioAnalysisResult && activeScenarios
+            {showScenarioAnalysisLocal && effectiveScenarioAnalysisResult && activeScenarios
               .filter(s => s.isActive && s.id !== 'base' && !hiddenLines.has(s.id))
               .map((scenario) => {
-                const scenarioData = scenarioAnalysisResult.scenarios[scenario.id];
+                const scenarioData = effectiveScenarioAnalysisResult.scenarios[scenario.id];
                 return (
                   <Line
                     key={scenario.id}
@@ -1606,7 +1714,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             )}
 
             {/* Benchmark Comparison Lines */}
-            {benchmarkData.map((benchmark) => (
+            {benchmarkData.filter((benchmark) => !hiddenLines.has(benchmark.id)).map((benchmark) => (
               <Line
                 key={benchmark.id}
                 type="monotone"
@@ -1707,12 +1815,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       </div>
 
     {/* Scenario Analysis Controls */}
-    {scenarioAnalysisResult && (
+    {effectiveScenarioAnalysisResult && (
       <div className={styles.scenarioAnalysisControls}>
         <div className={styles.scenarioAnalysisHeader}>
           <h4>Scenario Analysis</h4>
           <button
-            onClick={() => setShowHelpOverlay(true)}
+            onClick={() => setActiveHelpOverlay('scenario-analysis')}
             className={styles.helpButton}
             aria-label="Learn about scenario analysis"
           >
@@ -1773,9 +1881,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 </thead>
                 <tbody>
                   {activeScenarios.filter(s => s.isActive).map((scenario) => {
-                    const scenarioData = scenarioAnalysisResult.scenarios[scenario.id];
+                    const scenarioData = effectiveScenarioAnalysisResult.scenarios[scenario.id];
                     const finalValue = scenarioData?.[scenarioData.length - 1]?.value || 0;
-                    const baseFinalValue = scenarioAnalysisResult.baseScenario[scenarioAnalysisResult.baseScenario.length - 1]?.value || 0;
+                    const baseFinalValue = effectiveScenarioAnalysisResult.baseScenario[effectiveScenarioAnalysisResult.baseScenario.length - 1]?.value || 0;
                     const difference = finalValue - baseFinalValue;
                     const differencePercent = baseFinalValue > 0 ? (difference / baseFinalValue) * 100 : 0;
                     const successProbability = finalValue >= goal.amount ? 100 : Math.min(100, (finalValue / goal.amount) * 100);
@@ -2008,8 +2116,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     </div>
 
     {/* Help Overlay */}
-    {showHelpOverlay && (
-      <ScenarioAnalysisHelp onClose={() => setShowHelpOverlay(false)} />
+    {activeHelpOverlay === 'confidence-bands' && (
+      <ConfidenceBandsHelp onClose={() => setActiveHelpOverlay(null)} />
+    )}
+    {activeHelpOverlay === 'scenario-analysis' && (
+      <ScenarioAnalysisHelp onClose={() => setActiveHelpOverlay(null)} />
     )}
     </div>
   );
