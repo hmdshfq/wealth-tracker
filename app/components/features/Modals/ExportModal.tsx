@@ -8,6 +8,7 @@ interface ExportModalProps {
   onClose: () => void;
   onExportJSON: () => void;
   onExportCSV: (type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => void;
+  onExportPDF: (type: 'full' | 'summary' | 'goal-chart') => void;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({
@@ -15,6 +16,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onClose,
   onExportJSON,
   onExportCSV,
+  onExportPDF,
 }) => {
   return (
     <AnimatedModal
@@ -68,10 +70,54 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         </div>
       </div>
 
+      <div className={styles.dividerText}>— or export as PDF —</div>
+
+      <div className={styles.pdfGrid}>
+        <button
+          onClick={() => onExportPDF('full')}
+          className={styles.pdfExportButton}
+        >
+          <div>
+            <div className={styles.exportTitle}>Full Report (PDF)</div>
+            <div className={styles.exportSubtitle}>
+              Complete portfolio • Charts • All data
+            </div>
+          </div>
+          <span className={styles.arrow}>→</span>
+        </button>
+
+        <button
+          onClick={() => onExportPDF('summary')}
+          className={styles.pdfExportButton}
+        >
+          <div>
+            <div className={styles.exportTitle}>Summary Report (PDF)</div>
+            <div className={styles.exportSubtitle}>
+              Quick overview • Key metrics
+            </div>
+          </div>
+          <span className={styles.arrow}>→</span>
+        </button>
+
+        <button
+          onClick={() => onExportPDF('goal-chart')}
+          className={styles.pdfExportButton}
+        >
+          <div>
+            <div className={styles.exportTitle}>Goal Progress Chart (PDF)</div>
+            <div className={styles.exportSubtitle}>
+              Visual projection • Progress tracking
+            </div>
+          </div>
+          <span className={styles.arrow}>→</span>
+        </button>
+      </div>
+
       <div className={styles.tipBox}>
         <p>
           💡 <strong>Tip:</strong> Use JSON for full backups. CSV files are
           useful for spreadsheet analysis but can&apos;t be imported back.
+          PDF reports are great for sharing and printing.
         </p>
       </div>
     </AnimatedModal>

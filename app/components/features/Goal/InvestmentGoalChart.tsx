@@ -15,9 +15,27 @@ import {
 } from 'recharts';
 import { formatPLN } from '@/app/lib/formatters';
 import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult } from '@/app/lib/types';
-import { ExtendedProjectionDataPoint, generateProjectionData, performTimeBasedAnalysis } from '@/app/lib/projectionCalculations';
+import { ExtendedProjectionDataPoint, generateProjectionData as generateProjectionDataMain, performTimeBasedAnalysis as performTimeBasedAnalysisMain } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
 import { calculateYearsToGoal, calculateRequiredContributions, performBehavioralAnalysis } from '@/app/lib/goalCalculations';
+import { runMonteCarloSimulation as runMonteCarloSimulationMain } from '@/app/lib/projectionCalculations';
+import { runScenarioAnalysis as runScenarioAnalysisMain } from '@/app/lib/projectionCalculations';
+import useFinancialWorker from '@/app/lib/hooks/useFinancialWorker';
+import { 
+  sampleProjectionData,
+  smartSampleData,
+  shouldSampleData,
+  getRecommendedSamplingStrategy 
+} from '@/app/lib/dataSampling';
+import { 
+  getSonificationPlayer,
+  sonifyInvestmentGoalProgress,
+  sonifyPortfolioTrend,
+  sonifyMilestone,
+  createProjectionMelody,
+  isSonificationSupported,
+  SonificationOptions
+} from '@/app/lib/sonification';
 import { 
   HelpTooltip,
   MonteCarloLegendHelp,
@@ -347,6 +365,29 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const theme = useTheme();
   const colors = CHART_COLORS[theme];
   const gradientId = useId();
+  
+  // WebWorker hook for heavy computations
+  const {
+    runMonteCarloSimulation,
+    runScenarioAnalysis,
+    performTimeBasedAnalysis,
+    generateProjectionData,
+    isLoading: workerLoading,
+    error: workerError,
+    withFallback,
+  } = useFinancialWorker();
+  
+  // Initialize sonification
+  useEffect(() => {
+    const supported = isSonificationSupported();
+    setIsSonificationSupportedState(supported);
+    
+    return () => {
+      // Cleanup on unmount
+      const player = getSonificationPlayer();
+      player.cleanup();
+    };
+  }, []);
 
   // State
   const [selectedRange, setSelectedRange] = useState<string>('all');
@@ -375,6 +416,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(Boolean(showScenarioAnalysis));
   const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(Boolean(showTimeBasedAnalysis));
   const [showBehavioralAnalysisLocal, setShowBehavioralAnalysisLocal] = useState(Boolean(showBehavioralAnalysis));
+  const [timeBasedAnalysisResultLocal, setTimeBasedAnalysisResultLocal] = useState<TimeBasedAnalysisResult | null>(null);
   const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarios || [
     { id: 'base', name: 'Base Case', returnAdjustment: 0, color: '#4ECDC4', description: 'Your original plan', isActive: true },
     { id: 'optimistic', name: 'Optimistic', returnAdjustment: 0.02, color: '#10b981', description: '+2% annual return', isActive: true },
@@ -389,9 +431,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     yearsToGoal: 0, // Will be updated after yearsToGoal calculation
   });
 
+  // State for what-if projection
+  const [whatIfProjection, setWhatIfProjection] = useState<ProjectionDataPoint[] | null>(null);
+  
   // Generate what-if projection when parameters change
-  const whatIfProjection = useMemo(() => {
-    if (!showWhatIf) return null;
+  useEffect(() => {
+    if (!showWhatIf) {
+      setWhatIfProjection(null);
+      return;
+    }
     
     // Create a temporary goal with what-if parameters
     const tempGoal = {
@@ -400,8 +448,12 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       monthlyDeposits: whatIfParams.monthlyDeposits,
     };
     
-    return generateProjectionData(tempGoal, currentNetWorth);
-  }, [showWhatIf, whatIfParams, goal, currentNetWorth]);
+    // Use WebWorker with fallback to main thread
+    withFallback(
+      () => generateProjectionData(tempGoal, currentNetWorth),
+      () => generateProjectionDataMain(tempGoal, currentNetWorth)
+    ).then(setWhatIfProjection);
+  }, [showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
 
   // Calculate years to goal
   const yearsToGoal = useMemo(() => {
@@ -460,6 +512,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     if (returnPercent > -10) return '#f87171';
     return '#ef4444'; // Strong negative
   }, []);
+  
+  // State for sonification
+  const [sonificationEnabled, setSonificationEnabled] = useState(false);
+  const [isSonificationSupportedState, setIsSonificationSupportedState] = useState(false);
+  const [isPlayingSonification, setIsPlayingSonification] = useState(false);
 
   // WebSocket connection
   useEffect(() => {
@@ -512,6 +569,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     return goal.amount > 0 ? (liveNetWorth / goal.amount) * 100 : 0;
   }, [liveNetWorth, goal.amount]);
 
+  // State for data sampling info
+  const [isDataSampled, setIsDataSampled] = useState(false);
+  const [originalDataPoints, setOriginalDataPoints] = useState<number | null>(null);
+  const [sampledDataPoints, setSampledDataPoints] = useState<number | null>(null);
+  
   // Filter data based on time range
   const filteredData = useMemo(() => {
     if (!projectionData || projectionData.length === 0) return [];
@@ -528,8 +590,24 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       }
     }
 
+    // Apply data sampling if needed for performance
+    const needsSampling = shouldSampleData(filtered, 500);
+    let sampledData = filtered;
+    
+    if (needsSampling) {
+      // Use smart sampling to preserve key characteristics
+      sampledData = smartSampleData(filtered, 300);
+      setIsDataSampled(true);
+      setOriginalDataPoints(filtered.length);
+      setSampledDataPoints(sampledData.length);
+    } else {
+      setIsDataSampled(false);
+      setOriginalDataPoints(null);
+      setSampledDataPoints(null);
+    }
+
     // Add scenario data to each point
-    const result = filtered.map((d) => ({
+    const result = sampledData.map((d) => ({
       ...d,
       goal: goal.amount,
     }));
@@ -557,8 +635,17 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     return result;
   }, [projectionData, selectedRange, customStartDate, customEndDate, showCustomRange, goal.amount, showScenarioAnalysisLocal, scenarioAnalysisResult, activeScenarios, showWhatIf, whatIfProjection]);
 
+  // State for benchmark data
+  const [benchmarkData, setBenchmarkData] = useState<{
+    id: string;
+    name: string;
+    color: string;
+    annualReturn: number;
+    data: ProjectionDataPoint[];
+  }[]>([]);
+  
   // Benchmark Comparisons - generate benchmark projections
-  const benchmarkData = useMemo(() => {
+  useEffect(() => {
     interface Benchmark {
       id: string;
       name: string;
@@ -571,19 +658,113 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     
     // S&P 500 benchmark (historical average return ~7%)
     const sp500Goal = { ...goal, annualReturn: 0.07 };
-    const sp500Projection = generateProjectionData(sp500Goal, currentNetWorth);
     
     // Industry average benchmark (conservative ~5%)
     const industryGoal = { ...goal, annualReturn: 0.05 };
-    const industryProjection = generateProjectionData(industryGoal, currentNetWorth);
     
-    benchmarks.push(
-      { id: 'sp500', name: 'S&P 500', color: '#3b82f6', annualReturn: 0.07, data: sp500Projection },
-      { id: 'industry', name: 'Industry Avg', color: '#8b5cf6', annualReturn: 0.05, data: industryProjection }
-    );
+    // Use WebWorker with fallback for both projections
+    Promise.all([
+      withFallback(
+        () => generateProjectionData(sp500Goal, currentNetWorth),
+        () => generateProjectionDataMain(sp500Goal, currentNetWorth)
+      ),
+      withFallback(
+        () => generateProjectionData(industryGoal, currentNetWorth),
+        () => generateProjectionDataMain(industryGoal, currentNetWorth)
+      )
+    ]).then(([sp500Projection, industryProjection]) => {
+      benchmarks.push(
+        { id: 'sp500', name: 'S&P 500', color: '#3b82f6', annualReturn: 0.07, data: sp500Projection },
+        { id: 'industry', name: 'Industry Avg', color: '#8b5cf6', annualReturn: 0.05, data: industryProjection }
+      );
+      setBenchmarkData(benchmarks);
+    });
+  }, [goal, currentNetWorth, withFallback, generateProjectionData]);
+
+  // Time-Based Analysis - use WebWorker
+  useEffect(() => {
+    if (projectionData && projectionData.length > 0 && showTimeBasedAnalysisLocal) {
+      withFallback(
+        () => performTimeBasedAnalysis(projectionData),
+        () => performTimeBasedAnalysisMain(projectionData)
+      ).then(setTimeBasedAnalysisResultLocal);
+    } else {
+      setTimeBasedAnalysisResultLocal(null);
+    }
+  }, [projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
+
+  // Add benchmark data to filtered data after it's created
+  const filteredDataWithBenchmarks = useMemo(() => {
+    if (!filteredData.length || !benchmarkData.length) return filteredData;
     
-    return benchmarks;
-  }, [goal, currentNetWorth]);
+    const result = filteredData.map((point) => ({ ...point }));
+    benchmarkData.forEach((benchmark) => {
+      result.forEach((point, index) => {
+        if (benchmark.data[index]) {
+          (point as any)[benchmark.id] = benchmark.data[index].value;
+        }
+      });
+    });
+    
+    return result;
+  }, [filteredData, benchmarkData]);
+
+  // Sonification functions
+  const playGoalProgressSound = useCallback(() => {
+    if (!sonificationEnabled || !isSonificationSupportedState) return;
+    
+    setIsPlayingSonification(true);
+    sonifyInvestmentGoalProgress(currentNetWorth, goal.amount, {
+      volume: 0.7,
+      duration: 1.0
+    });
+    
+    setTimeout(() => {
+      setIsPlayingSonification(false);
+    }, 1500);
+  }, [sonificationEnabled, isSonificationSupportedState, currentNetWorth, goal.amount]);
+  
+  const playPortfolioTrendSound = useCallback(() => {
+    if (!sonificationEnabled || !isSonificationSupportedState || !filteredDataWithBenchmarks.length) return;
+    
+    setIsPlayingSonification(true);
+    const values = filteredDataWithBenchmarks.map(d => d.value);
+    sonifyPortfolioTrend(values, {
+      volume: 0.6,
+      delayBetweenNotes: 100
+    } as SonificationOptions & { delayBetweenNotes: number });
+    setIsPlayingSonification(false);
+  }, [sonificationEnabled, isSonificationSupportedState, filteredDataWithBenchmarks]);
+  
+  const playMilestoneSound = useCallback((percentage: number) => {
+    if (!sonificationEnabled || !isSonificationSupportedState) return;
+    
+    setIsPlayingSonification(true);
+    sonifyMilestone(`Milestone ${Math.round(percentage * 100)}%`, percentage, {
+      volume: 0.8
+    });
+    
+    setTimeout(() => {
+      setIsPlayingSonification(false);
+    }, 1000);
+  }, [sonificationEnabled, isSonificationSupportedState]);
+  
+  const playProjectionMelody = useCallback(async () => {
+    if (!sonificationEnabled || !isSonificationSupportedState || !filteredDataWithBenchmarks.length) return;
+    
+    setIsPlayingSonification(true);
+    try {
+      await createProjectionMelody(filteredDataWithBenchmarks, {
+        volume: 0.6,
+        delayBetweenNotes: 150,
+        melodyType: 'scale'
+      } as SonificationOptions & { delayBetweenNotes: number; melodyType: 'scale' });
+    } catch (error) {
+      console.error('Error playing projection melody:', error);
+    } finally {
+      setIsPlayingSonification(false);
+    }
+  }, [sonificationEnabled, isSonificationSupportedState, filteredDataWithBenchmarks]);
 
   // Goal Achievement Zones - calculate progress milestones
   const goalAchievementZones = useMemo(() => {
@@ -611,22 +792,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     
     return zones;
   }, [goal.amount, filteredData]);
-
-  // Add benchmark data to filtered data after it's created
-  const filteredDataWithBenchmarks = useMemo(() => {
-    if (!filteredData.length || !benchmarkData.length) return filteredData;
-    
-    const result = [...filteredData];
-    benchmarkData.forEach((benchmark) => {
-      result.forEach((point, index) => {
-        if (benchmark.data[index]) {
-          (point as any)[benchmark.id] = benchmark.data[index].value;
-        }
-      });
-    });
-    
-    return result;
-  }, [filteredData, benchmarkData]);
 
   const handleLegendToggle = useCallback((dataKey: string) => {
     setHiddenLines((prev) => {
@@ -765,6 +930,47 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             <div className={`${styles.wsStatus} ${wsConnected ? styles.connected : styles.disconnected}`}>
               <span className={styles.wsIndicator}></span>
               {wsConnected ? 'Live' : 'Offline'}
+            </div>
+          )}
+          {workerLoading && (
+            <div className={styles.workerStatus}>
+              <span className={styles.workerIndicator}></span>
+              Processing...
+            </div>
+          )}
+          {workerError && (
+            <div className={styles.workerError}>
+              <span className={styles.errorIcon}>⚠️</span>
+              {workerError}
+            </div>
+          )}
+          {isDataSampled && originalDataPoints && sampledDataPoints && (
+            <div className={styles.samplingInfo}>
+              <span className={styles.samplingIcon}>📊</span>
+              {originalDataPoints} points → {sampledDataPoints} displayed
+              <HelpTooltip content="Data sampling applied for performance. Key characteristics preserved.">
+                <span className={styles.helpIcon} aria-label="Help">ⓘ</span>
+              </HelpTooltip>
+            </div>
+          )}
+          {isSonificationSupportedState && (
+            <div className={styles.sonificationControls}>
+              <label className={styles.sonificationToggle}>
+                <input
+                  type="checkbox"
+                  checked={sonificationEnabled}
+                  onChange={() => setSonificationEnabled(!sonificationEnabled)}
+                  disabled={isPlayingSonification}
+                />
+                <span className={styles.sonificationSlider}></span>
+                <span className={styles.sonificationLabel}>🔊 Sonification</span>
+              </label>
+              {isPlayingSonification && (
+                <div className={styles.sonificationPlaying}>
+                  <span className={styles.sonificationWave}>🎵</span>
+                  Playing...
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -927,7 +1133,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       </div>
 
       {/* Time-Based Analysis Controls */}
-      {timeBasedAnalysisResult && (
+      {(timeBasedAnalysisResultLocal || timeBasedAnalysisResult) && (
         <div className={styles.timeBasedAnalysisControls}>
           <div className={styles.timeBasedAnalysisHeader}>
             <h4>Time-Based Analysis</h4>
@@ -959,7 +1165,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               <div className={styles.seasonalPatterns}>
                 <h5>Seasonal Patterns</h5>
                 <div className={styles.patternsGrid}>
-                  {timeBasedAnalysisResult.seasonalPatterns.map((pattern) => (
+                  {(timeBasedAnalysisResultLocal?.seasonalPatterns || timeBasedAnalysisResult?.seasonalPatterns || []).map((pattern) => (
                     <div key={`pattern-${pattern.month}`} className={styles.patternItem}>
                       <div className={styles.patternHeader}>
                         <span className={styles.patternMonth}>{new Date(0, pattern.month - 1).toLocaleString('default', { month: 'short' })}</span>
@@ -990,7 +1196,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               <div className={styles.bestWorstMonths}>
                 <div className={styles.bestMonths}>
                   <h5>Best Months</h5>
-                  {timeBasedAnalysisResult.bestMonths.map((month) => (
+                  {(timeBasedAnalysisResultLocal?.bestMonths || timeBasedAnalysisResult?.bestMonths || []).map((month) => (
                     <div key={`best-${month.month}`} className={styles.monthItem}>
                       <span className={styles.monthName}>{new Date(0, month.month - 1).toLocaleString('default', { month: 'long' })}</span>
                       <span className={styles.monthValue} style={{ color: '#10b981' }}>
@@ -1002,7 +1208,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
                 <div className={styles.worstMonths}>
                   <h5>Worst Months</h5>
-                  {timeBasedAnalysisResult.worstMonths.map((month) => (
+                  {(timeBasedAnalysisResultLocal?.worstMonths || timeBasedAnalysisResult?.worstMonths || []).map((month) => (
                     <div key={`worst-${month.month}`} className={styles.monthItem}>
                       <span className={styles.monthName}>{new Date(0, month.month - 1).toLocaleString('default', { month: 'long' })}</span>
                       <span className={styles.monthValue} style={{ color: '#ef4444' }}>
@@ -1027,7 +1233,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {timeBasedAnalysisResult.yearOverYearComparisons.map((yoy) => (
+                    {(timeBasedAnalysisResultLocal?.yearOverYearComparisons || timeBasedAnalysisResult?.yearOverYearComparisons || []).map((yoy) => (
                       <tr key={`yoy-${yoy.year}`}>
                         <td>{yoy.year}</td>
                         <td>{formatPLN(yoy.startValue)}</td>
@@ -1053,7 +1259,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                   <span>High Performance</span>
                 </div>
                 <div className={styles.heatmapGrid}>
-                  {Object.entries(timeBasedAnalysisResult.performanceHeatmap).map(([monthKey, returnPercent]) => (
+                  {Object.entries(timeBasedAnalysisResultLocal?.performanceHeatmap || timeBasedAnalysisResult?.performanceHeatmap || {}).map(([monthKey, returnPercent]) => (
                     <div 
                       key={`heatmap-${monthKey}`}
                       className={styles.heatmapCell}
@@ -1683,6 +1889,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             <div className={styles.zoneHeader}>
               <span className={styles.zoneMilestone}>{Math.round(zone.percentage * 100)}% Milestone</span>
               <span className={styles.zoneValue}>{formatPLN(zone.value)}</span>
+              {sonificationEnabled && isSonificationSupportedState && (
+                <button
+                  onClick={() => playMilestoneSound(zone.percentage)}
+                  className={styles.zoneSonifyButton}
+                  aria-label={`Play sound for ${Math.round(zone.percentage * 100)}% milestone`}
+                >
+                  🔊
+                </button>
+              )}
             </div>
             <div className={styles.zoneProgress}>
               <div className={styles.zoneProgressBar} style={{ width: `${zone.percentage * 100}%`, backgroundColor: zone.color }} />
@@ -1702,6 +1917,24 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           </div>
         ))}
       </div>
+      {sonificationEnabled && isSonificationSupportedState && (
+        <div className={styles.sonificationZoneControls}>
+          <button
+            onClick={playGoalProgressSound}
+            className={styles.sonifyGoalButton}
+            disabled={isPlayingSonification}
+          >
+            🎯 Play Goal Progress Sound
+          </button>
+          <button
+            onClick={playProjectionMelody}
+            className={styles.sonifyMelodyButton}
+            disabled={isPlayingSonification}
+          >
+            🎵 Play Projection Melody
+          </button>
+        </div>
+      )}
     </div>
 
     {/* Benchmark Comparison Summary */}

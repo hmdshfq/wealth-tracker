@@ -32,6 +32,13 @@ import {
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
+import { generateProjectionData, calculateCumulativeContributions } from '@/app/lib/projectionCalculations';
+import { 
+  generateInvestmentReportPDF,
+  exportGoalProgressChartPDF,
+  exportSummaryReport,
+  downloadPDF 
+} from '@/app/lib/pdfExport';
 import {
   DEMO_CASH,
   DEMO_CASH_TRANSACTIONS,
@@ -490,6 +497,55 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
     setTimeout(() => setExportSuccess(false), 3000);
   }, [goal, transactions, cash, cashTransactions, customTickers]);
 
+  // PDF Export Functions
+  const exportToPDF = useCallback(async (type: 'full' | 'summary' | 'goal-chart') => {
+    try {
+      let blob: Blob | null = null;
+      let filename = '';
+
+      if (type === 'full') {
+        // Generate comprehensive report
+        const projectionData = generateProjectionData(goal, totalNetWorth);
+        blob = await generateInvestmentReportPDF(
+          goal,
+          holdingsData,
+          transactions,
+          cash,
+          cashTransactions,
+          projectionData
+        );
+        filename = `investment-report-${new Date().toISOString().split('T')[0]}`;
+      } else if (type === 'summary') {
+        // Generate summary report
+        blob = await exportSummaryReport(goal, holdingsData, cash);
+        filename = `summary-report-${new Date().toISOString().split('T')[0]}`;
+      } else if (type === 'goal-chart') {
+        // Generate goal progress chart
+        const projectionData = generateProjectionData(goal, totalNetWorth);
+        const totalActualContributions = calculateCumulativeContributions(transactions, exchangeRates);
+        blob = await exportGoalProgressChartPDF(
+          goal,
+          projectionData,
+          totalNetWorth,
+          totalActualContributions
+        );
+        filename = `goal-progress-${new Date().toISOString().split('T')[0]}`;
+      }
+
+      if (!blob || !filename) {
+        throw new Error(`Unsupported PDF export type: ${type}`);
+      }
+
+      downloadPDF(blob, filename);
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      setImportError('Failed to generate PDF report');
+      setTimeout(() => setImportError(''), 3000);
+    }
+  }, [goal, holdingsData, transactions, cash, cashTransactions, totalNetWorth, exchangeRates]);
+
   const exportToCSV = useCallback((type: 'holdings' | 'investments' | 'cash' | 'cashTransactions') => {
     let csv = '';
     let filename = '';
@@ -873,6 +929,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
         onClose={() => setShowExportModal(false)}
         onExportJSON={exportToJSON}
         onExportCSV={exportToCSV}
+        onExportPDF={exportToPDF}
       />
 
       <ImportModal
