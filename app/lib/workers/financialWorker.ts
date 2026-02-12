@@ -2,7 +2,7 @@
 // This runs in a separate thread to avoid blocking the main UI
 
 import { Goal, ProjectionDataPoint, MonteCarloSimulationResult, InvestmentScenario, ScenarioAnalysisResult, TimeBasedAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
-import { FinancialWorkerMessage, FinancialWorkerResponse } from './financialWorkerTypes';
+import { FinancialWorkerMessage, FinancialWorkerResponse, FinancialWorkerRequestPayloadMap } from './financialWorkerTypes';
 
 // Import the calculation functions we need
 // Note: In a real implementation, we'd need to bundle these functions
@@ -304,21 +304,29 @@ self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
 
   try {
     switch (message.type) {
-      case 'monte-carlo':
-        response.result = runMonteCarloSimulation(message.data.goal, message.data.currentNetWorth, message.data.params);
+      case 'monte-carlo': {
+        const payload = message.data as FinancialWorkerRequestPayloadMap['monte-carlo'];
+        response.result = runMonteCarloSimulation(payload.goal, payload.currentNetWorth, payload.params);
         break;
+      }
       
-      case 'scenario-analysis':
-        response.result = runScenarioAnalysis(message.data.goal, message.data.currentNetWorth, message.data.scenarios);
+      case 'scenario-analysis': {
+        const payload = message.data as FinancialWorkerRequestPayloadMap['scenario-analysis'];
+        response.result = runScenarioAnalysis(payload.goal, payload.currentNetWorth, payload.scenarios);
         break;
+      }
       
-      case 'time-based-analysis':
-        response.result = performTimeBasedAnalysis(message.data.projectionData);
+      case 'time-based-analysis': {
+        const payload = message.data as FinancialWorkerRequestPayloadMap['time-based-analysis'];
+        response.result = performTimeBasedAnalysis(payload.projectionData);
         break;
+      }
       
-      case 'projection-data':
-        response.result = generateProjectionData(message.data.goal, message.data.currentNetWorth);
+      case 'projection-data': {
+        const payload = message.data as FinancialWorkerRequestPayloadMap['projection-data'];
+        response.result = generateProjectionData(payload.goal, payload.currentNetWorth);
         break;
+      }
       
       default:
         response.error = `Unknown message type: ${message.type}`;

@@ -3,7 +3,7 @@
  * Generate PDF reports with charts and financial data
  */
 
-import { jsPDF } from 'jspdf';
+import { jsPDF, type jsPDFOptions } from 'jspdf';
 import autoTable, { UserOptions } from 'jspdf-autotable';
 import { formatPLN } from './formatters';
 import { Goal, HoldingWithDetails, Transaction, CashBalance, CashTransaction, ProjectionDataPoint } from './types';
@@ -384,11 +384,13 @@ export async function exportGoalProgressChartPDF(
 ): Promise<Blob> {
   const { filename = `goal-progress-${new Date().toISOString().split('T')[0]}` } = options;
 
-  const doc = new jsPDF({
+  const pdfOptions: jsPDFOptions = {
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4',
-  } as UserOptions);
+  };
+
+  const doc = new jsPDF(pdfOptions);
 
   // Title
   doc.setFontSize(20);

@@ -45,7 +45,7 @@ import {
 } from './InvestmentGoalChartHelp';
 import styles from './InvestmentGoalChart.module.css';
 
-type ChartProjectionPoint = ExtendedProjectionDataPoint & Record<string, number | undefined>;
+type ChartProjectionPoint = ExtendedProjectionDataPoint & Record<string, number | string | undefined>;
 
 // Theme-aware color palette using CSS variable values
 // These match the app's design system from globals.css
