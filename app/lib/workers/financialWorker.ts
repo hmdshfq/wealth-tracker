@@ -1,24 +1,12 @@
 // WebWorker for heavy financial calculations
 // This runs in a separate thread to avoid blocking the main UI
 
-import { Goal, ProjectionDataPoint, MonteCarloSimulationResult, InvestmentScenario, ScenarioAnalysisResult, RiskAnalysisResult, TimeBasedAnalysisResult, BehavioralAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
+import { Goal, ProjectionDataPoint, MonteCarloSimulationResult, InvestmentScenario, ScenarioAnalysisResult, TimeBasedAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
+import { FinancialWorkerMessage, FinancialWorkerResponse } from './financialWorkerTypes';
 
 // Import the calculation functions we need
 // Note: In a real implementation, we'd need to bundle these functions
 // For now, we'll implement simplified versions directly in the worker
-
-interface WorkerMessage {
-  type: string;
-  data: any;
-  id: string;
-}
-
-interface WorkerResponse {
-  type: string;
-  result: any;
-  error?: string;
-  id: string;
-}
 
 // Simplified projection calculation for the worker
 function generateProjectionData(goal: Goal, currentNetWorth: number): ProjectionDataPoint[] {
@@ -306,12 +294,11 @@ function performTimeBasedAnalysis(projectionData: ProjectionDataPoint[]): TimeBa
 }
 
 // Worker message handler
-self.onmessage = function(e: MessageEvent<WorkerMessage>) {
+self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
   const message = e.data;
-  const response: WorkerResponse = {
+  const response: FinancialWorkerResponse = {
     type: message.type,
     id: message.id,
-    result: null,
     error: undefined,
   };
 

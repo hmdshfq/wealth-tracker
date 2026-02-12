@@ -75,7 +75,7 @@ export const ConfidenceBandsHelp: React.FC<ConfidenceBandsHelpProps> = ({ onClos
             <div className={styles.guideItem}>
               <div className={styles.guideVisual}>✅</div>
               <div>
-                <strong>Goal within bands:</strong> You're on track!
+                <strong>Goal within bands:</strong> You&rsquo;re on track!
               </div>
             </div>
             <div className={styles.guideItem}>
@@ -87,7 +87,7 @@ export const ConfidenceBandsHelp: React.FC<ConfidenceBandsHelpProps> = ({ onClos
             <div className={styles.guideItem}>
               <div className={styles.guideVisual}>🎉</div>
               <div>
-                <strong>Goal below bands:</strong> You'll likely exceed your target!
+                <strong>Goal below bands:</strong> You&rsquo;ll likely exceed your target!
               </div>
             </div>
           </div>
@@ -314,7 +314,7 @@ export const ScenarioAnalysisHelp: React.FC<ScenarioAnalysisHelpProps> = ({ onCl
           <h4>Pro Tips</h4>
           <ul>
             <li>📈 <strong>Wide spread:</strong> Greater uncertainty - consider diversifying</li>
-            <li>🎯 <strong>All scenarios above goal:</strong> You're in great shape!</li>
+            <li>🎯 <strong>All scenarios above goal:</strong> You&rsquo;re in great shape!</li>
             <li>⚠️ <strong>Pessimistic below goal:</strong> Consider increasing contributions</li>
             <li>🔄 <strong>Toggle scenarios:</strong> Focus on the scenarios most relevant to you</li>
           </ul>

@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -11,20 +11,23 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const savedTheme = localStorage.getItem('theme') as Theme | null;
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setThemeState(savedTheme);
-      return;
-    }
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setThemeState(prefersDark ? 'dark' : 'light');
-  }, []);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);

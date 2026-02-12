@@ -4,7 +4,7 @@
  */
 
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable, { UserOptions } from 'jspdf-autotable';
 import { formatPLN } from './formatters';
 import { Goal, HoldingWithDetails, Transaction, CashBalance, CashTransaction, ProjectionDataPoint } from './types';
 
@@ -15,6 +15,17 @@ interface PDFExportOptions {
   includeSummary?: boolean;
   includeDetailedData?: boolean;
 }
+
+interface AutoTableMetadata {
+  finalY?: number;
+}
+
+interface JsPDFWithAutoTable extends jsPDF {
+  lastAutoTable?: AutoTableMetadata;
+}
+
+const getLastAutoTableFinalY = (doc: jsPDF, fallback: number): number =>
+  (doc as JsPDFWithAutoTable).lastAutoTable?.finalY ?? fallback;
 
 export async function generateInvestmentReportPDF(
   goal: Goal,
@@ -127,7 +138,7 @@ function addSummarySection(doc: jsPDF, goal: Goal, holdings: HoldingWithDetails[
     ['Expected Annual Return', `${(goal.annualReturn * 100).toFixed(1)}%`],
   ];
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: 30,
     head: [['Metric', 'Value']],
     body: summaryData,
@@ -135,10 +146,10 @@ function addSummarySection(doc: jsPDF, goal: Goal, holdings: HoldingWithDetails[
     headStyles: { fillColor: [30, 57, 59], textColor: 255 },
     styles: { cellPadding: 6, fontSize: 10 },
     columnStyles: { 0: { cellWidth: 80 }, 1: { cellWidth: 80 } },
-  });
+  } as UserOptions);
 
   // Add some space
-  const finalY = (doc as any).lastAutoTable.finalY || 30;
+  const finalY = getLastAutoTableFinalY(doc, 30);
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
   doc.text('* All values in PLN', 15, finalY + 10);
@@ -148,7 +159,7 @@ function addHoldingsSection(doc: jsPDF, holdings: HoldingWithDetails[]) {
   if (holdings.length === 0) return;
 
   // Add section header
-  const currentY = (doc as any).lastAutoTable?.finalY || 20;
+  const currentY = getLastAutoTableFinalY(doc, 20);
   const startY = currentY + 15;
 
   doc.setFontSize(16);
@@ -167,7 +178,7 @@ function addHoldingsSection(doc: jsPDF, holdings: HoldingWithDetails[]) {
     `${h.gainPercent.toFixed(1)}%`,
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 10,
     head: [['Ticker', 'Name', 'Shares', 'Avg Cost', 'Price', 'Value', 'Gain %']],
     body: tableData,
@@ -183,14 +194,14 @@ function addHoldingsSection(doc: jsPDF, holdings: HoldingWithDetails[]) {
       5: { cellWidth: 30 },
       6: { cellWidth: 20 },
     },
-  });
+  } as UserOptions);
 }
 
 function addTransactionsSection(doc: jsPDF, transactions: Transaction[]) {
   if (transactions.length === 0) return;
 
   // Add section header
-  const currentY = (doc as any).lastAutoTable?.finalY || 20;
+  const currentY = getLastAutoTableFinalY(doc, 20);
   const startY = currentY + 15;
 
   doc.setFontSize(16);
@@ -209,7 +220,7 @@ function addTransactionsSection(doc: jsPDF, transactions: Transaction[]) {
     formatPLN(t.shares * t.price * (t.currency === 'PLN' ? 1 : (t.currency === 'EUR' ? 4.5 : 4.0))),
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 10,
     head: [['Date', 'Ticker', 'Action', 'Shares', 'Price', 'Value (PLN)']],
     body: tableData,
@@ -224,10 +235,10 @@ function addTransactionsSection(doc: jsPDF, transactions: Transaction[]) {
       4: { cellWidth: 30 },
       5: { cellWidth: 30 },
     },
-  });
+  } as UserOptions);
 
   if (transactions.length > 20) {
-    const finalY = (doc as any).lastAutoTable.finalY || startY + 10;
+    const finalY = getLastAutoTableFinalY(doc, startY + 10);
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text(`* Showing ${20} of ${transactions.length} transactions`, 15, finalY + 8);
@@ -236,7 +247,7 @@ function addTransactionsSection(doc: jsPDF, transactions: Transaction[]) {
 
 function addCashSection(doc: jsPDF, cash: CashBalance[], cashTransactions: CashTransaction[]) {
   // Add section header
-  const currentY = (doc as any).lastAutoTable?.finalY || 20;
+  const currentY = getLastAutoTableFinalY(doc, 20);
   const startY = currentY + 15;
 
   doc.setFontSize(16);
@@ -251,7 +262,7 @@ function addCashSection(doc: jsPDF, cash: CashBalance[], cashTransactions: CashT
     formatPLN(c.currency === 'PLN' ? c.amount : c.amount * (c.currency === 'EUR' ? 4.5 : 4.0)),
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 10,
     head: [['Currency', 'Amount', 'Value (PLN)']],
     body: cashData,
@@ -259,11 +270,11 @@ function addCashSection(doc: jsPDF, cash: CashBalance[], cashTransactions: CashT
     headStyles: { fillColor: [30, 57, 59], textColor: 255 },
     styles: { cellPadding: 6, fontSize: 10 },
     columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 80 }, 2: { cellWidth: 80 } },
-  });
+  } as UserOptions);
 
   // Add cash transactions if any
   if (cashTransactions.length > 0) {
-    const finalY = (doc as any).lastAutoTable.finalY || startY + 10;
+    const finalY = getLastAutoTableFinalY(doc, startY + 10);
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -279,7 +290,7 @@ function addCashSection(doc: jsPDF, cash: CashBalance[], cashTransactions: CashT
       t.note || '-',
     ]);
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: finalY + 25,
       head: [['Date', 'Type', 'Currency', 'Amount', 'Note']],
       body: cashTxData,
@@ -293,13 +304,13 @@ function addCashSection(doc: jsPDF, cash: CashBalance[], cashTransactions: CashT
         3: { cellWidth: 30 },
         4: { cellWidth: 45 },
       },
-    });
+    } as UserOptions);
   }
 }
 
 function addProjectionChart(doc: jsPDF, projectionData: ProjectionDataPoint[], goal: Goal) {
   // Add section header
-  const currentY = (doc as any).lastAutoTable?.finalY || 20;
+  const currentY = getLastAutoTableFinalY(doc, 20);
   const startY = currentY + 15;
 
   doc.setFontSize(16);
@@ -327,7 +338,7 @@ function addProjectionChart(doc: jsPDF, projectionData: ProjectionDataPoint[], g
     ['Projection Period', `${projectionData.length} months`],
   ];
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 30,
     head: [['Metric', 'Value']],
     body: metrics,
@@ -335,7 +346,7 @@ function addProjectionChart(doc: jsPDF, projectionData: ProjectionDataPoint[], g
     headStyles: { fillColor: [30, 57, 59], textColor: 255 },
     styles: { cellPadding: 6, fontSize: 10 },
     columnStyles: { 0: { cellWidth: 80 }, 1: { cellWidth: 80 } },
-  });
+  } as UserOptions);
 }
 
 function addFooter(doc: jsPDF) {
@@ -377,7 +388,7 @@ export async function exportGoalProgressChartPDF(
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4',
-  });
+  } as UserOptions);
 
   // Title
   doc.setFontSize(20);
@@ -398,16 +409,16 @@ export async function exportGoalProgressChartPDF(
     [`Expected Return: ${(goal.annualReturn * 100).toFixed(1)}%`],
   ];
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: 30,
     body: goalInfo,
     theme: 'plain',
     styles: { cellPadding: 4, fontSize: 10, halign: 'left' },
     columnStyles: { 0: { cellWidth: 'wrap' } },
-  });
+  } as UserOptions);
 
   // Chart placeholder
-  const tableY = (doc as any).lastAutoTable.finalY || 30;
+  const tableY = getLastAutoTableFinalY(doc, 30);
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
   doc.text('Chart visualization would appear here in full implementation', doc.internal.pageSize.getWidth() / 2, tableY + 20, { align: 'center' });
@@ -422,7 +433,7 @@ export async function exportGoalProgressChartPDF(
       `${(p.value / goal.amount * 100).toFixed(1)}%`,
     ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: tableY + 40,
     head: [['Date', 'Projected Value', 'Cumulative Contributions', 'Progress %']],
     body: dataTable,
@@ -435,7 +446,7 @@ export async function exportGoalProgressChartPDF(
       2: { cellWidth: 40 },
       3: { cellWidth: 20 },
     },
-  });
+  } as UserOptions);
 
   // Footer
   addFooter(doc);
@@ -502,8 +513,10 @@ export async function exportSummaryReport(
     `${h.gainPercent.toFixed(1)}%`,
   ]);
 
-  (doc as any).autoTable({
-    startY: (doc as any).lastAutoTable.finalY + 10,
+  const holdingsStartY = getLastAutoTableFinalY(doc, 0) + 10;
+
+  autoTable(doc, {
+    startY: holdingsStartY,
     head: [['Ticker', 'Name', 'Value', 'Gain %']],
     body: holdingsSummary,
     theme: 'striped',

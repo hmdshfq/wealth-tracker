@@ -45,6 +45,8 @@ import {
 } from './InvestmentGoalChartHelp';
 import styles from './InvestmentGoalChart.module.css';
 
+type ChartProjectionPoint = ExtendedProjectionDataPoint & Record<string, number | undefined>;
+
 // Theme-aware color palette using CSS variable values
 // These match the app's design system from globals.css
 const CHART_COLORS = {
@@ -726,7 +728,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     }
 
     // Add scenario data to each point
-    const result = sampledData.map((d) => ({
+    const result = sampledData.map<ChartProjectionPoint>((d) => ({
       ...d,
       goal: goal.amount,
     }));
@@ -736,7 +738,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       result.forEach((point, index) => {
         activeScenarios.forEach((scenario) => {
           if (scenario.isActive && effectiveScenarioAnalysisResult.scenarios[scenario.id]?.[index]) {
-            (point as any)[scenario.id] = effectiveScenarioAnalysisResult.scenarios[scenario.id][index].value;
+            point[scenario.id] = effectiveScenarioAnalysisResult.scenarios[scenario.id][index].value;
           }
         });
       });
@@ -745,9 +747,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     // Add what-if values if what-if scenario is enabled
     if (showWhatIf && whatIfProjection) {
       result.forEach((point, index) => {
-        if (whatIfProjection[index]) {
-          (point as any).whatIfValue = whatIfProjection[index].value;
-        }
+          if (whatIfProjection[index]) {
+            point.whatIfValue = whatIfProjection[index].value;
+          }
       });
     }
 
@@ -816,11 +818,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   const filteredDataWithBenchmarks = useMemo(() => {
     if (!filteredData.length || !benchmarkData.length) return filteredData;
     
-    const result = filteredData.map((point) => ({ ...point }));
+    const result = filteredData.map<ChartProjectionPoint>((point) => ({ ...point }));
     benchmarkData.forEach((benchmark) => {
       result.forEach((point, index) => {
         if (benchmark.data[index]) {
-          (point as any)[benchmark.id] = benchmark.data[index].value;
+          point[benchmark.id] = benchmark.data[index].value;
         }
       });
     });
@@ -1508,7 +1510,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className={styles.noBadges}>Keep up the great work! You'll earn badges as you progress toward your goals.</p>
+                    <p className={styles.noBadges}>Keep up the great work! You&rsquo;ll earn badges as you progress toward your goals.</p>
                 )}
               </div>
             </div>
@@ -2163,7 +2165,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               {req.currentShortfall > 0 ? (
                 <p className={styles.shortfall}>Increase by: {formatPLN(req.recommendedIncrease)}/month</p>
               ) : (
-                <p className={styles.surplus}>You're on track!</p>
+                <p className={styles.surplus}>You&rsquo;re on track!</p>
               )}
             </div>
           );

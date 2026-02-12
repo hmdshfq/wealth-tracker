@@ -6,6 +6,9 @@
 
 import { ProjectionDataPoint, ExtendedProjectionDataPoint } from './types';
 
+type SampledDataPoint = ProjectionDataPoint | ExtendedProjectionDataPoint;
+type IndexRange = { startIndex: number; endIndex: number };
+
 /**
  * Sample data points to reduce dataset size while preserving key characteristics
  * Uses the Largest-Triangle-Three-Buckets (LTTB) algorithm for efficient downsampling
@@ -49,12 +52,12 @@ export function sampleProjectionData(
  * Preserves the visual shape of the data while reducing points
  */
 function largestTriangleThreeBuckets(
-  data: any[],
+  data: SampledDataPoint[],
   threshold: number,
   preserveExtremes: boolean,
   preserveStartEnd: boolean
-): any[] {
-  const sampled: any[] = [];
+): SampledDataPoint[] {
+  const sampled: SampledDataPoint[] = [];
   const dataLength = data.length;
 
   if (preserveStartEnd && dataLength > 0) {
@@ -114,7 +117,7 @@ function largestTriangleThreeBuckets(
  * Calculate area of triangle formed by three points
  * Used by LTTB algorithm to determine which points to keep
  */
-function calculateTriangleArea(a: any, b: any, c: any): number {
+function calculateTriangleArea(a: SampledDataPoint, b: SampledDataPoint, c: SampledDataPoint): number {
   // Use date as x-axis and value as y-axis
   const x1 = new Date(a.date).getTime();
   const y1 = a.value;
@@ -142,7 +145,7 @@ export function smartSampleData(
   }
 
   // Always keep first and last points
-  const sampled: any[] = [data[0]];
+  const sampled: SampledDataPoint[] = [data[0]];
   const dataLength = data.length;
 
   // Find and preserve local extrema
@@ -187,7 +190,7 @@ export function smartSampleData(
 /**
  * Find indices of local maxima and minima
  */
-function findLocalExtrema(data: any[]): number[] {
+function findLocalExtrema(data: SampledDataPoint[]): number[] {
   const extrema: number[] = [];
   const dataLength = data.length;
 
@@ -223,7 +226,7 @@ export function adaptiveSampleData(
     return [...data];
   }
 
-  const sampled: any[] = [data[0]];
+  const sampled: SampledDataPoint[] = [data[0]];
   const dataLength = data.length;
 
   // Calculate volatility for each segment
@@ -274,12 +277,12 @@ export function adaptiveSampleData(
 /**
  * Calculate volatility for a segment of data
  */
-function calculateSegmentVolatility(data: any[], start: number, end: number): number {
+function calculateSegmentVolatility(data: SampledDataPoint[], start: number, end: number): number {
   if (end - start <= 1) {
     return 0;
   }
 
-  const values = [];
+  const values: number[] = [];
   for (let i = start; i <= end; i++) {
     values.push(data[i].value);
   }
@@ -296,7 +299,7 @@ function calculateSegmentVolatility(data: any[], start: number, end: number): nu
  */
 export function zoomLevelBasedSampling(
   data: ProjectionDataPoint[] | ExtendedProjectionDataPoint[],
-  visibleRange: { startIndex: number; endIndex: number },
+  visibleRange: IndexRange,
   maxPoints: number = 300
 ): ProjectionDataPoint[] | ExtendedProjectionDataPoint[] {
   if (!data || data.length <= maxPoints) {
@@ -321,7 +324,7 @@ export function zoomLevelBasedSampling(
 /**
  * Check if data sampling is needed based on dataset size
  */
-export function shouldSampleData(data: any[], threshold: number = 500): boolean {
+export function shouldSampleData(data: SampledDataPoint[], threshold: number = 500): boolean {
   return data && data.length > threshold;
 }
 
@@ -330,7 +333,7 @@ export function shouldSampleData(data: any[], threshold: number = 500): boolean 
  */
 export function getRecommendedSamplingStrategy(
   data: ProjectionDataPoint[] | ExtendedProjectionDataPoint[],
-  visibleRange?: { startIndex: number; endIndex: number }
+  visibleRange?: IndexRange
 ): {
   method: 'none' | 'lttb' | 'smart' | 'adaptive' | 'zoom-based';
   targetPoints: number;
@@ -358,7 +361,7 @@ export function getRecommendedSamplingStrategy(
 /**
  * Calculate overall volatility of the dataset
  */
-function calculateOverallVolatility(data: any[]): number {
+function calculateOverallVolatility(data: SampledDataPoint[]): number {
   if (data.length <= 1) {
     return 0;
   }
