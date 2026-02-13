@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -11,7 +11,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const getInitialTheme = (): Theme => {
+const getPreferredTheme = (): Theme => {
   if (typeof window === 'undefined') {
     return 'dark';
   }
@@ -25,12 +25,34 @@ const getInitialTheme = (): Theme => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
+  const [theme, setThemeState] = useState<Theme>('dark');
+  const [isThemeInitialized, setIsThemeInitialized] = useState(false);
+
+  useEffect(() => {
+    const preferredTheme = getPreferredTheme();
+    setThemeState(preferredTheme);
+    setIsThemeInitialized(true);
+  }, []);
 
   useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!isThemeInitialized) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.warn('Unable to persist theme preference', error);
+    }
+  }, [theme, isThemeInitialized]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
