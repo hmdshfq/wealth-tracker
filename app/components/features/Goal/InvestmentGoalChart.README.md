@@ -28,7 +28,8 @@ import { InvestmentGoalChart } from '@/app/components/features/Goal';
   goal={goal}
   projectionData={projectionData}
   currentNetWorth={3200}
-/>
+  preferredCurrency="PLN"
+/>\n
 ```
 
 ## Props
@@ -43,6 +44,7 @@ import { InvestmentGoalChart } from '@/app/components/features/Goal';
 | `enableRealTimeUpdates` | `boolean` | `false` | Enable WebSocket connection |
 | `websocketUrl` | `string` | - | WebSocket server URL for real-time updates |
 | `className` | `string` | `''` | Additional CSS class |
+| `preferredCurrency` | `PreferredCurrency` | `'PLN'` | Currency that controls formatting and chart scaling |
 
 ## WebSocket Integration
 
@@ -53,6 +55,7 @@ To enable real-time updates:
   goal={goal}
   projectionData={projectionData}
   currentNetWorth={3200}
+  preferredCurrency="PLN"
   enableRealTimeUpdates={true}
   websocketUrl="ws://localhost:8080"
 />

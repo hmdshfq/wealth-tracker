@@ -126,6 +126,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             goal={goal}
             totalNetWorth={totalNetWorth}
             goalProgress={goalProgress}
+            preferredCurrency={preferredCurrency}
           />
         </motion.div>
       )}

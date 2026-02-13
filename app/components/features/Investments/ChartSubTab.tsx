@@ -6,7 +6,7 @@ import { ChartLoadingSkeleton } from '@/app/components/ui';
 import { useIdleRender } from '@/app/lib/hooks';
 import { InvestmentGoalChart } from '../Goal';
 import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
-import { Transaction, Goal } from '@/app/lib/types';
+import { Transaction, Goal, PreferredCurrency } from '@/app/lib/types';
 import {
   generateProjectionData,
   mergeProjectedWithActual,
@@ -23,6 +23,7 @@ interface ChartSubTabProps {
     EUR_PLN: number;
     USD_PLN: number;
   };
+  preferredCurrency: PreferredCurrency;
 }
 
 export const ChartSubTab: React.FC<ChartSubTabProps> = ({
@@ -32,6 +33,7 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
   goalProgress,
   portfolioValue,
   exchangeRates,
+  preferredCurrency,
 }) => {
   // Defer chart rendering until browser is idle
   const chartReady = useIdleRender({
@@ -85,6 +87,7 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
               currentNetWorth={portfolioValue}
               totalActualContributions={totalActualContributions}
               firstTransactionDate={firstTransactionDate}
+              preferredCurrency={preferredCurrency}
             />
           ) : (
             <ChartLoadingSkeleton />

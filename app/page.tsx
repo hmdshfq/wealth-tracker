@@ -78,6 +78,12 @@ const INITIAL_GOAL: Goal = {
 
 const STORAGE_KEY = 'investment-tracker-data';
 
+const CURRENCY_LABELS: Record<PreferredCurrency, string> = {
+  PLN: 'PLN (zł)',
+  EUR: 'EUR (€)',
+  USD: 'USD ($)',
+};
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -114,6 +120,9 @@ export default function InvestmentTracker() {
   const [lastCloudSave, setLastCloudSave] = useState<Date | null>(null);
   const [cloudSaveToast, setCloudSaveToast] = useState(false);
   const [cloudErrorToast, setCloudErrorToast] = useState(false);
+  const [currencyChangeToast, setCurrencyChangeToast] = useState(false);
+  const [currencyChangeMessage, setCurrencyChangeMessage] = useState('');
+  const currencyToastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -130,6 +139,14 @@ export default function InvestmentTracker() {
     if (stored === 'EUR' || stored === 'USD' || stored === 'PLN') {
       setPreferredCurrency(stored);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (currencyToastTimeoutRef.current) {
+        clearTimeout(currencyToastTimeoutRef.current);
+      }
+    };
   }, []);
 
   const buildCloudPayload = useCallback(() => {
@@ -848,8 +865,18 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
 
   // Currency preference handlers
   const handlePreferredCurrencyChange = useCallback((currency: PreferredCurrency) => {
+    const label = CURRENCY_LABELS[currency] ?? currency;
     setPreferredCurrency(currency);
     localStorage.setItem('preferred-currency', currency);
+    setCurrencyChangeMessage(`Display currency set to ${label}`);
+    setCurrencyChangeToast(true);
+    if (currencyToastTimeoutRef.current) {
+      clearTimeout(currencyToastTimeoutRef.current);
+    }
+    currencyToastTimeoutRef.current = window.setTimeout(() => {
+      setCurrencyChangeToast(false);
+      currencyToastTimeoutRef.current = null;
+    }, 2500);
   }, []);
   // Render
   // ---------------------------------------------------------------------------
@@ -969,6 +996,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       <Toast message="Export successful!" isVisible={exportSuccess} />
       <Toast message={cloudToastMessage} isVisible={cloudSaveToast} />
       <Toast message="Cloud sync failed" isVisible={cloudErrorToast} />
+      <Toast message={currencyChangeMessage} isVisible={currencyChangeToast} />
     </div>
   );
 }

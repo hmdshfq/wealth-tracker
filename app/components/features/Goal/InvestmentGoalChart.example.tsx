@@ -89,6 +89,7 @@ export default function GoalChartExample() {
         projectionData={projectionData}
         currentNetWorth={currentNetWorth}
         totalActualContributions={0}
+        preferredCurrency="PLN"
       />
 
       {/* With high contrast mode enabled */}
@@ -102,6 +103,7 @@ export default function GoalChartExample() {
           currentNetWorth={currentNetWorth}
           totalActualContributions={0}
           highContrastMode={true}
+          preferredCurrency="PLN"
         />
       </div>
 
@@ -117,6 +119,7 @@ export default function GoalChartExample() {
           totalActualContributions={0}
           enableRealTimeUpdates={true}
           websocketUrl="ws://localhost:8080"
+          preferredCurrency="PLN"
         />
       </div>
     </div>

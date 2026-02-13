@@ -13,8 +13,8 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
-import { formatPLN } from '@/app/lib/formatters';
-import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult } from '@/app/lib/types';
+import { convertCurrency, formatPreferredCurrency, formatCurrency } from '@/app/lib/formatters';
+import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult, PreferredCurrency } from '@/app/lib/types';
 import { ExtendedProjectionDataPoint, generateProjectionData as generateProjectionDataMain, performTimeBasedAnalysis as performTimeBasedAnalysisMain } from '@/app/lib/projectionCalculations';
 import { MonteCarloSimulationResult } from '@/app/lib/types';
 import { calculateYearsToGoal, calculateRequiredContributions, performBehavioralAnalysis } from '@/app/lib/goalCalculations';
@@ -81,6 +81,7 @@ interface InvestmentGoalChartProps {
   projectionData: ExtendedProjectionDataPoint[];
   currentNetWorth: number;
   totalActualContributions: number;
+  preferredCurrency: PreferredCurrency;
   highContrastMode?: boolean;
   enableRealTimeUpdates?: boolean;
   websocketUrl?: string;
@@ -226,7 +227,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         const color = entry.stroke ?? legendEntry?.color ?? colors.text;
         return (
           <p key={`${displayName}-${key}-${index}`} style={{ color }}>
-            {displayName}: {formatPLN(entry.value!)}
+            {displayName}: {formatChartValue(entry.value!)}
           </p>
         );
       });
@@ -244,7 +245,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <p className={styles.tooltipSectionTitle}>Projected</p>
         {projectedValue !== undefined && (
           <p style={{ color: colors.projectedValue }}>
-            Portfolio: {formatPLN(projectedValue)}{' '}
+            Portfolio: {formatChartValue(projectedValue)}{' '}
             <span className={styles.tooltipProgress}>
               ({progressPercent.toFixed(1)}% of target)
             </span>
@@ -252,12 +253,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         )}
         {projectedContributions !== undefined && (
           <p style={{ color: colors.projectedContributions }}>
-            Contributions: {formatPLN(projectedContributions)}
+            Contributions: {formatChartValue(projectedContributions)}
           </p>
         )}
         {projectedReturns !== 0 && (
           <p className={styles.tooltipReturns}>
-            Returns: {formatPLN(projectedReturns)}
+            Returns: {formatChartValue(projectedReturns)}
           </p>
         )}
       </div>
@@ -267,7 +268,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           <p className={styles.tooltipSectionTitle}>Actual</p>
           {actualValue !== undefined && (
             <p style={{ color: colors.actualValue }}>
-              Portfolio: {formatPLN(actualValue)}{' '}
+              Portfolio: {formatChartValue(actualValue)}{' '}
               <span className={styles.tooltipProgress}>
                 ({((actualValue / goalAmount) * 100).toFixed(1)}% of target)
               </span>
@@ -275,12 +276,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           )}
           {actualContributions !== undefined && (
             <p style={{ color: colors.actualContributions }}>
-              Contributions: {formatPLN(actualContributions)}
+              Contributions: {formatChartValue(actualContributions)}
             </p>
           )}
           {actualValue !== undefined && actualContributions !== undefined && (
             <p style={{ color: colors.actualReturns }}>
-              Returns: {formatPLN(actualValue - actualContributions)}{' '}
+              Returns: {formatChartValue(actualValue - actualContributions)}{' '}
               ({actualContributions > 0 
                 ? (((actualValue - actualContributions) / actualContributions) * 100).toFixed(1) 
                 : 0}%)
@@ -404,6 +405,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   projectionData,
   currentNetWorth,
   totalActualContributions,
+  preferredCurrency = 'PLN',
   highContrastMode = false,
   enableRealTimeUpdates = false,
   websocketUrl,
@@ -830,6 +832,23 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     return result;
   }, [filteredData, benchmarkData]);
 
+  const convertedGoalAmount = convertCurrency(goal.amount, preferredCurrency);
+  const currencyAdjustedData = useMemo(() => {
+    if (!filteredDataWithBenchmarks.length) return filteredDataWithBenchmarks;
+
+    return filteredDataWithBenchmarks.map((point) => {
+      const convertedPoint: ChartProjectionPoint = { ...point };
+      Object.entries(point).forEach(([key, value]) => {
+        if (typeof value === 'number') {
+          convertedPoint[key as keyof ChartProjectionPoint] = convertCurrency(value, preferredCurrency);
+        }
+      });
+      return convertedPoint;
+    });
+  }, [filteredDataWithBenchmarks, preferredCurrency]);
+
+  const formatChartValue = (value: number) => formatCurrency(value, preferredCurrency);
+
   // Sonification functions
   const playGoalProgressSound = useCallback(() => {
     if (!sonificationEnabled || !isSonificationSupportedState) return;
@@ -846,16 +865,16 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   }, [sonificationEnabled, isSonificationSupportedState, currentNetWorth, goal.amount]);
   
   const playPortfolioTrendSound = useCallback(() => {
-    if (!sonificationEnabled || !isSonificationSupportedState || !filteredDataWithBenchmarks.length) return;
-    
+    if (!sonificationEnabled || !isSonificationSupportedState || !currencyAdjustedData.length) return;
+
     setIsPlayingSonification(true);
-    const values = filteredDataWithBenchmarks.map(d => d.value);
+    const values = currencyAdjustedData.map(d => d.value);
     sonifyPortfolioTrend(values, {
       volume: 0.6,
       delayBetweenNotes: 100
     } as SonificationOptions & { delayBetweenNotes: number });
     setIsPlayingSonification(false);
-  }, [sonificationEnabled, isSonificationSupportedState, filteredDataWithBenchmarks]);
+    }, [sonificationEnabled, isSonificationSupportedState, currencyAdjustedData]);
   
   const playMilestoneSound = useCallback((percentage: number) => {
     if (!sonificationEnabled || !isSonificationSupportedState) return;
@@ -871,11 +890,11 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   }, [sonificationEnabled, isSonificationSupportedState]);
   
   const playProjectionMelody = useCallback(async () => {
-    if (!sonificationEnabled || !isSonificationSupportedState || !filteredDataWithBenchmarks.length) return;
-    
+    if (!sonificationEnabled || !isSonificationSupportedState || !currencyAdjustedData.length) return;
+
     setIsPlayingSonification(true);
     try {
-      await createProjectionMelody(filteredDataWithBenchmarks, {
+      await createProjectionMelody(currencyAdjustedData, {
         volume: 0.6,
         delayBetweenNotes: 150,
         melodyType: 'scale'
@@ -885,7 +904,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     } finally {
       setIsPlayingSonification(false);
     }
-  }, [sonificationEnabled, isSonificationSupportedState, filteredDataWithBenchmarks]);
+    }, [sonificationEnabled, isSonificationSupportedState, currencyAdjustedData]);
 
   // Goal Achievement Zones - calculate progress milestones
   const goalAchievementZones = useMemo(() => {
@@ -929,17 +948,17 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (!filteredDataWithBenchmarks.length) return;
-      const maxIndex = filteredDataWithBenchmarks.length - 1;
+    if (!currencyAdjustedData.length) return;
+    const maxIndex = currencyAdjustedData.length - 1;
 
       switch (event.key) {
         case 'ArrowRight':
           event.preventDefault();
           setFocusedDataIndex((prev) => {
             const newIndex = prev === null ? 0 : Math.min(prev + 1, maxIndex);
-            const point = filteredDataWithBenchmarks[newIndex];
+            const point = currencyAdjustedData[newIndex];
             announceToScreenReader(
-              `${point.date}: Portfolio ${formatPLN(point.value)}, ${((point.value / goal.amount) * 100).toFixed(1)}% of target`
+              `${point.date}: Portfolio ${formatChartValue(point.value)}, ${((point.value / convertedGoalAmount) * 100).toFixed(1)}% of target`
             );
             return newIndex;
           });
@@ -948,8 +967,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           event.preventDefault();
           setFocusedDataIndex((prev) => {
             const newIndex = prev === null ? maxIndex : Math.max(prev - 1, 0);
-            const point = filteredDataWithBenchmarks[newIndex];
-            announceToScreenReader(`${point.date}: Portfolio ${formatPLN(point.value)}`);
+            const point = currencyAdjustedData[newIndex];
+            announceToScreenReader(`${point.date}: Portfolio ${formatChartValue(point.value)}`);
             return newIndex;
           });
           break;
@@ -983,17 +1002,24 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
   };
 
   const formatYAxis = (value: number) => {
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
-    return value.toString();
+    const symbol = preferredCurrency === 'PLN' ? 'zł' : preferredCurrency === 'EUR' ? '€' : '$';
+    const absValue = Math.abs(value);
+    const sign = value < 0 ? '-' : '';
+    if (absValue >= 1_000_000) {
+      return `${sign}${symbol}${(absValue / 1_000_000).toFixed(1)}M`;
+    }
+    if (absValue >= 1_000) {
+      return `${sign}${symbol}${(absValue / 1_000).toFixed(0)}k`;
+    }
+    return `${sign}${symbol}${absValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
   };
 
   const chartSummary = useMemo(() => {
-    if (!filteredDataWithBenchmarks.length) return 'No data available';
-    const first = filteredDataWithBenchmarks[0];
-    const last = filteredDataWithBenchmarks[filteredDataWithBenchmarks.length - 1];
-    return `Investment goal chart from ${first.date} to ${last.date}. Current: ${formatPLN(currentNetWorth)} (${progressPercent.toFixed(1)}% of ${formatPLN(goal.amount)} target). Actual contributions: ${formatPLN(totalActualContributions)}. Actual returns: ${formatPLN(actualReturns)} (${actualReturnsPercent.toFixed(1)}%).`;
-  }, [filteredData, currentNetWorth, goal.amount, progressPercent, totalActualContributions, actualReturns, actualReturnsPercent]);
+    if (!currencyAdjustedData.length) return 'No data available';
+    const first = currencyAdjustedData[0];
+    const last = currencyAdjustedData[currencyAdjustedData.length - 1];
+    return `Investment goal chart from ${first.date} to ${last.date}. Current: ${formatPreferredCurrency(currentNetWorth, preferredCurrency)} (${progressPercent.toFixed(1)}% of ${formatPreferredCurrency(goal.amount, preferredCurrency)} target). Actual contributions: ${formatPreferredCurrency(totalActualContributions, preferredCurrency)}. Actual returns: ${formatPreferredCurrency(actualReturns, preferredCurrency)} (${actualReturnsPercent.toFixed(1)}%).`;
+  }, [currencyAdjustedData, currentNetWorth, goal.amount, progressPercent, totalActualContributions, actualReturns, actualReturnsPercent, preferredCurrency]);
 
   // Legend items with theme colors
   const legendPayload = useMemo<LegendEntry[]>(() => [
@@ -1045,7 +1071,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           <h3 className={styles.chartTitle}>Investment Goal Progress</h3>
           <div className={styles.progressBadge}>
             <span className={styles.progressValue}>{progressPercent.toFixed(1)}%</span>
-            <span className={styles.progressLabel}>of {formatPLN(goal.amount)}</span>
+            <span className={styles.progressLabel}>of {formatPreferredCurrency(goal.amount, preferredCurrency)}</span>
           </div>
           {enableRealTimeUpdates && (
             <div className={`${styles.wsStatus} ${wsConnected ? styles.connected : styles.disconnected}`}>
@@ -1101,13 +1127,13 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           <div className={styles.statItem}>
             <span className={styles.statLabel}>Actual Value</span>
             <span className={styles.statValue} style={{ color: colors.actualValue }}>
-              {formatPLN(currentNetWorth)}
+              {formatPreferredCurrency(currentNetWorth, preferredCurrency)}
             </span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statLabel}>Actual Contributions</span>
             <span className={styles.statValue} style={{ color: colors.actualContributions }}>
-              {formatPLN(totalActualContributions)}
+              {formatPreferredCurrency(totalActualContributions, preferredCurrency)}
             </span>
           </div>
           <div className={styles.statItem}>
@@ -1116,7 +1142,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               className={styles.statValue} 
               style={{ color: actualReturns >= 0 ? colors.actualReturns : colors.actualContributions }}
             >
-              {formatPLN(actualReturns)} ({actualReturnsPercent >= 0 ? '+' : ''}{actualReturnsPercent.toFixed(1)}%)
+              {formatPreferredCurrency(actualReturns, preferredCurrency)} ({actualReturnsPercent >= 0 ? '+' : ''}{actualReturnsPercent.toFixed(1)}%)
             </span>
           </div>
           <div className={styles.statItem}>
@@ -1357,13 +1383,13 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                     {(timeBasedAnalysisResultLocal?.yearOverYearComparisons || timeBasedAnalysisResult?.yearOverYearComparisons || []).map((yoy) => (
                       <tr key={`yoy-${yoy.year}`}>
                         <td>{yoy.year}</td>
-                        <td>{formatPLN(yoy.startValue)}</td>
-                        <td>{formatPLN(yoy.endValue)}</td>
+                        <td>{formatPreferredCurrency(yoy.startValue, preferredCurrency)}</td>
+                        <td>{formatPreferredCurrency(yoy.endValue, preferredCurrency)}</td>
                         <td style={{ color: yoy.annualReturn >= 0 ? '#10b981' : '#ef4444' }}>
                           {(yoy.annualReturn * 100).toFixed(1)}%
                         </td>
                         <td style={{ color: yoy.annualGrowth >= 0 ? '#10b981' : '#ef4444' }}>
-                          {formatPLN(yoy.annualGrowth)}
+                          {formatPreferredCurrency(yoy.annualGrowth, preferredCurrency)}
                         </td>
                       </tr>
                     ))}
@@ -1531,7 +1557,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
         aria-label={chartSummary}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={filteredDataWithBenchmarks} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <ComposedChart data={currencyAdjustedData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
 
             <XAxis
@@ -1551,14 +1577,14 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               tickLine={{ stroke: colors.textMuted }}
               axisLine={{ stroke: colors.grid }}
               tickFormatter={formatYAxis}
-              label={{ value: 'Value (PLN)', angle: -90, position: 'insideLeft', fill: colors.textMuted, fontSize: 12 }}
+              label={{ value: `Value (${preferredCurrency})`, angle: -90, position: 'insideLeft', fill: colors.textMuted, fontSize: 12 }}
               width={70}
             />
 
             <Tooltip
               content={
                 <CustomTooltip
-                  goalAmount={goal.amount}
+                  goalAmount={convertedGoalAmount}
                   totalActualContributions={totalActualContributions}
                   currentNetWorth={currentNetWorth}
                   colors={colors}
@@ -1570,18 +1596,18 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
             {/* Current value reference line */}
             <ReferenceLine
-              y={liveNetWorth}
               stroke={colors.actualValue}
               strokeDasharray="4 4"
               strokeWidth={2}
-              label={{ value: `Current: ${formatPLN(liveNetWorth)}`, position: 'right', fill: colors.actualValue, fontSize: 11 }}
+              y={convertCurrency(liveNetWorth, preferredCurrency)}
+              label={{ value: `Current: ${formatPreferredCurrency(liveNetWorth, preferredCurrency)}`, position: 'right', fill: colors.actualValue, fontSize: 11 }}
             />
 
             {/* Goal Achievement Zone Reference Lines */}
             {goalAchievementZones.map((zone) => (
               <ReferenceLine
                 key={`zone-${zone.percentage}`}
-                y={zone.value}
+                y={convertCurrency(zone.value, preferredCurrency)}
                 stroke={zone.color}
                 strokeDasharray="2 4"
                 strokeWidth={1}
@@ -1847,15 +1873,15 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               </tr>
             </thead>
             <tbody>
-              {filteredData.slice(-12).map((point, index) => {
-                const progress = (point.value / goal.amount) * 100;
+              {currencyAdjustedData.slice(-12).map((point, index) => {
+                const progress = (point.value / convertedGoalAmount) * 100;
                 return (
                   <tr key={index}>
                     <td>{point.date}</td>
-                    <td>{formatPLN(point.value)}</td>
-                    <td>{formatPLN(point.cumulativeContributions)}</td>
-                    <td>{point.actualContributions !== undefined ? formatPLN(point.actualContributions) : '-'}</td>
-                    <td>{point.actualValue !== undefined ? formatPLN(point.actualValue) : '-'}</td>
+                    <td>{formatChartValue(point.value)}</td>
+                    <td>{formatChartValue(point.cumulativeContributions)}</td>
+                    <td>{point.actualContributions !== undefined ? formatChartValue(point.actualContributions) : '-'}</td>
+                    <td>{point.actualValue !== undefined ? formatChartValue(point.actualValue) : '-'}</td>
                     <td>{progress.toFixed(1)}%</td>
                   </tr>
                 );
@@ -1952,9 +1978,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                           <span className={styles.scenarioColor} style={{ backgroundColor: scenario.color }} />
                           {scenario.name}
                         </td>
-                        <td>{formatPLN(finalValue)}</td>
+                        <td>{formatPreferredCurrency(finalValue, preferredCurrency)}</td>
                         <td style={{ color: difference >= 0 ? colors.actualReturns : colors.actualContributions }}>
-                          {formatPLN(difference)} ({difference >= 0 ? '+' : ''}{differencePercent.toFixed(1)}%)
+                          {formatPreferredCurrency(difference, preferredCurrency)} ({difference >= 0 ? '+' : ''}{differencePercent.toFixed(1)}%)
                         </td>
                         <td>
                           <div className={styles.successMeter}>
@@ -2015,7 +2041,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
           <div className={styles.whatIfSlider}>
             <label>
-              Monthly Contributions: {formatPLN(whatIfParams.monthlyDeposits)}
+              Monthly Contributions: {formatPreferredCurrency(whatIfParams.monthlyDeposits, preferredCurrency)}
               <input
                 type="range"
                 min="100"
@@ -2029,16 +2055,16 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 aria-label="Adjust monthly contributions"
               />
             </label>
-            <span className={styles.sliderValue}>{formatPLN(whatIfParams.monthlyDeposits)}</span>
+            <span className={styles.sliderValue}>{formatPreferredCurrency(whatIfParams.monthlyDeposits, preferredCurrency)}</span>
           </div>
 
           <div className={styles.whatIfResults}>
             <h5>Projected Results</h5>
             {whatIfProjection && whatIfProjection.length > 0 && (
               <div className={styles.whatIfMetrics}>
-                <p>Final Value: {formatPLN(whatIfProjection[whatIfProjection.length - 1].value)}</p>
+                <p>Final Value: {formatPreferredCurrency(whatIfProjection[whatIfProjection.length - 1].value, preferredCurrency)}</p>
                 <p>Goal Progress: {Math.min(100, (whatIfProjection[whatIfProjection.length - 1].value / goal.amount) * 100).toFixed(1)}%</p>
-                <p>Difference from Base: {formatPLN(whatIfProjection[whatIfProjection.length - 1].value - projectionData[projectionData.length - 1].value)}</p>
+                <p>Difference from Base: {formatPreferredCurrency(whatIfProjection[whatIfProjection.length - 1].value - projectionData[projectionData.length - 1].value, preferredCurrency)}</p>
               </div>
             )}
           </div>
@@ -2054,7 +2080,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           <div key={`zone-summary-${zone.percentage}`} className={styles.zoneItem}>
             <div className={styles.zoneHeader}>
               <span className={styles.zoneMilestone}>{Math.round(zone.percentage * 100)}% Milestone</span>
-              <span className={styles.zoneValue}>{formatPLN(zone.value)}</span>
+              <span className={styles.zoneValue}>{formatPreferredCurrency(zone.value, preferredCurrency)}</span>
               {sonificationEnabled && isSonificationSupportedState && (
                 <button
                   onClick={() => playMilestoneSound(zone.percentage)}
@@ -2119,7 +2145,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 <span className={styles.benchmarkName} style={{ color: benchmark.color }}>
                   {benchmark.name} ({Math.round(benchmark.annualReturn * 100)}% return)
                 </span>
-                <span className={styles.benchmarkValue}>{formatPLN(finalValue)}</span>
+                <span className={styles.benchmarkValue}>{formatPreferredCurrency(finalValue, preferredCurrency)}</span>
               </div>
               <div className={styles.benchmarkProgress}>
                 <div 
@@ -2150,7 +2176,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
       <div className={styles.optimizationGrid}>
         <div className={styles.optimizationItem}>
           <h5>Current Plan</h5>
-          <p>Monthly: {formatPLN(goal.monthlyDeposits)}</p>
+          <p>Monthly: {formatPreferredCurrency(goal.monthlyDeposits, preferredCurrency)}</p>
           <p>Years to Goal: {yearsToGoal.baseYears}</p>
         </div>
         
@@ -2161,9 +2187,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           return (
             <div key={years} className={styles.optimizationItem}>
               <h5>Reach goal in {years} years</h5>
-              <p>Required: {formatPLN(req.requiredMonthly)}/month</p>
+              <p>Required: {formatPreferredCurrency(req.requiredMonthly, preferredCurrency)}/month</p>
               {req.currentShortfall > 0 ? (
-                <p className={styles.shortfall}>Increase by: {formatPLN(req.recommendedIncrease)}/month</p>
+                <p className={styles.shortfall}>Increase by: {formatPreferredCurrency(req.recommendedIncrease, preferredCurrency)}/month</p>
               ) : (
                 <p className={styles.surplus}>You&rsquo;re on track!</p>
               )}

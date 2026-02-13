@@ -136,6 +136,7 @@ const customResult = runMonteCarloSimulation(goal, currentNetWorth, {
   totalActualContributions={totalActualContributions}
   monteCarloResult={monteCarloResult} // Pass simulation results
   showMonteCarlo={true} // Enable confidence bands
+  preferredCurrency="PLN"
 />
 ```
 
