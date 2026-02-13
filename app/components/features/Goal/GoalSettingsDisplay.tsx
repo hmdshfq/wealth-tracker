@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Goal } from '@/app/lib/types';
-import { formatPLN } from '@/app/lib/formatters';
+import { Goal, PreferredCurrency } from '@/app/lib/types';
+import { formatPreferredCurrency } from '@/app/lib/formatters';
 import styles from '../Investments/Investments.module.css';
 
 interface GoalSettingsDisplayProps {
   goal: Goal;
+  preferredCurrency: PreferredCurrency;
 }
 
 const formatDisplayDate = (dateStr: string) => {
@@ -17,12 +18,13 @@ const formatDisplayDate = (dateStr: string) => {
 
 export const GoalSettingsDisplay: React.FC<GoalSettingsDisplayProps> = ({
   goal,
+  preferredCurrency,
 }) => {
   return (
     <div className={styles.statsGrid}>
       <div>
         <p className={styles.statLabel}>Target Amount</p>
-        <p className={styles.statValueBlue}>{formatPLN(goal.amount)}</p>
+        <p className={styles.statValueBlue}>{formatPreferredCurrency(goal.amount, preferredCurrency)}</p>
       </div>
       <div>
         <p className={styles.statLabel}>Start Date</p>
@@ -38,7 +40,7 @@ export const GoalSettingsDisplay: React.FC<GoalSettingsDisplayProps> = ({
       </div>
       <div>
         <p className={styles.statLabel}>Monthly Deposits</p>
-        <p className={styles.statValueYellow}>{formatPLN(goal.monthlyDeposits)}</p>
+        <p className={styles.statValueYellow}>{formatPreferredCurrency(goal.monthlyDeposits, preferredCurrency)}</p>
       </div>
       <div>
         <p className={styles.statLabel}>Annual Deposit Increase</p>

@@ -76,7 +76,7 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
             onCancel={onEditCancel}
           />
         ) : (
-          <GoalSettingsDisplay goal={goal} />
+          <GoalSettingsDisplay goal={goal} preferredCurrency={preferredCurrency} />
         )}
       </Card>
     </motion.div>
