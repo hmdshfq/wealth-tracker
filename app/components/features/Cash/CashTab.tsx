@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Card, Input, Select, Button, SectionTitle, IconButton, Badge, Modal } from '@/app/components/ui';
-import { formatPLN, formatCurrency } from '@/app/lib/formatters';
-import { CashBalance, CashTransaction, NewCash } from '@/app/lib/types';
+import { formatPLN, formatCurrency, convertCurrency } from '@/app/lib/formatters';
+import { CashBalance, CashTransaction, NewCash, PreferredCurrency } from '@/app/lib/types';
 import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './Cash.module.css';
 
@@ -23,6 +23,7 @@ interface CashTabProps {
   onAddCash: () => void;
   onEditCashTransaction: (transaction: CashTransaction) => void;
   onDeleteCashTransaction: (id: number) => void;
+  preferredCurrency?: PreferredCurrency;
 }
 
 const currencyOptions = [
@@ -68,6 +69,7 @@ export const CashTab: React.FC<CashTabProps> = ({
   onCashChange,
   onAddCash,
   onEditCashTransaction,
+  preferredCurrency = 'PLN',
   onDeleteCashTransaction,
 }) => {
   const [editingTransaction, setEditingTransaction] = useState<CashTransaction | null>(null);
@@ -94,6 +96,10 @@ export const CashTab: React.FC<CashTabProps> = ({
       setCurrentPage(Math.max(1, totalPages));
     }
   }, [cashTransactions.length, totalPages, currentPage]);
+
+  // Convert total cash to preferred currency
+  const displayTotalCash = convertCurrency(totalCashPLN, preferredCurrency);
+  const formatTotalCash = (val: number) => formatCurrency(val, preferredCurrency);
 
   const getCashInPLN = (c: CashBalance): number => {
     if (c.currency === 'PLN') return c.amount;
@@ -191,8 +197,8 @@ export const CashTab: React.FC<CashTabProps> = ({
           })}
         </div>
         <div className={styles.totalCard}>
-          <p className={styles.totalLabel}>Total Cash (in PLN)</p>
-          <p className={styles.totalValue}>{formatPLN(totalCashPLN)}</p>
+          <p className={styles.totalLabel}>Total Cash</p>
+          <p className={styles.totalValue}>{formatTotalCash(displayTotalCash)}</p>
         </div>
       </Card>
       </motion.div>

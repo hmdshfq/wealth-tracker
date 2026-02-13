@@ -28,6 +28,7 @@ import {
   NewTransaction,
   NewCash,
   TickerInfo,
+  PreferredCurrency,
 } from '@/app/lib/types';
 import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
 import { calculateGoalAmount } from '@/app/lib/goalCalculations';
@@ -86,6 +87,9 @@ export default function InvestmentTracker() {
   // Core State
   // ---------------------------------------------------------------------------
   const [activeTab, setActiveTab] = useState<TabName>('dashboard');
+
+  // Currency preference
+  const [preferredCurrency, setPreferredCurrency] = useState<PreferredCurrency>('PLN');
   const [goal, setGoal] = useState<Goal>(INITIAL_GOAL);
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
@@ -116,6 +120,15 @@ export default function InvestmentTracker() {
     const stored = localStorage.getItem('local-only-mode');
     if (stored === 'true') {
       setIsLocalOnly(true);
+    }
+  }, []);
+
+  // Load preferred currency from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('preferred-currency');
+    if (stored === 'EUR' || stored === 'USD' || stored === 'PLN') {
+      setPreferredCurrency(stored);
     }
   }, []);
 
@@ -832,6 +845,12 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
   }, []);
 
   // ---------------------------------------------------------------------------
+
+  // Currency preference handlers
+  const handlePreferredCurrencyChange = useCallback((currency: PreferredCurrency) => {
+    setPreferredCurrency(currency);
+    localStorage.setItem('preferred-currency', currency);
+  }, []);
   // Render
   // ---------------------------------------------------------------------------
   return (
@@ -866,6 +885,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 etfData={allTickers}
                 goal={goal}
                 goalProgress={goalProgress}
+                preferredCurrency={preferredCurrency}
               />
             </div>
           )}
@@ -894,8 +914,10 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 editingGoal={editingGoal}
                 totalNetWorth={totalNetWorth}
                 goalProgress={goalProgress}
+                preferredCurrency={preferredCurrency}
                 portfolioValue={portfolioValue}
                 exchangeRates={exchangeRates}
+                onPreferredCurrencyChange={handlePreferredCurrencyChange}
                 onEditStart={handleGoalEditStart}
                 onEditCancel={handleGoalEditCancel}
                 onEditSave={handleGoalEditSave}
@@ -916,6 +938,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 onAddCash={addCash}
                 onEditCashTransaction={editCashTransaction}
                 onDeleteCashTransaction={deleteCashTransaction}
+                preferredCurrency={preferredCurrency}
               />
             </div>
           )}

@@ -7,8 +7,8 @@ import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transi
 import { AllocationChart } from './AllocationChart';
 import { LivePrices } from './LivePrices';
 import { GoalProgressCard } from '../Goal';
-import { formatPLN, formatPercent } from '@/app/lib/formatters';
-import { AllocationItem, CashBalance, TickerInfo, Goal } from '@/app/lib/types';
+import { formatPLN, formatPercent, convertCurrency, formatCurrency } from '@/app/lib/formatters';
+import { AllocationItem, CashBalance, TickerInfo, Goal, PreferredCurrency } from '@/app/lib/types';
 import styles from './Dashboard.module.css';
 
 interface DashboardTabProps {
@@ -20,14 +20,15 @@ interface DashboardTabProps {
   totalNetWorth: number;
   allocationData: AllocationItem[];
   prices: Record<string, {
-  price: number;
-  change: number;
-  changePercent: number;
-  currency: string;
-}>;
+    price: number;
+    change: number;
+    changePercent: number;
+    currency: string;
+  }>;
   etfData?: Record<string, TickerInfo>;
   goal?: Goal;
   goalProgress?: number;
+  preferredCurrency?: PreferredCurrency;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -42,9 +43,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   etfData = {},
   goal,
   goalProgress,
+  preferredCurrency = 'PLN',
 }) => {
   // Defer chart rendering until browser is idle
   const chartsReady = useIdleRender({ timeout: 2000 });
+
+  // Convert values to preferred currency
+  const displayPortfolioValue = convertCurrency(portfolioValue, preferredCurrency);
+  const displayTotalCash = convertCurrency(totalCashPLN, preferredCurrency);
+  const displayTotalGain = convertCurrency(totalGain, preferredCurrency);
+  const displayNetWorth = convertCurrency(totalNetWorth, preferredCurrency);
+
+  // Format values in preferred currency
+  const formatValue = (val: number) => formatCurrency(val, preferredCurrency);
 
   const cashFooter = (
     <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#94a3b8' }}>
@@ -55,8 +66,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       ))}
     </div>
   );
-
-
 
   return (
     <motion.div 
@@ -78,8 +87,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         >
           <StatCard
             label="Portfolio Value"
-            value={formatPLN(portfolioValue)}
-            subValue={`${formatPLN(totalGain)} (${formatPercent(totalGainPercent)})`}
+            value={formatValue(displayPortfolioValue)}
+            subValue={`${formatValue(displayTotalGain)} (${formatPercent(totalGainPercent)})`}
             subValueColor={totalGain >= 0 ? 'positive' : 'negative'}
           />
         </motion.div>
@@ -89,7 +98,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         >
           <StatCard
             label="Total Cash"
-            value={formatPLN(totalCashPLN)}
+            value={formatValue(displayTotalCash)}
             footer={cashFooter}
           />
         </motion.div>
@@ -99,7 +108,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         >
           <StatCard
             label="Net Worth"
-            value={formatPLN(totalNetWorth)}
+            value={formatValue(displayNetWorth)}
             subValue="Portfolio + Cash"
             subValueColor="muted"
           />

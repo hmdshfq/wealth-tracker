@@ -7,7 +7,7 @@ import { SettingsSubTab } from './SettingsSubTab';
 import { GoalSubTab } from './GoalSubTab';
 import { TrackerSubTab } from './TrackerSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
-import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo } from '@/app/lib/types';
+import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo, PreferredCurrency } from '@/app/lib/types';
 import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
 import styles from './Investments.module.css';
 
@@ -47,6 +47,8 @@ interface InvestmentsTabProps {
     EUR_PLN: number;
     USD_PLN: number;
   };
+  preferredCurrency: PreferredCurrency;
+  onPreferredCurrencyChange: (currency: PreferredCurrency) => void;
   onEditStart: () => void;
   onEditCancel: () => void;
   onEditSave: () => void;
@@ -79,6 +81,8 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   goalProgress,
   portfolioValue,
   exchangeRates,
+  preferredCurrency,
+  onPreferredCurrencyChange,
   onEditStart,
   onEditCancel,
   onEditSave,
@@ -212,6 +216,8 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               goal={goal}
               tempGoal={tempGoal}
               editingGoal={editingGoal}
+              preferredCurrency={preferredCurrency}
+              onPreferredCurrencyChange={onPreferredCurrencyChange}
               onEditStart={onEditStart}
               onEditCancel={onEditCancel}
               onEditSave={onEditSave}

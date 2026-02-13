@@ -204,3 +204,5 @@ export interface TickerInfo {
   currency: string;
   basePrice: number; // Used as fallback
 }
+
+export type PreferredCurrency = 'PLN' | 'EUR' | 'USD';
