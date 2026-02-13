@@ -2,8 +2,8 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
-import { formatPLN } from '@/app/lib/formatters';
-import { Transaction, Goal } from '@/app/lib/types';
+import { formatPreferredCurrency } from '@/app/lib/formatters';
+import { Transaction, Goal, PreferredCurrency } from '@/app/lib/types';
 import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
@@ -14,6 +14,7 @@ interface MonthlyDepositTrackerProps {
     EUR_PLN: number;
     USD_PLN: number;
   };
+  preferredCurrency: PreferredCurrency;
 }
 
 interface MonthData {
@@ -39,7 +40,9 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
   goal,
   transactions,
   exchangeRates,
+  preferredCurrency,
 }) => {
+  const formatValue = (value: number) => formatPreferredCurrency(value, preferredCurrency);
   const [viewMode, setViewMode] = useState<ViewMode>('monthly');
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth(); // 0-indexed
@@ -226,8 +229,8 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             </span>
             <span className={styles.summaryValue}>
               {viewMode === 'monthly' 
-                ? formatPLN(goal.monthlyDeposits) 
-                : formatPLN(summary.totalInvested)
+                ? formatValue(goal.monthlyDeposits) 
+                : formatValue(summary.totalInvested)
               }
             </span>
           </div>
@@ -330,7 +333,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                         <span className={styles.yearValue}>{year}</span>
                         <span className={styles.yearsToGo}>{yearsToGo}y</span>
                         <span className={styles.yearRequired}>
-                          Req: {formatPLN(requiredForYear)}
+                          Req: {formatValue(requiredForYear)}
                         </span>
                       </th>
                       {yearData.map((monthData) => {
@@ -351,7 +354,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                                 ? 'Future month'
                                 : cellStatus === 'empty'
                                 ? 'Before investment start date'
-                                : `Invested ${formatPLN(monthData.invested)} of ${formatPLN(monthData.required)} required. ${
+                                : `Invested ${formatValue(monthData.invested)} of ${formatValue(monthData.required)} required. ${
                                     cellStatus === 'met' ? 'Goal met.' : 'Below target.'
                                   }`
                             }`}
@@ -360,10 +363,10 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                             {isActiveCell && (
                               <div className={styles.cellContent}>
                                 <span className={styles.investedAmount}>
-                                  {formatPLN(monthData.invested)}
+                                  {formatValue(monthData.invested)}
                                 </span>
                                 <span className={styles.requiredAmount}>
-                                  / {formatPLN(monthData.required)}
+                                  / {formatValue(monthData.required)}
                                 </span>
                               </div>
                             )}
@@ -448,7 +451,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                                 ? 'Future month'
                                 : cellStatus === 'empty'
                                 ? 'Before investment start date'
-                                : `Cumulative invested ${formatPLN(monthData.cumulativeInvested)} of ${formatPLN(monthData.cumulativeRequired)} required. ${
+                                : `Cumulative invested ${formatValue(monthData.cumulativeInvested)} of ${formatValue(monthData.cumulativeRequired)} required. ${
                                     cellStatus === 'met' ? 'On track.' : 'Behind.'
                                   }`
                             }`}
@@ -457,10 +460,10 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                             {isActiveCell && (
                               <div className={styles.cellContent}>
                                 <span className={styles.investedAmount}>
-                                  {formatPLN(monthData.cumulativeInvested)}
+                                  {formatValue(monthData.cumulativeInvested)}
                                 </span>
                                 <span className={styles.requiredAmount}>
-                                  / {formatPLN(monthData.cumulativeRequired)}
+                                  / {formatValue(monthData.cumulativeRequired)}
                                 </span>
                               </div>
                             )}

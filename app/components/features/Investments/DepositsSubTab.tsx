@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { MonthlyDepositTracker } from '../Goal';
 import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
-import { Transaction, Goal } from '@/app/lib/types';
+import { Transaction, Goal, PreferredCurrency } from '@/app/lib/types';
 
 interface DepositsSubTabProps {
   goal: Goal;
@@ -13,12 +13,14 @@ interface DepositsSubTabProps {
     EUR_PLN: number;
     USD_PLN: number;
   };
+  preferredCurrency: PreferredCurrency;
 }
 
 export const DepositsSubTab: React.FC<DepositsSubTabProps> = ({
   goal,
   transactions,
   exchangeRates,
+  preferredCurrency,
 }) => {
   return (
     <motion.div
@@ -29,6 +31,7 @@ export const DepositsSubTab: React.FC<DepositsSubTabProps> = ({
         goal={goal}
         transactions={transactions}
         exchangeRates={exchangeRates}
+        preferredCurrency={preferredCurrency}
       />
     </motion.div>
   );

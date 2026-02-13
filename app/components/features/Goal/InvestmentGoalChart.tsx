@@ -169,6 +169,7 @@ interface CustomTooltipProps {
   currentNetWorth: number;
   colors: typeof CHART_COLORS.dark;
   legendEntries: LegendEntry[];
+  formatValue: (value: number) => string;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -180,6 +181,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   currentNetWorth,
   colors,
   legendEntries,
+  formatValue,
 }) => {
   if (!active || !payload || payload.length === 0) return null;
 
@@ -227,7 +229,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         const color = entry.stroke ?? legendEntry?.color ?? colors.text;
         return (
           <p key={`${displayName}-${key}-${index}`} style={{ color }}>
-            {displayName}: {formatChartValue(entry.value!)}
+            {displayName}: {formatValue(entry.value!)}
           </p>
         );
       });
@@ -245,7 +247,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <p className={styles.tooltipSectionTitle}>Projected</p>
         {projectedValue !== undefined && (
           <p style={{ color: colors.projectedValue }}>
-            Portfolio: {formatChartValue(projectedValue)}{' '}
+            Portfolio: {formatValue(projectedValue)}{' '}
             <span className={styles.tooltipProgress}>
               ({progressPercent.toFixed(1)}% of target)
             </span>
@@ -253,12 +255,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         )}
         {projectedContributions !== undefined && (
           <p style={{ color: colors.projectedContributions }}>
-            Contributions: {formatChartValue(projectedContributions)}
+            Contributions: {formatValue(projectedContributions)}
           </p>
         )}
         {projectedReturns !== 0 && (
           <p className={styles.tooltipReturns}>
-            Returns: {formatChartValue(projectedReturns)}
+            Returns: {formatValue(projectedReturns)}
           </p>
         )}
       </div>
@@ -268,7 +270,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           <p className={styles.tooltipSectionTitle}>Actual</p>
           {actualValue !== undefined && (
             <p style={{ color: colors.actualValue }}>
-              Portfolio: {formatChartValue(actualValue)}{' '}
+              Portfolio: {formatValue(actualValue)}{' '}
               <span className={styles.tooltipProgress}>
                 ({((actualValue / goalAmount) * 100).toFixed(1)}% of target)
               </span>
@@ -276,12 +278,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           )}
           {actualContributions !== undefined && (
             <p style={{ color: colors.actualContributions }}>
-              Contributions: {formatChartValue(actualContributions)}
+              Contributions: {formatValue(actualContributions)}
             </p>
           )}
           {actualValue !== undefined && actualContributions !== undefined && (
             <p style={{ color: colors.actualReturns }}>
-              Returns: {formatChartValue(actualValue - actualContributions)}{' '}
+              Returns: {formatValue(actualValue - actualContributions)}{' '}
               ({actualContributions > 0 
                 ? (((actualValue - actualContributions) / actualContributions) * 100).toFixed(1) 
                 : 0}%)
@@ -1589,6 +1591,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                   currentNetWorth={currentNetWorth}
                   colors={colors}
                   legendEntries={legendPayload}
+                  formatValue={formatChartValue}
                 />
               }
               cursor={{ stroke: colors.grid, strokeWidth: 1 }}

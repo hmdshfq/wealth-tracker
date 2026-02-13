@@ -169,6 +169,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               goal={goal}
               transactions={transactions}
               exchangeRates={exchangeRates}
+              preferredCurrency={preferredCurrency}
             />
           </motion.div>
         )}
