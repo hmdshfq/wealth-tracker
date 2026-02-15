@@ -28,15 +28,6 @@ import {
   getRecommendedSamplingStrategy 
 } from '@/app/lib/dataSampling';
 import { 
-  getSonificationPlayer,
-  sonifyInvestmentGoalProgress,
-  sonifyPortfolioTrend,
-  sonifyMilestone,
-  createProjectionMelody,
-  isSonificationSupported,
-  SonificationOptions
-} from '@/app/lib/sonification';
-import { 
   HelpTooltip,
   ConfidenceBandsHelp,
   MonteCarloLegendHelp,
@@ -444,17 +435,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     withFallback,
   } = useFinancialWorker();
   
-  // Initialize sonification
-  useEffect(() => {
-    const supported = isSonificationSupported();
-    setIsSonificationSupportedState(supported);
-    
-    return () => {
-      // Cleanup on unmount
-      const player = getSonificationPlayer();
-      player.cleanup();
-    };
-  }, []);
+
 
   // State
   const [selectedRange, setSelectedRange] = useState<string>('all');
@@ -638,10 +619,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
     return '#ef4444'; // Strong negative
   }, []);
   
-  // State for sonification
-  const [sonificationEnabled, setSonificationEnabled] = useState(false);
-  const [isSonificationSupportedState, setIsSonificationSupportedState] = useState(false);
-  const [isPlayingSonification, setIsPlayingSonification] = useState(false);
+
 
   // WebSocket connection
   useEffect(() => {
@@ -851,62 +829,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
 
   const formatChartValue = (value: number) => formatCurrency(value, preferredCurrency);
 
-  // Sonification functions
-  const playGoalProgressSound = useCallback(() => {
-    if (!sonificationEnabled || !isSonificationSupportedState) return;
-    
-    setIsPlayingSonification(true);
-    sonifyInvestmentGoalProgress(currentNetWorth, goal.amount, {
-      volume: 0.7,
-      duration: 1.0
-    });
-    
-    setTimeout(() => {
-      setIsPlayingSonification(false);
-    }, 1500);
-  }, [sonificationEnabled, isSonificationSupportedState, currentNetWorth, goal.amount]);
-  
-  const playPortfolioTrendSound = useCallback(() => {
-    if (!sonificationEnabled || !isSonificationSupportedState || !currencyAdjustedData.length) return;
 
-    setIsPlayingSonification(true);
-    const values = currencyAdjustedData.map(d => d.value);
-    sonifyPortfolioTrend(values, {
-      volume: 0.6,
-      delayBetweenNotes: 100
-    } as SonificationOptions & { delayBetweenNotes: number });
-    setIsPlayingSonification(false);
-    }, [sonificationEnabled, isSonificationSupportedState, currencyAdjustedData]);
   
-  const playMilestoneSound = useCallback((percentage: number) => {
-    if (!sonificationEnabled || !isSonificationSupportedState) return;
-    
-    setIsPlayingSonification(true);
-    sonifyMilestone(`Milestone ${Math.round(percentage * 100)}%`, percentage, {
-      volume: 0.8
-    });
-    
-    setTimeout(() => {
-      setIsPlayingSonification(false);
-    }, 1000);
-  }, [sonificationEnabled, isSonificationSupportedState]);
-  
-  const playProjectionMelody = useCallback(async () => {
-    if (!sonificationEnabled || !isSonificationSupportedState || !currencyAdjustedData.length) return;
 
-    setIsPlayingSonification(true);
-    try {
-      await createProjectionMelody(currencyAdjustedData, {
-        volume: 0.6,
-        delayBetweenNotes: 150,
-        melodyType: 'scale'
-      } as SonificationOptions & { delayBetweenNotes: number; melodyType: 'scale' });
-    } catch (error) {
-      console.error('Error playing projection melody:', error);
-    } finally {
-      setIsPlayingSonification(false);
-    }
-    }, [sonificationEnabled, isSonificationSupportedState, currencyAdjustedData]);
 
   // Goal Achievement Zones - calculate progress milestones
   const goalAchievementZones = useMemo(() => {
@@ -1102,26 +1027,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
               </HelpTooltip>
             </div>
           )}
-          {isSonificationSupportedState && (
-            <div className={styles.sonificationControls}>
-              <label className={styles.sonificationToggle}>
-                <input
-                  type="checkbox"
-                  checked={sonificationEnabled}
-                  onChange={() => setSonificationEnabled(!sonificationEnabled)}
-                  disabled={isPlayingSonification}
-                />
-                <span className={styles.sonificationSlider}></span>
-                <span className={styles.sonificationLabel}>🔊 Sonification</span>
-              </label>
-              {isPlayingSonification && (
-                <div className={styles.sonificationPlaying}>
-                  <span className={styles.sonificationWave}>🎵</span>
-                  Playing...
-                </div>
-              )}
-            </div>
-          )}
+
         </div>
 
         {/* Stats Row */}
@@ -2084,15 +1990,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
             <div className={styles.zoneHeader}>
               <span className={styles.zoneMilestone}>{Math.round(zone.percentage * 100)}% Milestone</span>
               <span className={styles.zoneValue}>{formatPreferredCurrency(zone.value, preferredCurrency)}</span>
-              {sonificationEnabled && isSonificationSupportedState && (
-                <button
-                  onClick={() => playMilestoneSound(zone.percentage)}
-                  className={styles.zoneSonifyButton}
-                  aria-label={`Play sound for ${Math.round(zone.percentage * 100)}% milestone`}
-                >
-                  🔊
-                </button>
-              )}
+
             </div>
             <div className={styles.zoneProgress}>
               <div className={styles.zoneProgressBar} style={{ width: `${zone.percentage * 100}%`, backgroundColor: zone.color }} />
@@ -2112,24 +2010,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           </div>
         ))}
       </div>
-      {sonificationEnabled && isSonificationSupportedState && (
-        <div className={styles.sonificationZoneControls}>
-          <button
-            onClick={playGoalProgressSound}
-            className={styles.sonifyGoalButton}
-            disabled={isPlayingSonification}
-          >
-            🎯 Play Goal Progress Sound
-          </button>
-          <button
-            onClick={playProjectionMelody}
-            className={styles.sonifyMelodyButton}
-            disabled={isPlayingSonification}
-          >
-            🎵 Play Projection Melody
-          </button>
-        </div>
-      )}
+
     </div>
 
     {/* Benchmark Comparison Summary */}
