@@ -1,0 +1,121 @@
+.container {
+  min-height: 100vh;
+  background: var(--gradient-bg);
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.titleWrap {
+  display: grid;
+  gap: 10px;
+}
+
+.title {
+  width: 220px;
+  height: 24px;
+}
+
+.subtitle {
+  width: 320px;
+  height: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  width: 110px;
+  height: 36px;
+}
+
+.nav {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.navItem {
+  width: 140px;
+  height: 38px;
+}
+
+.main {
+  margin-top: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.statCard {
+  width: 100%;
+  height: 110px;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.contentCardTall {
+  width: 100%;
+  min-height: 400px;
+}
+
+.contentCard {
+  width: 100%;
+  min-height: 400px;
+}
+
+@media (max-width: 1024px) {
+  .statsGrid,
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .subtitle {
+    width: 260px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .actionButton {
+    flex: 1;
+    min-width: 88px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+  }
+
+  .navItem {
+    flex: 1;
+    min-width: 88px;
+  }
+}

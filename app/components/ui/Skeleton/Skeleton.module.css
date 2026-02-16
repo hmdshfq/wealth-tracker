@@ -1,0 +1,42 @@
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--loading-surface);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: var(--loading-shimmer-gradient);
+  animation: loadingShimmer var(--loading-shimmer-duration) var(--loading-shimmer-easing) infinite;
+}
+
+.sm {
+  border-radius: 6px;
+}
+
+.md {
+  border-radius: 10px;
+}
+
+.lg {
+  border-radius: 14px;
+}
+
+.full {
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+    transform: none;
+    opacity: 0;
+  }
+
+  .skeleton {
+    opacity: var(--loading-reduced-opacity);
+  }
+}

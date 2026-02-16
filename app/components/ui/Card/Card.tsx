@@ -1,12 +1,10 @@
 import React from 'react';
 import styles from './Card.module.css';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   variant?: 'default' | 'gradient' | 'dark';
   padding?: 'small' | 'medium' | 'large';
-  className?: string;
-  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -15,6 +13,7 @@ export const Card: React.FC<CardProps> = ({
   padding = 'medium',
   className,
   style,
+  ...props
 }) => {
   const classes = [
     styles.card,
@@ -26,7 +25,7 @@ export const Card: React.FC<CardProps> = ({
     .join(' ');
 
   return (
-    <div className={classes} style={style}>
+    <div className={classes} style={style} {...props}>
       {children}
     </div>
   );

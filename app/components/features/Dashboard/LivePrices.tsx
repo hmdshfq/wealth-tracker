@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, PriceCard } from '@/app/components/ui';
+import { Card, ChartLoadingSkeleton, PriceCard } from '@/app/components/ui';
 import { TickerInfo } from '@/app/lib/types';
 import { formatPercent } from '@/app/lib/formatters';
 import styles from './Dashboard.module.css';
@@ -13,11 +13,16 @@ interface LivePricesProps {
     currency: string;
   }>;
   etfData: Record<string, TickerInfo>;
+  isLoading?: boolean;
 }
 
-export const LivePrices: React.FC<LivePricesProps> = ({ prices, etfData }) => {
+export const LivePrices: React.FC<LivePricesProps> = ({ prices, etfData, isLoading = false }) => {
+  if (isLoading) {
+    return <ChartLoadingSkeleton variant="cards" />;
+  }
+
   return (
-    <Card>
+    <Card aria-busy={isLoading}>
       <p className={styles.chartTitle}>Live ETF Prices</p>
       <div className={styles.pricesGrid}>
         {Object.entries(etfData).map(([ticker, data]) => {

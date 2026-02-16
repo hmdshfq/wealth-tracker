@@ -16,9 +16,6 @@
 .titleBar {
   height: 1.5rem;
   width: 40%;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .controls {
@@ -29,9 +26,6 @@
 .controlButton {
   height: 1.5rem;
   width: 1.5rem;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .chartArea {
@@ -47,9 +41,6 @@
 .yAxis {
   width: 3rem;
   height: 100%;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .chartLines {
@@ -64,17 +55,11 @@
 .line {
   flex: 1;
   height: 40%;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .xAxis {
   width: 100%;
   height: 2rem;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .legend {
@@ -87,30 +72,93 @@
 .legendItem {
   height: 1rem;
   width: 8rem;
-  background-color: var(--bg-tertiary);
-  border-radius: 0.375rem;
-  animation: pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+/* Cards variant */
+.cardsSkeleton {
+  padding: 1rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.priceCardSkeleton {
+  border-radius: 10px;
+  border: 1px solid var(--border-secondary);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  background: var(--bg-secondary);
+}
+
+.cardTicker {
+  width: 45%;
+  height: 14px;
+}
+
+.cardName {
+  width: 92%;
+  height: 12px;
+}
+
+.cardBottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardPrice {
+  width: 52%;
+  height: 18px;
+}
+
+.cardChange {
+  width: 30%;
+  height: 12px;
+}
+
+/* Table variant */
+.tableSkeleton {
+  padding: 1rem;
+  display: grid;
+  gap: 10px;
+}
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px;
+  gap: 10px;
+}
+
+.tableHeaderCell {
+  height: 14px;
+}
+
+.tableCell {
+  height: 16px;
+}
+
+.tableCellNarrow {
+  height: 16px;
+  width: 80%;
 }
 
 /* Respect user's motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .titleBar,
-  .controlButton,
-  .yAxis,
-  .line,
-  .xAxis,
-  .legendItem {
-    animation: none;
-    opacity: 0.7;
+  .cardsSkeleton,
+  .tableSkeleton {
+    opacity: var(--loading-reduced-opacity);
+  }
+}
+
+@media (max-width: 768px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr 1fr 80px;
   }
 }

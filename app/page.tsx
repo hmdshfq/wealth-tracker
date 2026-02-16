@@ -15,7 +15,7 @@ import {
 } from '@/app/components/features';
 
 // UI components
-import { Toast, LocalStorageBanner } from '@/app/components/ui';
+import { Toast, LocalStorageBanner, AppShellSkeleton } from '@/app/components/ui';
 
 // Types and constants
 import {
@@ -878,6 +878,11 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
       currencyToastTimeoutRef.current = null;
     }, 2500);
   }, []);
+
+  if (!isAuthLoaded || !isDataLoaded) {
+    return <AppShellSkeleton />;
+  }
+
   // Render
   // ---------------------------------------------------------------------------
   return (
@@ -913,6 +918,7 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
                 goal={goal}
                 goalProgress={goalProgress}
                 preferredCurrency={preferredCurrency}
+                pricesLoading={pricesLoading}
               />
             </div>
           )}

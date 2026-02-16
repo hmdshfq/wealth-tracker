@@ -29,6 +29,7 @@ interface DashboardTabProps {
   goal?: Goal;
   goalProgress?: number;
   preferredCurrency?: PreferredCurrency;
+  pricesLoading?: boolean;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -44,6 +45,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   goal,
   goalProgress,
   preferredCurrency = 'PLN',
+  pricesLoading = false,
 }) => {
   // Defer chart rendering until browser is idle
   const chartsReady = useIdleRender({ timeout: 2000 });
@@ -159,7 +161,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           variants={slideFromBottomVariants}
           transition={transitions.fast}
         >
-          <LivePrices prices={prices} etfData={etfData} />
+          <LivePrices prices={prices} etfData={etfData} isLoading={pricesLoading} />
         </motion.div>
       </motion.div>
     </motion.div>

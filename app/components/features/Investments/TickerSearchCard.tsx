@@ -97,7 +97,7 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
   return (
     <Card>
       <SectionTitle>Find & Add Tickers</SectionTitle>
-      <div className={styles.searchContainer}>
+      <div className={styles.searchContainer} aria-busy={loading}>
         <Input 
           placeholder="Search symbol (e.g., AAPL, VWCE)" 
           value={query}
@@ -112,8 +112,8 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
           onKeyDown={handleKeyDown}
           wrapperStyle={{ flex: 1 }}
         />
-        <Button onClick={handleSearch} disabled={loading}>
-          {loading ? 'Searching...' : 'Search'}
+        <Button onClick={handleSearch} isLoading={loading} loadingLabel="Searching...">
+          Search
         </Button>
       </div>
 

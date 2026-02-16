@@ -34,6 +34,7 @@ import {
   VolatilityGuide,
   ScenarioAnalysisHelp
 } from './InvestmentGoalChartHelp';
+import { InlineLoader } from '@/app/components/ui';
 import styles from './InvestmentGoalChart.module.css';
 
 type ChartProjectionPoint = ExtendedProjectionDataPoint & Record<string, number | string | undefined>;
@@ -1008,8 +1009,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           )}
           {workerLoading && (
             <div className={styles.workerStatus}>
-              <span className={styles.workerIndicator}></span>
-              Processing...
+              <InlineLoader label="Processing..." />
             </div>
           )}
           {workerError && (

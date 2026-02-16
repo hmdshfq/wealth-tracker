@@ -1,0 +1,30 @@
+.inlineLoader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.medium {
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    border-top-color: currentColor;
+    opacity: var(--loading-reduced-opacity);
+  }
+}

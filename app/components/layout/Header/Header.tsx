@@ -78,10 +78,11 @@ export const Header: React.FC<HeaderProps> = ({
           variant="primary"
           size="small"
           onClick={wrapAction(onRefresh)}
-          disabled={isLoading}
+          isLoading={isLoading}
+          loadingLabel="Refreshing..."
           className={styles.actionButton}
         >
-          {isLoading ? '⟳ Loading...' : '↻ Refresh Prices'}
+          ↻ Refresh Prices
         </Button>
         <SignedOut>
           <SignInButton>
@@ -101,6 +102,8 @@ export const Header: React.FC<HeaderProps> = ({
             size="small"
             onClick={wrapAction(onSyncCloud)}
             disabled={!onSyncCloud}
+            isLoading={cloudSaveStatus === 'saving'}
+            loadingLabel="Syncing..."
             className={styles.actionButton}
           >
             Sync Now

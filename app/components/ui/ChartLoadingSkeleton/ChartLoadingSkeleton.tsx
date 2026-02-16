@@ -2,13 +2,60 @@
 
 import React from 'react';
 import { Card } from '@/app/components/ui';
+import { Skeleton } from '@/app/components/ui/Skeleton';
 import styles from './ChartLoadingSkeleton.module.css';
 
 /**
- * Loading skeleton for charts
- * Displays a placeholder while chart data is being fetched or deferred rendering
+ * Loading skeleton for charts/cards/lists
+ * Displays placeholders while data is being fetched or deferred rendering
  */
-export const ChartLoadingSkeleton: React.FC = () => {
+interface ChartLoadingSkeletonProps {
+  variant?: 'chart' | 'cards' | 'table';
+}
+
+export const ChartLoadingSkeleton: React.FC<ChartLoadingSkeletonProps> = ({ variant = 'chart' }) => {
+  if (variant === 'cards') {
+    return (
+      <Card>
+        <div className={styles.cardsSkeleton} role="status" aria-label="Loading cards">
+          <div className={styles.cardsGrid}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={`card-skeleton-${index}`} className={styles.priceCardSkeleton}>
+                <Skeleton className={styles.cardTicker} rounded="full" />
+                <Skeleton className={styles.cardName} rounded="full" />
+                <div className={styles.cardBottomRow}>
+                  <Skeleton className={styles.cardPrice} rounded="full" />
+                  <Skeleton className={styles.cardChange} rounded="full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (variant === 'table') {
+    return (
+      <Card>
+        <div className={styles.tableSkeleton} role="status" aria-label="Loading rows">
+          <div className={styles.tableHeader}>
+            <Skeleton className={styles.tableHeaderCell} />
+            <Skeleton className={styles.tableHeaderCell} />
+            <Skeleton className={styles.tableHeaderCell} />
+          </div>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={`table-row-${index}`} className={styles.tableRow}>
+              <Skeleton className={styles.tableCell} />
+              <Skeleton className={styles.tableCell} />
+              <Skeleton className={styles.tableCellNarrow} />
+            </div>
+          ))}
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <div
@@ -18,31 +65,31 @@ export const ChartLoadingSkeleton: React.FC = () => {
       >
         {/* Header with title and controls */}
         <div className={styles.header}>
-          <div className={styles.titleBar} />
+          <Skeleton className={styles.titleBar} />
           <div className={styles.controls}>
-            <div className={styles.controlButton} />
-            <div className={styles.controlButton} />
-            <div className={styles.controlButton} />
+            <Skeleton className={styles.controlButton} />
+            <Skeleton className={styles.controlButton} />
+            <Skeleton className={styles.controlButton} />
           </div>
         </div>
 
         {/* Chart visualization area */}
         <div className={styles.chartArea}>
-          <div className={styles.yAxis} />
+          <Skeleton className={styles.yAxis} />
           <div className={styles.chartLines}>
-            <div className={styles.line} style={{ top: '20%' }} />
-            <div className={styles.line} style={{ top: '40%' }} />
-            <div className={styles.line} style={{ top: '60%' }} />
-            <div className={styles.line} style={{ top: '80%' }} />
+            <Skeleton className={styles.line} />
+            <Skeleton className={styles.line} />
+            <Skeleton className={styles.line} />
+            <Skeleton className={styles.line} />
           </div>
-          <div className={styles.xAxis} />
+          <Skeleton className={styles.xAxis} />
         </div>
 
         {/* Legend */}
         <div className={styles.legend}>
-          <div className={styles.legendItem} />
-          <div className={styles.legendItem} />
-          <div className={styles.legendItem} />
+          <Skeleton className={styles.legendItem} />
+          <Skeleton className={styles.legendItem} />
+          <Skeleton className={styles.legendItem} />
         </div>
       </div>
     </Card>
