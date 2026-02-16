@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo, useId } from 'react';
+import { PanelTopClose, PanelTopOpen } from 'lucide-react';
 import {
   Line,
   XAxis,
@@ -1923,7 +1924,17 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
           className={styles.helpButton}
           aria-label={showWhatIf ? "Hide what-if scenarios" : "Show what-if scenarios"}
         >
-          {showWhatIf ? '🔽 Hide' : '🔾 Show'}
+          {showWhatIf ? (
+            <>
+              <PanelTopClose size={14} aria-hidden="true" />
+              <span>Hide</span>
+            </>
+          ) : (
+            <>
+              <PanelTopOpen size={14} aria-hidden="true" />
+              <span>Show</span>
+            </>
+          )}
         </button>
       </div>
       
