@@ -1118,7 +1118,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = ({
                 className={styles.helpButton}
                 aria-label="Learn about confidence bands"
               >
-                ⓘ Help
+                Help
               </button>
             </div>
             <div className={styles.monteCarloToggle}>
