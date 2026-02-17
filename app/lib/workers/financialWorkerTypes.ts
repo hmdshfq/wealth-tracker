@@ -5,7 +5,7 @@ import {
   InvestmentScenario,
   ScenarioAnalysisResult,
   TimeBasedAnalysisResult,
-} from '@/app/lib/types';
+} from '@/lib/types';
 
 export interface FinancialWorkerMonteCarloParams {
   numSimulations: number;

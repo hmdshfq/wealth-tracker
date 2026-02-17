@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useUser } from '@clerk/nextjs';
 
 // Layout components
-import { Header, Footer, Navigation, TabName } from '@/app/components/layout';
+import { Header, Footer, Navigation, TabName } from '@/components/layout';
 
 // Feature components
 import {
@@ -12,10 +12,10 @@ import {
   CashTab,
   ExportModal,
   ImportModal,
-} from '@/app/components/features';
+} from '@/components/features';
 
 // UI components
-import { Toast, LocalStorageBanner, AppShellSkeleton } from '@/app/components/ui';
+import { Toast, LocalStorageBanner, AppShellSkeleton } from '@/components/ui';
 
 // Types and constants
 import {
@@ -29,24 +29,24 @@ import {
   NewCash,
   TickerInfo,
   PreferredCurrency,
-} from '@/app/lib/types';
-import { EXCHANGE_RATES, ETF_DATA } from '@/app/lib/constants';
-import { calculateGoalAmount } from '@/app/lib/goalCalculations';
-import { calculateHoldingsFromTransactions } from '@/app/lib/holdingsCalculations';
-import { generateProjectionData, calculateCumulativeContributions } from '@/app/lib/projectionCalculations';
+} from '@/lib/types';
+import { EXCHANGE_RATES, ETF_DATA } from '@/lib/constants';
+import { calculateGoalAmount } from '@/lib/goalCalculations';
+import { calculateHoldingsFromTransactions } from '@/lib/holdingsCalculations';
+import { generateProjectionData, calculateCumulativeContributions } from '@/lib/projectionCalculations';
 import { 
   generateInvestmentReportPDF,
   exportGoalProgressChartPDF,
   exportSummaryReport,
   downloadPDF 
-} from '@/app/lib/pdfExport';
+} from '@/lib/pdfExport';
 import {
   DEMO_CASH,
   DEMO_CASH_TRANSACTIONS,
   DEMO_CUSTOM_TICKERS,
   DEMO_GOAL,
   DEMO_TRANSACTIONS,
-} from '@/app/lib/demoData';
+} from '@/lib/demoData';
 
 
 // Styles

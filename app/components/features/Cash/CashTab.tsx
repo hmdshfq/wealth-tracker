@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Card, Input, Select, Button, SectionTitle, IconButton, Badge, Modal } from '@/app/components/ui';
-import { formatPLN, formatCurrency, convertCurrency } from '@/app/lib/formatters';
-import { CashBalance, CashTransaction, NewCash, PreferredCurrency } from '@/app/lib/types';
-import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
+import { Card, Input, Select, Button, SectionTitle, IconButton, Badge, Modal } from '@/components/ui';
+import { formatPLN, formatCurrency, convertCurrency } from '@/lib/formatters';
+import { CashBalance, CashTransaction, NewCash, PreferredCurrency } from '@/lib/types';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
 import styles from './Cash.module.css';
 
 interface ExchangeRates {

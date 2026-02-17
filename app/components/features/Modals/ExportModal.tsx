@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { AnimatedModal, Button } from '@/app/components/ui';
+import { AnimatedModal, Button } from '@/components/ui';
 import styles from './Modals.module.css';
 
 interface ExportModalProps {

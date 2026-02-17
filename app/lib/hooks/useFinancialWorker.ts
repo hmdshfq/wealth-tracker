@@ -6,7 +6,7 @@ import {
   FinancialWorkerRequestPayloadMap,
   FinancialWorkerResponsePayload,
   FinancialWorkerResponsePayloadMap,
-} from '@/app/lib/workers/financialWorkerTypes';
+} from '@/lib/workers';
 
 type PendingRequestCallback = (result: FinancialWorkerResponsePayload) => void;
 type MonteCarloPayload = FinancialWorkerRequestPayloadMap['monte-carlo'];

@@ -1,14 +1,14 @@
 'use client';
 import React from 'react';
 import { motion } from 'motion/react';
-import { StatCard, ChartLoadingSkeleton } from '@/app/components/ui';
-import { useIdleRender } from '@/app/lib/hooks';
-import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
+import { StatCard, ChartLoadingSkeleton } from '@/components/ui';
+import { useIdleRender } from '@/lib/hooks';
+import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { LivePrices } from './LivePrices';
 import { GoalProgressCard } from '../Goal';
-import { formatPLN, formatPercent, convertCurrency, formatCurrency } from '@/app/lib/formatters';
-import { AllocationItem, CashBalance, TickerInfo, Goal, PreferredCurrency } from '@/app/lib/types';
+import { formatPLN, formatPercent, convertCurrency, formatCurrency } from '@/lib/formatters';
+import { AllocationItem, CashBalance, TickerInfo, Goal, PreferredCurrency } from '@/lib/types';
 import styles from './Dashboard.module.css';
 
 interface DashboardTabProps {

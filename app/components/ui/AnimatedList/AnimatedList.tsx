@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useReducedMotion } from '@/app/lib/hooks';
-import { fadeVariants, slideFromTopVariants, transitions } from '@/app/lib/animations';
+import { useReducedMotion } from '@/lib/hooks';
+import { fadeVariants, slideFromTopVariants, transitions } from '@/lib/animations';
 
 interface AnimatedListProps<T> {
   items: T[];

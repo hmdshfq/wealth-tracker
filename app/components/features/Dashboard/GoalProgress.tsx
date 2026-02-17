@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { Card, ProgressBar } from '@/app/components/ui';
-import { formatPLN } from '@/app/lib/formatters';
-import { Goal } from '@/app/lib/types';
+import { Card, ProgressBar } from '@/components/ui';
+import { formatPLN } from '@/lib/formatters';
+import { Goal } from '@/lib/types';
 import styles from './Dashboard.module.css';
 
 interface GoalProgressProps {

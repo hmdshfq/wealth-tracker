@@ -1,5 +1,5 @@
 import React from 'react';
-import { TabNav, TabButton } from '@/app/components/ui';
+import { TabNav, TabButton } from '@/components/ui';
 import styles from './Navigation.module.css';
 
 export type TabName = 'dashboard' | 'investments' | 'cash';

@@ -1,10 +1,10 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Card, SectionTitle, TabNav, TabButton } from '@/app/components/ui';
-import { formatPreferredCurrency } from '@/app/lib/formatters';
-import { Transaction, Goal, PreferredCurrency } from '@/app/lib/types';
-import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
+import { Card, SectionTitle, TabNav, TabButton } from '@/components/ui';
+import { formatPreferredCurrency } from '@/lib/formatters';
+import { Transaction, Goal, PreferredCurrency } from '@/lib/types';
+import { slideFromBottomVariants, transitions } from '@/lib/animations';
 import styles from './MonthlyDepositTracker.module.css';
 
 interface MonthlyDepositTrackerProps {

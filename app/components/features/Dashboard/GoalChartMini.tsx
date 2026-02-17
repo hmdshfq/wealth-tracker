@@ -9,10 +9,10 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { Card } from '@/app/components/ui';
-import { formatPLN } from '@/app/lib/formatters';
-import { Goal } from '@/app/lib/types';
-import { ExtendedProjectionDataPoint } from '@/app/lib/projectionCalculations';
+import { Card } from '@/components/ui';
+import { formatPLN } from '@/lib/formatters';
+import { Goal } from '@/lib/types';
+import { ExtendedProjectionDataPoint } from '@/lib/projectionCalculations';
 import styles from './GoalChartMini.module.css';
 
 // Theme-aware colors matching the main chart

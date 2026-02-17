@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/app/components/ui';
-import { Skeleton } from '@/app/components/ui/Skeleton';
+import { Card } from '@/components/ui';
+import { Skeleton } from '@/components/ui';
 import styles from './ChartLoadingSkeleton.module.css';
 
 /**

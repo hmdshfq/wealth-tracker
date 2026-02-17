@@ -57,6 +57,14 @@ You can also configure custom routes for authentication:
 - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` - Redirect after sign-in (default: "/")
 - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` - Redirect after sign-up (default: "/")
 
+## Import Rules
+
+- Use barrel-based aliases for shared modules:
+  - `@/components`, `@/components/ui`, `@/components/features`, `@/components/layout`
+  - `@/lib`, `@/lib/hooks`, `@/lib/workers`
+  - `@/context`
+- Avoid legacy deep imports through `@/app/components/*`, `@/app/lib/*`, and `@/app/context/*` (enforced by ESLint).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

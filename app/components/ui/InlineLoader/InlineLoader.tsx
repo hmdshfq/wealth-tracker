@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { useReducedMotion } from '@/app/lib/hooks';
+import { useReducedMotion } from '@/lib/hooks';
 import styles from './InlineLoader.module.css';
 
 interface InlineLoaderProps {

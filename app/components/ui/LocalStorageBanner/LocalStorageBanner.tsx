@@ -2,7 +2,7 @@
 
 import React, { useState, useSyncExternalStore, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useReducedMotion } from '@/app/lib/hooks';
+import { useReducedMotion } from '@/lib/hooks';
 import styles from './LocalStorageBanner.module.css';
 
 const STORAGE_KEY = 'localStorageBanner_dismissed';

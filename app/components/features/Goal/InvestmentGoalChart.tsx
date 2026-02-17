@@ -14,20 +14,20 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
-import { convertCurrency, formatPreferredCurrency, formatCurrency } from '@/app/lib/formatters';
-import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult, PreferredCurrency } from '@/app/lib/types';
-import { ExtendedProjectionDataPoint, generateProjectionData as generateProjectionDataMain, performTimeBasedAnalysis as performTimeBasedAnalysisMain } from '@/app/lib/projectionCalculations';
-import { MonteCarloSimulationResult } from '@/app/lib/types';
-import { calculateYearsToGoal, calculateRequiredContributions, performBehavioralAnalysis } from '@/app/lib/goalCalculations';
-import { runMonteCarloSimulation as runMonteCarloSimulationMain } from '@/app/lib/projectionCalculations';
-import { runScenarioAnalysis as runScenarioAnalysisMain } from '@/app/lib/projectionCalculations';
-import useFinancialWorker from '@/app/lib/hooks/useFinancialWorker';
+import { convertCurrency, formatPreferredCurrency, formatCurrency } from '@/lib/formatters';
+import { Goal, InvestmentScenario, ScenarioAnalysisResult, ProjectionDataPoint, TimeBasedAnalysisResult, BehavioralAnalysisResult, PreferredCurrency } from '@/lib/types';
+import { ExtendedProjectionDataPoint, generateProjectionData as generateProjectionDataMain, performTimeBasedAnalysis as performTimeBasedAnalysisMain } from '@/lib/projectionCalculations';
+import { MonteCarloSimulationResult } from '@/lib/types';
+import { calculateYearsToGoal, calculateRequiredContributions, performBehavioralAnalysis } from '@/lib/goalCalculations';
+import { runMonteCarloSimulation as runMonteCarloSimulationMain } from '@/lib/projectionCalculations';
+import { runScenarioAnalysis as runScenarioAnalysisMain } from '@/lib/projectionCalculations';
+import { useFinancialWorker } from '@/lib/hooks';
 import { 
   sampleProjectionData,
   smartSampleData,
   shouldSampleData,
   getRecommendedSamplingStrategy 
-} from '@/app/lib/dataSampling';
+} from '@/lib/dataSampling';
 import { 
   HelpTooltip,
   ConfidenceBandsHelp,
@@ -35,7 +35,7 @@ import {
   VolatilityGuide,
   ScenarioAnalysisHelp
 } from './InvestmentGoalChartHelp';
-import { InlineLoader } from '@/app/components/ui';
+import { InlineLoader } from '@/components/ui';
 import styles from './InvestmentGoalChart.module.css';
 
 type ChartProjectionPoint = ExtendedProjectionDataPoint & Record<string, number | string | undefined>;

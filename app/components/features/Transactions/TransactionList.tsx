@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, Badge, SectionTitle, IconButton, AnimatedModal, Button, Input, Select } from '@/app/components/ui';
-import { ETF_DATA } from '@/app/lib/constants';
-import { Transaction } from '@/app/lib/types';
+import { Card, Badge, SectionTitle, IconButton, AnimatedModal, Button, Input, Select } from '@/components/ui';
+import { ETF_DATA } from '@/lib/constants';
+import { Transaction } from '@/lib/types';
 import styles from './Transactions.module.css';
 
 interface TransactionListProps {

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Skeleton } from '@/app/components/ui/Skeleton';
+import { Skeleton } from '@/components/ui';
 import styles from './AppShellSkeleton.module.css';
 
 export const AppShellSkeleton: React.FC = () => {

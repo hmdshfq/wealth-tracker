@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { useTabContext } from '../TabNav/TabNav';
+import { useTabContext } from '../TabNav';
 import styles from './TabButton.module.css';
 
 interface TabButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

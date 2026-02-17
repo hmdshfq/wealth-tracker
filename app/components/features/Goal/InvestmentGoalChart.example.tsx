@@ -8,8 +8,8 @@
 'use client';
 
 import React from 'react';
-import { InvestmentGoalChart } from '@/app/components/features/Goal';
-import { Goal, ProjectionDataPoint } from '@/app/lib/types';
+import { InvestmentGoalChart } from '@/components/features/Goal';
+import { Goal, ProjectionDataPoint } from '@/lib/types';
 
 // Example: Generate mock projection data
 function generateProjectionData(

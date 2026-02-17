@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { sql } from "@/app/lib/db";
+import { sql } from "@/lib/db";
 
 export async function GET() {
   const start = Date.now();

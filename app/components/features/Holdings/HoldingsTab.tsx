@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { Card, DataTable, SectionTitle } from '@/app/components/ui';
-import { formatPLN, formatEUR, formatPercent } from '@/app/lib/formatters';
-import { HoldingWithDetails } from '@/app/lib/types';
+import { Card, DataTable, SectionTitle } from '@/components/ui';
+import { formatPLN, formatEUR, formatPercent } from '@/lib/formatters';
+import { HoldingWithDetails } from '@/lib/types';
 import styles from './Holdings.module.css';
 
 interface HoldingsTabProps {

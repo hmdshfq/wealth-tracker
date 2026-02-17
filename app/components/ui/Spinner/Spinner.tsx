@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { motion } from 'motion/react';
-import { fadeVariants, transitions } from '@/app/lib/animations';
+import { fadeVariants, transitions } from '@/lib/animations';
 import styles from './Spinner.module.css';
 
 interface SpinnerProps {

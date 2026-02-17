@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { Card, Input, Select, Button, SectionTitle } from '@/app/components/ui';
-import { NewTransaction, TickerInfo } from '@/app/lib/types';
+import { Card, Input, Select, Button, SectionTitle } from '@/components/ui';
+import { NewTransaction, TickerInfo } from '@/lib/types';
 import styles from './Transactions.module.css';
 
 interface TransactionFormProps {

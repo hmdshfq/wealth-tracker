@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, Input, Button, SectionTitle, Modal, Select } from '@/app/components/ui';
-import { TickerInfo } from '@/app/lib/types';
+import { Card, Input, Button, SectionTitle, Modal, Select } from '@/components/ui';
+import { TickerInfo } from '@/lib/types';
 import styles from './Investments.module.css';
 
 interface SearchResult {

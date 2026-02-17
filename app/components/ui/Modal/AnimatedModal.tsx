@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useReducedMotion } from '@/app/lib/hooks';
-import { fadeVariants, scaleVariants, transitions } from '@/app/lib/animations';
+import { useReducedMotion } from '@/lib/hooks';
+import { fadeVariants, scaleVariants, transitions } from '@/lib/animations';
 import styles from './Modal.module.css';
 
 interface AnimatedModalProps {

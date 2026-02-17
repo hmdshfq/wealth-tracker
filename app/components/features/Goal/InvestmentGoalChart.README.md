@@ -22,7 +22,7 @@ This component uses **Recharts** which is already installed in your project (`re
 ## Basic Usage
 
 ```tsx
-import { InvestmentGoalChart } from '@/app/components/features/Goal';
+import { InvestmentGoalChart } from '@/components/features/Goal';
 
 <InvestmentGoalChart
   goal={goal}

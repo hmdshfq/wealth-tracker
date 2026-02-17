@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import { motion, type HTMLMotionProps } from 'motion/react';
-import { useReducedMotion } from '@/app/lib/hooks';
-import { InlineLoader } from '@/app/components/ui/InlineLoader';
+import { useReducedMotion } from '@/lib/hooks';
+import { InlineLoader } from '@/components/ui';
 import styles from './Button.module.css';
 
 interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {

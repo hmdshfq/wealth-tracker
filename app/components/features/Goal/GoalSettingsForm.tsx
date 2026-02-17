@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Input, Button } from '@/app/components/ui';
-import { Goal } from '@/app/lib/types';
+import { Input, Button } from '@/components/ui';
+import { Goal } from '@/lib/types';
 import styles from '../Investments/Investments.module.css';
 
 interface GoalSettingsFormProps {

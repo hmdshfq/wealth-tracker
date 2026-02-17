@@ -3,10 +3,9 @@
 import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { TickerSearchCard } from './TickerSearchCard';
-import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
-import { TransactionForm } from '../Transactions/TransactionForm';
-import { TransactionList } from '../Transactions/TransactionList';
-import { Transaction, NewTransaction, HoldingWithDetails, TickerInfo } from '@/app/lib/types';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
+import { TransactionForm, TransactionList } from '../Transactions';
+import { Transaction, NewTransaction, HoldingWithDetails, TickerInfo } from '@/lib/types';
 
 interface TransactionsSubTabProps {
   transactions: Transaction[];

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Card, SectionTitle, Button, Select } from '@/app/components/ui';
+import { Card, SectionTitle, Button, Select } from '@/components/ui';
 import { GoalSettingsForm, GoalSettingsDisplay } from '../Goal';
-import { slideFromBottomVariants, transitions } from '@/app/lib/animations';
-import { Goal, PreferredCurrency } from '@/app/lib/types';
+import { slideFromBottomVariants, transitions } from '@/lib/animations';
+import { Goal, PreferredCurrency } from '@/lib/types';
 
 interface SettingsSubTabProps {
   goal: Goal;

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Goal, PreferredCurrency } from '@/app/lib/types';
-import { formatPreferredCurrency } from '@/app/lib/formatters';
+import { Goal, PreferredCurrency } from '@/lib/types';
+import { formatPreferredCurrency } from '@/lib/formatters';
 import styles from '../Investments/Investments.module.css';
 
 interface GoalSettingsDisplayProps {

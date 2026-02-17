@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Card, ProgressBar } from '@/app/components/ui';
-import { Goal, PreferredCurrency } from '@/app/lib/types';
-import { formatPreferredCurrency } from '@/app/lib/formatters';
+import { Card, ProgressBar } from '@/components/ui';
+import { Goal, PreferredCurrency } from '@/lib/types';
+import { formatPreferredCurrency } from '@/lib/formatters';
 import styles from '../Investments/Investments.module.css';
 
 interface GoalProgressCardProps {

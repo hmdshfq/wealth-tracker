@@ -1,8 +1,8 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { Button, IconButton } from '@/app/components/ui';
-import { useTheme } from '@/app/context/ThemeContext';
+import { Button, IconButton } from '@/components/ui';
+import { useTheme } from '@/context/ThemeContext';
 import styles from './Header.module.css';
 
 interface HeaderProps {

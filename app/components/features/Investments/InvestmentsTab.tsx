@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TabNav, TabButton } from '@/app/components/ui';
+import { TabNav, TabButton } from '@/components/ui';
 import { SettingsSubTab } from './SettingsSubTab';
 import { GoalSubTab } from './GoalSubTab';
 import { TrackerSubTab } from './TrackerSubTab';
 import { TransactionsSubTab } from './TransactionsSubTab';
-import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo, PreferredCurrency } from '@/app/lib/types';
-import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/app/lib/animations';
+import { Transaction, NewTransaction, HoldingWithDetails, Goal, TickerInfo, PreferredCurrency } from '@/lib/types';
+import { slideFromBottomVariants, staggerContainerVariants, transitions } from '@/lib/animations';
 import styles from './Investments.module.css';
 
 type InvestmentsSubTab = 'goal' | 'tracker' | 'transactions' | 'settings';

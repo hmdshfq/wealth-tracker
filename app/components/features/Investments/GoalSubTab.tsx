@@ -2,17 +2,17 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
-import { ChartLoadingSkeleton } from '@/app/components/ui';
-import { useIdleRender } from '@/app/lib/hooks';
+import { ChartLoadingSkeleton } from '@/components/ui';
+import { useIdleRender } from '@/lib/hooks';
 import { InvestmentGoalChart } from '../Goal';
-import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/app/lib/animations';
-import { Transaction, Goal, PreferredCurrency } from '@/app/lib/types';
+import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
+import { Transaction, Goal, PreferredCurrency } from '@/lib/types';
 import {
   generateProjectionData,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
   runMonteCarloSimulation,
-} from '@/app/lib/projectionCalculations';
+} from '@/lib/projectionCalculations';
 
 interface GoalSubTabProps {
   goal: Goal;

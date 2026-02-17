@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { Card, ChartLoadingSkeleton, PriceCard } from '@/app/components/ui';
-import { TickerInfo } from '@/app/lib/types';
-import { formatPercent } from '@/app/lib/formatters';
+import { Card, ChartLoadingSkeleton, PriceCard } from '@/components/ui';
+import { TickerInfo } from '@/lib/types';
+import { formatPercent } from '@/lib/formatters';
 import styles from './Dashboard.module.css';
 
 interface LivePricesProps {

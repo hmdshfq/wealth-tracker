@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Card } from '@/app/components/ui';
-import { COLORS } from '@/app/lib/constants';
-import { formatEUR } from '@/app/lib/formatters';
-import { AllocationItem } from '@/app/lib/types';
+import { Card } from '@/components/ui';
+import { COLORS } from '@/lib/constants';
+import { formatEUR } from '@/lib/formatters';
+import { AllocationItem } from '@/lib/types';
 import styles from './Dashboard.module.css';
 
 interface AllocationChartProps {
