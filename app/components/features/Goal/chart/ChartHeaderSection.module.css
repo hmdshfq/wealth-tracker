@@ -1,0 +1,527 @@
+.chartHeader {
+  margin-bottom: 20px;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chartTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.progressBadge {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: var(--success-bg);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--success-border);
+}
+
+.progressValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.progressLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.wsStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.connected {
+  background: var(--success-bg);
+  color: var(--accent-green);
+}
+
+.disconnected {
+  background: var(--danger-bg);
+  color: var(--accent-red);
+}
+
+.wsIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.connected .wsIndicator {
+  background: var(--accent-green);
+}
+
+.disconnected .wsIndicator {
+  background: var(--accent-red);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.workerStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--info-bg);
+  color: var(--accent-blue);
+}
+
+.workerError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--text-error);
+}
+
+.errorIcon,
+.samplingIcon {
+  font-size: 12px;
+}
+
+.samplingInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--warning-bg);
+  color: var(--text-warning);
+}
+
+.statsRow {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-md);
+}
+
+.timeRangeButtons {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-hover);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.rangeButton {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.rangeButton:hover,
+.rangeButton:focus {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.rangeButton:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
+.active {
+  color: var(--text-primary);
+  background: var(--success-bg);
+}
+
+.customRange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: border-color 0.2s ease;
+}
+
+.dateInput:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+  border-color: var(--accent-green);
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+[data-theme='dark'] .dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.dateSeparator {
+  color: var(--text-dimmed);
+  font-size: 0.875rem;
+}
+
+.applyButton {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--bg-primary);
+  background: var(--accent-green);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.applyButton:hover:not(:disabled) {
+  background: var(--accent-green-dark);
+}
+
+.applyButton:focus {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.applyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetButton {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  min-height: 36px;
+}
+
+.resetButton:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.resetButton:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
+.monteCarloControls {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.monteCarloHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.monteCarloHeader h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helpButton {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.helpButton:hover {
+  background: var(--bg-hover);
+  color: var(--accent-blue);
+}
+
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  margin-left: 4px;
+  color: var(--text-dimmed);
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.helpIcon:hover {
+  color: var(--accent-blue);
+  background: rgba(var(--accent-blue-rgb), 0.1);
+}
+
+.monteCarloToggle {
+  margin-bottom: 12px;
+}
+
+.monteCarloToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.monteCarloToggle input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent-blue);
+}
+
+.monteCarloParams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.paramGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.paramGroup label {
+  font-size: 0.75rem;
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paramGroup input[type='range'] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-secondary);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.paramGroup input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+}
+
+.paramGroup input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .titleSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .chartTitle {
+    font-size: 13px;
+  }
+
+  .statsRow {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .timeRangeButtons {
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .timeRangeButtons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rangeButton {
+    flex: 1;
+    min-width: 44px;
+    padding: 10px 8px;
+    min-height: 44px;
+  }
+
+  .customRange {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .dateInput {
+    flex: 1;
+    min-width: 120px;
+    min-height: 44px;
+  }
+
+  .applyButton,
+  .resetButton {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .resetButton {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .progressBadge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dateInput {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .rangeButton {
+    border: 1px solid var(--border-primary);
+  }
+
+  .active {
+    border-color: var(--accent-green);
+  }
+
+  .dateInput {
+    border: 2px solid var(--border-input);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wsIndicator,
+  .rangeButton,
+  .applyButton,
+  .resetButton,
+  .dateInput {
+    animation: none;
+    transition: none;
+  }
+}

@@ -6,7 +6,7 @@ import {
   TimeBasedAnalysisResult,
 } from '@/lib/types';
 import { HelpTooltip } from '../InvestmentGoalChartHelp';
-import styles from '../InvestmentGoalChart.module.css';
+import styles from './AnalysisInsightsSection.module.css';
 
 interface AnalysisInsightsSectionProps {
   timeBasedAnalysisResult?: TimeBasedAnalysisResult;

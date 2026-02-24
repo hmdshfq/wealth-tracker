@@ -13,7 +13,7 @@ import {
   HelpTooltip,
   ScenarioAnalysisHelp,
 } from '../InvestmentGoalChartHelp';
-import styles from '../InvestmentGoalChart.module.css';
+import styles from './StrategicPanelsSection.module.css';
 
 interface GoalZone {
   percentage: number;

@@ -15,7 +15,7 @@ import { MonteCarloSimulationResult, ProjectionDataPoint, ScenarioAnalysisResult
 import { CustomLegend } from './CustomLegend';
 import { CustomTooltip } from './CustomTooltip';
 import { CHART_COLORS, ChartProjectionPoint, LegendEntry } from './types';
-import styles from '../InvestmentGoalChart.module.css';
+import styles from './ChartCanvasSection.module.css';
 
 interface ChartCanvasSectionProps {
   legendPayload: LegendEntry[];

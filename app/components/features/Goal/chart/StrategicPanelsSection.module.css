@@ -1,0 +1,350 @@
+.scenarioAnalysisControls,
+.whatIfControls,
+.goalAchievementZones,
+.benchmarkComparison,
+.contributionOptimization {
+  margin: 24px 0;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.scenarioAnalysisControls,
+.contributionOptimization {
+  padding: 20px;
+}
+
+.whatIfControls,
+.goalAchievementZones,
+.benchmarkComparison {
+  padding: 16px;
+}
+
+.scenarioAnalysisHeader,
+.whatIfHeader,
+.benchmarkHeader,
+.zoneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scenarioAnalysisHeader,
+.whatIfHeader {
+  margin-bottom: 16px;
+}
+
+.scenarioAnalysisHeader h4,
+.whatIfHeader h4,
+.goalAchievementZones h4,
+.benchmarkComparison h4,
+.contributionOptimization h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.scenarioAnalysisHeader h4,
+.whatIfHeader h4 {
+  margin: 0;
+}
+
+.helpButton {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.helpButton:hover {
+  background: var(--bg-hover);
+  color: var(--accent-blue);
+}
+
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  margin-left: 4px;
+  color: var(--text-dimmed);
+  cursor: help;
+}
+
+.scenarioAnalysisToggle {
+  margin-bottom: 16px;
+}
+
+.scenarioAnalysisToggle label,
+.scenarioItem label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.scenarioControls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scenarioLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.scenarioItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scenarioColor {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+}
+
+.scenarioName {
+  font-weight: 500;
+}
+
+.scenarioComparison h5,
+.whatIfResults h5,
+.optimizationItem h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.scenarioTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scenarioTable th,
+.scenarioTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.scenarioTable th {
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card);
+}
+
+.scenarioTable td {
+  color: var(--text-primary);
+}
+
+.successMeter {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.successMeterFill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.successMeter span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.whatIfSliders,
+.whatIfMetrics {
+  display: grid;
+  gap: 12px;
+}
+
+.whatIfSlider {
+  display: grid;
+  gap: 8px;
+}
+
+.whatIfSlider label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.whatIfSlider input[type='range'] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.whatIfSlider input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+}
+
+.whatIfSlider input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+}
+
+.sliderValue {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--accent-yellow);
+  color: var(--text-inverse);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.whatIfResults {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-yellow);
+}
+
+.whatIfMetrics p,
+.optimizationItem p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.zonesGrid,
+.benchmarkGrid,
+.optimizationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.zoneItem,
+.benchmarkItem,
+.optimizationItem {
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border: 1px solid var(--border-tertiary);
+}
+
+.zoneMilestone,
+.benchmarkName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.zoneValue,
+.benchmarkValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.zoneProgress,
+.benchmarkProgress {
+  height: 6px;
+  background: var(--bg-quaternary);
+  border-radius: 3px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.zoneProgressBar,
+.benchmarkProgressBar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.zoneDetails,
+.benchmarkDetails {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.zoneStatus,
+.benchmarkDifference,
+.benchmarkStatus {
+  font-weight: 500;
+}
+
+.shortfall {
+  color: var(--accent-red);
+  font-weight: 500;
+}
+
+.surplus {
+  color: var(--accent-green);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .whatIfSliders {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .zonesGrid,
+  .benchmarkGrid,
+  .optimizationGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .scenarioAnalysisControls {
+    page-break-inside: avoid;
+  }
+}

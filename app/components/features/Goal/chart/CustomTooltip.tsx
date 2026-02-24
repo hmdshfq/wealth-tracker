@@ -1,7 +1,7 @@
 import React from 'react';
 import { LegendEntry } from './types';
 import { CHART_COLORS } from './types';
-import styles from '../InvestmentGoalChart.module.css';
+import styles from './CustomTooltip.module.css';
 
 interface TooltipPayloadItem {
   dataKey?: string;

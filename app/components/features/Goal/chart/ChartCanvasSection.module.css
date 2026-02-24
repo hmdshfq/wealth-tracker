@@ -1,0 +1,145 @@
+.chartWrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.chartWrapper:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 4px;
+}
+
+.chartWrapper :global(.recharts-brush) {
+  margin-top: 10px;
+}
+
+.chartWrapper :global(.recharts-brush-slide) {
+  fill: var(--success-bg);
+  fill-opacity: 1;
+}
+
+.chartWrapper :global(.recharts-brush-traveller) {
+  fill: var(--accent-green);
+}
+
+.chartWrapper :global(.recharts-brush-texts) {
+  fill: var(--text-secondary);
+  font-size: 11px;
+}
+
+.dataTableDetails {
+  margin-top: 16px;
+}
+
+.dataTableSummary {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 8px 0;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.dataTableSummary:hover {
+  color: var(--text-primary);
+}
+
+.dataTableSummary:focus {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.dataTable th {
+  color: var(--text-muted);
+  font-weight: 600;
+  background: var(--bg-hover);
+  white-space: nowrap;
+}
+
+.dataTable td {
+  color: var(--text-primary);
+}
+
+.dataTable tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.instructions {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  font-size: 0.75rem;
+  color: var(--text-dimmed);
+}
+
+.instructions span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .chartWrapper {
+    height: 300px;
+  }
+
+  .instructions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartWrapper {
+    height: 260px;
+  }
+
+  .dataTable {
+    font-size: 0.75rem;
+  }
+
+  .dataTable th,
+  .dataTable td {
+    padding: 8px 6px;
+  }
+}
+
+@media print {
+  .instructions {
+    display: none;
+  }
+
+  .dataTableDetails {
+    display: block;
+  }
+
+  .dataTableSummary {
+    display: none;
+  }
+
+  .dataTable th,
+  .dataTable td {
+    color: #000000;
+    border-color: #cccccc;
+  }
+}

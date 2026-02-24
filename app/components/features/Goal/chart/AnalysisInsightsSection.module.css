@@ -1,0 +1,355 @@
+.timeBasedAnalysisControls,
+.behavioralAnalysisControls {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-secondary);
+}
+
+.timeBasedAnalysisHeader,
+.behavioralAnalysisHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timeBasedAnalysisHeader h4,
+.behavioralAnalysisHeader h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timeBasedAnalysisToggle,
+.behavioralAnalysisToggle {
+  margin-bottom: 16px;
+}
+
+.timeBasedAnalysisToggle label,
+.behavioralAnalysisToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.helpButton {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.helpButton:hover {
+  background: var(--bg-hover);
+  color: var(--accent-blue);
+}
+
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  margin-left: 4px;
+  color: var(--text-dimmed);
+  cursor: help;
+}
+
+.timeBasedAnalysisContent,
+.behavioralAnalysisContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.seasonalPatterns h5,
+.yoyComparison h5,
+.performanceHeatmap h5,
+.progressMilestones h5,
+.behavioralBiases h5,
+.motivationalMessages h5,
+.achievementBadges h5,
+.bestMonths h5,
+.worstMonths h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.patternsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.patternItem,
+.monthItem,
+.milestoneItem,
+.biasItem,
+.messageItem {
+  background: var(--bg-quaternary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.patternItem,
+.milestoneItem,
+.biasItem {
+  padding: 12px;
+}
+
+.monthItem,
+.messageItem {
+  padding: 8px 12px;
+}
+
+.patternHeader,
+.patternDetails,
+.monthItem,
+.milestoneHeader,
+.biasHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patternHeader {
+  margin-bottom: 8px;
+}
+
+.patternMonth,
+.milestonePercentage,
+.biasType {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.patternMonth {
+  font-size: 14px;
+}
+
+.patternReturn,
+.monthValue {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.patternStrength {
+  margin-bottom: 8px;
+}
+
+.patternStrengthBar {
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+
+.patternDetails,
+.monthName,
+.heatmapLegend,
+.milestoneDate,
+.biasRecommendation,
+.noBiases,
+.noBadges,
+.messageText {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.bestWorstMonths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.monthName,
+.messageText,
+.milestoneMessage,
+.biasDescription {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.yoyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.yoyTable th,
+.yoyTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.yoyTable th {
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card);
+}
+
+.yoyTable td {
+  color: var(--text-primary);
+}
+
+.heatmapLegend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.heatmapGradient {
+  flex: 1;
+  height: 8px;
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 25%, #fca5a5 50%, #fecaca 75%, #a7f3d0 100%);
+  border-radius: 4px;
+}
+
+.heatmapGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 4px;
+}
+
+.heatmapCell {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.heatmapCell:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.milestonesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.milestoneItem {
+  padding: 16px;
+}
+
+.milestonePercentage {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.milestoneStatus {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 133, 0.1);
+}
+
+.milestoneBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  background: var(--accent-blue);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.milestoneMessage,
+.biasDescription,
+.biasRecommendation {
+  margin: 0 0 8px 0;
+}
+
+.biasesList,
+.messagesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.biasSeverity {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.biasType {
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.messageItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.messageIcon {
+  font-size: 16px;
+}
+
+.badgesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badgeItem {
+  padding: 6px 12px;
+  background: var(--accent-blue);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badgeIcon {
+  font-size: 12px;
+}
+
+.noBadges,
+.noBiases {
+  text-align: center;
+  padding: 12px;
+}
+
+@media (max-width: 768px) {
+  .bestWorstMonths {
+    grid-template-columns: 1fr;
+  }
+
+  .patternsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .milestonesGrid {
+    grid-template-columns: 1fr;
+  }
+}

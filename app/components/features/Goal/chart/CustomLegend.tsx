@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonteCarloLegendHelp } from '../InvestmentGoalChartHelp';
 import { LegendEntry } from './types';
-import styles from '../InvestmentGoalChart.module.css';
+import styles from './CustomLegend.module.css';
 
 interface CustomLegendProps {
   payload: LegendEntry[];
