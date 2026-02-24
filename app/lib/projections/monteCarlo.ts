@@ -91,7 +91,7 @@ export function runMonteCarloSimulation(
     const randomReturns = generateRandomReturns(goal.annualReturn, volatility, numPeriods);
 
     const simulationData: ProjectionDataPoint[] = [];
-    let portfolioValue = currentNetWorth;
+    let portfolioValue = 0;
     let cumulativeContributions = 0;
     let cumulativeReturns = 0;
     let currentMonthlyDeposit = goal.monthlyDeposits;

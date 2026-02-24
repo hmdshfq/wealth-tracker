@@ -22,6 +22,8 @@ export function generateProjectionData(
   goal: Goal,
   currentNetWorth: number
 ): ProjectionDataPoint[] {
+  void currentNetWorth;
+
   if (!goal.startDate || !goal.retirementYear) {
     return [];
   }
@@ -40,7 +42,10 @@ export function generateProjectionData(
 
   if (totalMonths === 0) return [];
 
-  let portfolioValue = currentNetWorth;
+  // Start the projection from the goal start date baseline.
+  // Using current net worth here incorrectly backdates today's portfolio value
+  // to the start date and inflates all historical projection points.
+  let portfolioValue = 0;
   let cumulativeContributions = 0;
   let cumulativeReturns = 0;
   let currentMonthlyDeposit = goal.monthlyDeposits;
