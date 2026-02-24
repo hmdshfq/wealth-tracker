@@ -19,18 +19,16 @@ import { Toast, LocalStorageBanner, AppShellSkeleton } from '@/components/ui';
 
 // Types and constants
 import {
-  HoldingWithDetails,
   Transaction,
   CashBalance,
   CashTransaction,
   Goal,
-  AllocationItem,
   NewTransaction,
   NewCash,
   TickerInfo,
   PreferredCurrency,
 } from '@/lib/types';
-import { EXCHANGE_RATES, ETF_DATA } from '@/lib/constants';
+import { ETF_DATA } from '@/lib/constants';
 import { calculateGoalAmount } from '@/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/lib/holdingsCalculations';
 import { generateProjectionData, calculateCumulativeContributions } from '@/lib/projectionCalculations';
@@ -47,42 +45,20 @@ import {
   DEMO_GOAL,
   DEMO_TRANSACTIONS,
 } from '@/lib/demoData';
+import {
+  INITIAL_TRANSACTIONS,
+  INITIAL_CASH,
+  INITIAL_CASH_TRANSACTIONS,
+  INITIAL_GOAL,
+  STORAGE_KEY,
+  CURRENCY_LABELS,
+} from '@/lib/constants/initialState';
+import { useMarketData } from '@/lib/hooks/useMarketData';
+import { usePortfolioMetrics } from '@/lib/hooks/usePortfolioMetrics';
 
 
 // Styles
 import styles from './page.module.css';
-
-// ============================================================================
-// INITIAL DATA
-// ============================================================================
-
-const INITIAL_TRANSACTIONS: Transaction[] = [];
-
-const INITIAL_CASH: CashBalance[] = [
-  { currency: 'PLN', amount: 0 },
-  { currency: 'EUR', amount: 0 },
-  { currency: 'USD', amount: 0 },
-];
-
-const INITIAL_CASH_TRANSACTIONS: CashTransaction[] = [];
-
-const INITIAL_GOAL: Goal = {
-  retirementYear: 2050,
-  annualReturn: 0.07,
-  monthlyDeposits: 0,
-  amount: 0,
-  targetYear: 2050,
-  depositIncreasePercentage: 0,
-  startDate: new Date().toISOString().split('T')[0],
-};
-
-const STORAGE_KEY = 'investment-tracker-data';
-
-const CURRENCY_LABELS: Record<PreferredCurrency, string> = {
-  PLN: 'PLN (zł)',
-  EUR: 'EUR (€)',
-  USD: 'USD ($)',
-};
 
 // ============================================================================
 // MAIN COMPONENT
@@ -113,7 +89,6 @@ export default function InvestmentTracker() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isLocalOnly, setIsLocalOnly] = useState(false);
   const isCloudMode = isAuthLoaded && isSignedIn && !isLocalOnly;
-  const isGuestMode = isAuthLoaded && !isSignedIn;
   const showLocalStorageBanner = isAuthLoaded && !isSignedIn;
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cloudSaveStatus, setCloudSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -312,19 +287,7 @@ export default function InvestmentTracker() {
     }
   }, [buildCloudPayload, isDataLoaded, isCloudMode, saveToCloud]);
 
-  // ---------------------------------------------------------------------------
-  // Prices State
-  // ---------------------------------------------------------------------------
-  type PriceData = {
-  price: number;
-  change: number;
-  changePercent: number;
-  currency: string;
-};
-
-const [prices, setPrices] = useState<Record<string, PriceData>>({});
-  const [pricesLoading, setPricesLoading] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers);
 
   // ---------------------------------------------------------------------------
   // Modal State
@@ -360,146 +323,19 @@ const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const [editingGoal, setEditingGoal] = useState(false);
   const [tempGoal, setTempGoal] = useState<Goal>({ ...goal });
 
-  // ---------------------------------------------------------------------------
-  // Exchange Rates State
-  // ---------------------------------------------------------------------------
-  const [exchangeRates, setExchangeRates] = useState(EXCHANGE_RATES);
-
-  // ---------------------------------------------------------------------------
-  // Price Fetching
-  // ---------------------------------------------------------------------------
-  const fetchPrices = useCallback(async () => {
-    setPricesLoading(true);
-
-    try {
-      // Check if there are any tickers to fetch
-      const tickers = Object.keys(allTickers);
-      if (tickers.length === 0) {
-        console.log('No tickers available, using fallback prices');
-        setPrices({});
-        return;
-      }
-
-      // Fetch ETF prices
-      const tickersParam = tickers.join(',');
-      const pricesResponse = await fetch(`/api/prices?tickers=${tickersParam}`);
-
-      if (!pricesResponse.ok) {
-        throw new Error(`HTTP ${pricesResponse.status}: ${pricesResponse.statusText}`);
-      }
-
-      const pricesData = await pricesResponse.json();
-
-      if (pricesData.error) {
-        throw new Error(pricesData.error);
-      }
-
-      const newPrices: Record<string, PriceData> = {};
-      for (const [ticker, info] of Object.entries(pricesData.prices || {})) {
-        newPrices[ticker] = info as PriceData;
-      }
-
-      setPrices(newPrices);
-
-      // Fetch exchange rates
-      const ratesResponse = await fetch('/api/exchange-rates');
-      if (ratesResponse.ok) {
-        const ratesData = await ratesResponse.json();
-        setExchangeRates(ratesData.rates);
-      } else {
-        console.warn('Failed to fetch exchange rates, using fallback');
-      }
-
-      setLastUpdate(new Date());
-    } catch (error) {
-      console.warn('Failed to fetch prices from API, using fallback:', error instanceof Error ? error.message : error);
-      // Fall back to base prices from constants
-      const fallbackPrices: Record<string, PriceData> = {};
-      Object.entries(allTickers).forEach(([ticker, data]) => {
-        fallbackPrices[ticker] = {
-          price: data.basePrice,
-          change: 0,
-          changePercent: 0,
-          currency: data.currency || 'EUR'
-        };
-      });
-      setPrices(fallbackPrices);
-    } finally {
-      setPricesLoading(false);
-    }
-  }, [allTickers]);
-
-  useEffect(() => {
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 300000);
-    return () => clearInterval(interval);
-  }, [fetchPrices]);
-
-  // ---------------------------------------------------------------------------
-  // Calculated Values
-  // ---------------------------------------------------------------------------
-  const portfolioValue = useMemo(() => {
-    let totalEUR = 0;
-    holdings.forEach((h) => {
-      const price = prices[h.ticker]?.price || allTickers[h.ticker]?.basePrice || 0;
-      totalEUR += h.shares * price;
-    });
-    return totalEUR * exchangeRates.EUR_PLN;
-  }, [holdings, prices, exchangeRates, allTickers]);
-
-  const totalCost = useMemo(() => {
-    let costEUR = 0;
-    holdings.forEach((h) => {
-      costEUR += h.shares * h.avgCost;
-    });
-    return costEUR * exchangeRates.EUR_PLN;
-  }, [holdings, exchangeRates]);
-
-  const totalCashPLN = useMemo(() => {
-    return cash.reduce((sum, c) => {
-      if (c.currency === 'PLN') return sum + c.amount;
-      if (c.currency === 'EUR') return sum + c.amount * exchangeRates.EUR_PLN;
-      if (c.currency === 'USD') return sum + c.amount * exchangeRates.USD_PLN;
-      return sum;
-    }, 0);
-  }, [cash, exchangeRates]);
-
-  const totalNetWorth = portfolioValue + totalCashPLN;
-  const totalGain = portfolioValue - totalCost;
-  const totalGainPercent = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
-  const goalProgress = (totalNetWorth / goal.amount) * 100;
+  const {
+    portfolioValue,
+    totalCashPLN,
+    totalNetWorth,
+    totalGain,
+    totalGainPercent,
+    goalProgress,
+    holdingsData,
+    allocationData,
+  } = usePortfolioMetrics(holdings, prices, exchangeRates, allTickers, cash, goal);
   const cloudToastMessage = lastCloudSave
     ? `Cloud synced at ${lastCloudSave.toLocaleTimeString()}`
     : 'Cloud synced';
-
-  const holdingsData: HoldingWithDetails[] = useMemo(() => {
-    return holdings.map((h) => {
-      const price = prices[h.ticker]?.price || allTickers[h.ticker]?.basePrice || 0;
-      const value = h.shares * price;
-      const cost = h.shares * h.avgCost;
-      const gain = value - cost;
-      const gainPercent = cost > 0 ? (gain / cost) * 100 : 0;
-      return {
-        ...h,
-        name: allTickers[h.ticker]?.name || h.ticker,
-        price,
-        value,
-        valuePLN: value * exchangeRates.EUR_PLN,
-        cost,
-        gain,
-        gainPercent,
-      };
-    });
-  }, [holdings, prices, exchangeRates, allTickers]);
-
-  const allocationData: AllocationItem[] = useMemo(() => {
-    const total = holdingsData.reduce((sum, h) => sum + h.value, 0);
-    return holdingsData.map((h) => ({
-      name: h.ticker,
-      value: h.value,
-      percent: total > 0 ? (h.value / total) * 100 : 0,
-    }));
-  }, [holdingsData]);
 
   // ---------------------------------------------------------------------------
   // Export Functions
