@@ -95,7 +95,7 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               totalActualContributions={totalActualContributions}
               firstTransactionDate={firstTransactionDate}
               monteCarloResult={monteCarloResult}
-              showMonteCarlo={true}
+              showMonteCarlo={false}
               preferredCurrency={preferredCurrency}
             />
           ) : (

@@ -14,7 +14,12 @@ import {
 import { MonteCarloSimulationResult, ProjectionDataPoint, ScenarioAnalysisResult } from '@/lib/types';
 import { CustomLegend } from './CustomLegend';
 import { CustomTooltip } from './CustomTooltip';
-import { CHART_COLORS, ChartProjectionPoint, LegendEntry } from './types';
+import {
+  CHART_COLORS,
+  ChartProjectionPoint,
+  LegendEntry,
+  resolveChartLineStyle,
+} from './types';
 import styles from './ChartCanvasSection.module.css';
 
 interface ChartCanvasSectionProps {
@@ -82,6 +87,79 @@ export function ChartCanvasSection({
   brushRange,
   setBrushRange,
 }: ChartCanvasSectionProps) {
+  const goalLineStyle = resolveChartLineStyle({
+    dataKey: 'goal',
+    seriesKind: 'core',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const projectedContributionsLineStyle = resolveChartLineStyle({
+    dataKey: 'cumulativeContributions',
+    seriesKind: 'core',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const projectedValueLineStyle = resolveChartLineStyle({
+    dataKey: 'value',
+    seriesKind: 'core',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const actualContributionsLineStyle = resolveChartLineStyle({
+    dataKey: 'actualContributions',
+    seriesKind: 'core',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const actualValueLineStyle = resolveChartLineStyle({
+    dataKey: 'actualValue',
+    seriesKind: 'core',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const p90LineStyle = resolveChartLineStyle({
+    dataKey: 'p90',
+    seriesKind: 'monte-carlo',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const p50LineStyle = resolveChartLineStyle({
+    dataKey: 'p50',
+    seriesKind: 'monte-carlo',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const p10LineStyle = resolveChartLineStyle({
+    dataKey: 'p10',
+    seriesKind: 'monte-carlo',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+  const whatIfLineStyle = resolveChartLineStyle({
+    dataKey: 'whatIfValue',
+    seriesKind: 'what-if',
+    theme,
+    colors,
+    monteCarloColors,
+    background: colors.background,
+  });
+
   return (
     <>
       <CustomLegend payload={legendPayload} onToggle={handleLegendToggle} hiddenLines={hiddenLines} />
@@ -154,11 +232,11 @@ export function ChartCanvasSection({
                 type="monotone"
                 dataKey="goal"
                 name="Target Goal"
-                stroke={colors.target}
-                strokeWidth={2}
-                strokeDasharray="8 4"
-                dot={false}
-                activeDot={false}
+                stroke={goalLineStyle.stroke}
+                strokeWidth={goalLineStyle.strokeWidth}
+                strokeDasharray={goalLineStyle.strokeDasharray}
+                dot={goalLineStyle.dot}
+                activeDot={goalLineStyle.activeDot}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
             )}
@@ -168,11 +246,11 @@ export function ChartCanvasSection({
                 type="monotone"
                 dataKey="cumulativeContributions"
                 name="Projected Contributions"
-                stroke={colors.projectedContributions}
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={false}
-                activeDot={{ r: 4, fill: colors.projectedContributions, stroke: colors.background, strokeWidth: 2 }}
+                stroke={projectedContributionsLineStyle.stroke}
+                strokeWidth={projectedContributionsLineStyle.strokeWidth}
+                strokeDasharray={projectedContributionsLineStyle.strokeDasharray}
+                dot={projectedContributionsLineStyle.dot}
+                activeDot={projectedContributionsLineStyle.activeDot}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
             )}
@@ -226,12 +304,12 @@ export function ChartCanvasSection({
                           type="monotone"
                           dataKey="p90"
                           name="90% Confidence"
-                          stroke={monteCarloColors.p90}
-                          strokeWidth={1}
-                          strokeOpacity={0.65}
-                          strokeDasharray="3 3"
-                          dot={false}
-                          activeDot={false}
+                          stroke={p90LineStyle.stroke}
+                          strokeWidth={p90LineStyle.strokeWidth}
+                          strokeOpacity={p90LineStyle.strokeOpacity}
+                          strokeDasharray={p90LineStyle.strokeDasharray}
+                          dot={p90LineStyle.dot}
+                          activeDot={p90LineStyle.activeDot}
                           isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
                         />
                       )}
@@ -240,11 +318,11 @@ export function ChartCanvasSection({
                           type="monotone"
                           dataKey="p50"
                           name="Median Projection"
-                          stroke={monteCarloColors.p50}
-                          strokeWidth={1}
-                          strokeDasharray="2 2"
-                          dot={false}
-                          activeDot={false}
+                          stroke={p50LineStyle.stroke}
+                          strokeWidth={p50LineStyle.strokeWidth}
+                          strokeDasharray={p50LineStyle.strokeDasharray}
+                          dot={p50LineStyle.dot}
+                          activeDot={p50LineStyle.activeDot}
                           isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
                         />
                       )}
@@ -253,12 +331,12 @@ export function ChartCanvasSection({
                           type="monotone"
                           dataKey="p10"
                           name="10% Confidence"
-                          stroke={monteCarloColors.p10}
-                          strokeWidth={1}
-                          strokeOpacity={0.65}
-                          strokeDasharray="3 3"
-                          dot={false}
-                          activeDot={false}
+                          stroke={p10LineStyle.stroke}
+                          strokeWidth={p10LineStyle.strokeWidth}
+                          strokeOpacity={p10LineStyle.strokeOpacity}
+                          strokeDasharray={p10LineStyle.strokeDasharray}
+                          dot={p10LineStyle.dot}
+                          activeDot={p10LineStyle.activeDot}
                           isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
                         />
                       )}
@@ -273,11 +351,11 @@ export function ChartCanvasSection({
                 type="monotone"
                 dataKey="value"
                 name="Projected Value"
-                stroke={colors.projectedValue}
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={false}
-                activeDot={{ r: 6, fill: colors.projectedValue, stroke: colors.background, strokeWidth: 2 }}
+                stroke={projectedValueLineStyle.stroke}
+                strokeWidth={projectedValueLineStyle.strokeWidth}
+                strokeDasharray={projectedValueLineStyle.strokeDasharray}
+                dot={projectedValueLineStyle.dot}
+                activeDot={projectedValueLineStyle.activeDot}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
             )}
@@ -285,60 +363,91 @@ export function ChartCanvasSection({
             {showScenarioAnalysisLocal &&
               effectiveScenarioAnalysisResult &&
               activeScenarios
-                .filter((s) => s.isActive && s.id !== 'base' && !hiddenLines.has(s.id))
-                .map((scenario) => (
-                  <Line
-                    key={scenario.id}
-                    type="monotone"
-                    dataKey={scenario.id}
-                    name={scenario.name}
-                    stroke={scenario.color}
-                    strokeWidth={2}
-                    strokeDasharray="4 4"
-                    dot={false}
-                    activeDot={{ r: 6, fill: scenario.color, stroke: colors.background, strokeWidth: 2 }}
-                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                  />
-                ))}
+                .filter((s) => s.isActive && s.id !== 'base')
+                .map((scenario, index) => {
+                  if (hiddenLines.has(scenario.id)) {
+                    return null;
+                  }
+                  const scenarioLineStyle = resolveChartLineStyle({
+                    dataKey: scenario.id,
+                    seriesKind: 'scenario',
+                    theme,
+                    colors,
+                    monteCarloColors,
+                    background: colors.background,
+                    colorHint: scenario.color,
+                    index,
+                  });
+                  return (
+                    <Line
+                      key={scenario.id}
+                      type="monotone"
+                      dataKey={scenario.id}
+                      name={scenario.name}
+                      stroke={scenarioLineStyle.stroke}
+                      strokeWidth={scenarioLineStyle.strokeWidth}
+                      strokeDasharray={scenarioLineStyle.strokeDasharray}
+                      dot={scenarioLineStyle.dot}
+                      activeDot={scenarioLineStyle.activeDot}
+                      isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                    />
+                  );
+                })}
 
             {showWhatIf && whatIfProjection && (
               <Line
                 type="monotone"
                 dataKey="whatIfValue"
                 name="What-if Projection"
-                stroke="#f59e0b"
-                strokeWidth={3}
-                strokeDasharray="6 3"
-                dot={false}
-                activeDot={{ r: 8, fill: '#f59e0b', stroke: colors.background, strokeWidth: 3 }}
+                stroke={whatIfLineStyle.stroke}
+                strokeWidth={whatIfLineStyle.strokeWidth}
+                strokeDasharray={whatIfLineStyle.strokeDasharray}
+                dot={whatIfLineStyle.dot}
+                activeDot={whatIfLineStyle.activeDot}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
             )}
 
-            {benchmarkData.filter((benchmark) => !hiddenLines.has(benchmark.id)).map((benchmark) => (
-              <Line
-                key={benchmark.id}
-                type="monotone"
-                dataKey={benchmark.id}
-                name={benchmark.name}
-                stroke={benchmark.color}
-                strokeWidth={2}
-                strokeDasharray="3 3"
-                dot={false}
-                activeDot={{ r: 6, fill: benchmark.color, stroke: colors.background, strokeWidth: 2 }}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-              />
-            ))}
+            {benchmarkData.map((benchmark, index) => {
+              if (hiddenLines.has(benchmark.id)) {
+                return null;
+              }
+                const benchmarkLineStyle = resolveChartLineStyle({
+                  dataKey: benchmark.id,
+                  seriesKind: 'benchmark',
+                  theme,
+                  colors,
+                  monteCarloColors,
+                  background: colors.background,
+                  colorHint: benchmark.color,
+                  index,
+                });
+                return (
+                  <Line
+                    key={benchmark.id}
+                    type="monotone"
+                    dataKey={benchmark.id}
+                    name={benchmark.name}
+                    stroke={benchmarkLineStyle.stroke}
+                    strokeWidth={benchmarkLineStyle.strokeWidth}
+                    strokeDasharray={benchmarkLineStyle.strokeDasharray}
+                    dot={benchmarkLineStyle.dot}
+                    activeDot={benchmarkLineStyle.activeDot}
+                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                  />
+                );
+              })}
 
             {!hiddenLines.has('actualContributions') && (
               <Line
                 type="monotone"
                 dataKey="actualContributions"
                 name="Actual Contributions"
-                stroke={colors.actualContributions}
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 6, fill: colors.actualContributions, stroke: colors.background, strokeWidth: 2 }}
+                stroke={actualContributionsLineStyle.stroke}
+                strokeWidth={actualContributionsLineStyle.strokeWidth}
+                strokeDasharray={actualContributionsLineStyle.strokeDasharray}
+                dot={actualContributionsLineStyle.dot}
+                activeDot={actualContributionsLineStyle.activeDot}
                 connectNulls={false}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />
@@ -349,10 +458,10 @@ export function ChartCanvasSection({
                 type="monotone"
                 dataKey="actualValue"
                 name="Actual Value"
-                stroke={colors.actualValue}
-                strokeWidth={3}
-                dot={{ r: 8, fill: colors.actualValue, stroke: colors.background, strokeWidth: 3 }}
-                activeDot={{ r: 10, fill: colors.actualValue, stroke: colors.background, strokeWidth: 3 }}
+                stroke={actualValueLineStyle.stroke}
+                strokeWidth={actualValueLineStyle.strokeWidth}
+                dot={actualValueLineStyle.dot}
+                activeDot={actualValueLineStyle.activeDot}
                 connectNulls={false}
                 isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
               />

@@ -18,9 +18,9 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
   const gradientId = useId();
   const monteCarloColors = useMemo(
     () => ({
-      p90: theme === 'dark' ? '#60a5fa' : '#2563eb',
-      p50: theme === 'dark' ? '#f59e0b' : '#d97706',
-      p10: theme === 'dark' ? '#f87171' : '#dc2626',
+      p90: theme === 'dark' ? '#38bdf8' : '#0369a1',
+      p50: theme === 'dark' ? '#f43f5e' : '#be123c',
+      p10: theme === 'dark' ? '#a3e635' : '#4d7c0f',
     }),
     [theme]
   );

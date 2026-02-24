@@ -7,7 +7,7 @@ const DEFAULT_SCENARIOS: InvestmentScenario[] = [
     id: 'base',
     name: 'Base Case',
     returnAdjustment: 0,
-    color: '#4ECDC4',
+    color: '#22d3ee',
     description: 'Your original plan with expected returns',
     isActive: true,
   },
@@ -15,7 +15,7 @@ const DEFAULT_SCENARIOS: InvestmentScenario[] = [
     id: 'optimistic',
     name: 'Optimistic',
     returnAdjustment: 0.02, // +2%
-    color: '#10b981',
+    color: '#22c55e',
     description: 'Higher returns scenario (+2% annual return)',
     isActive: true,
   },
@@ -23,7 +23,7 @@ const DEFAULT_SCENARIOS: InvestmentScenario[] = [
     id: 'pessimistic',
     name: 'Pessimistic',
     returnAdjustment: -0.02, // -2%
-    color: '#ef4444',
+    color: '#f43f5e',
     description: 'Lower returns scenario (-2% annual return)',
     isActive: true,
   },

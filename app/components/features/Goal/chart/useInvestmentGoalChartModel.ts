@@ -28,7 +28,12 @@ import {
   ScenarioAnalysisResult,
   TimeBasedAnalysisResult,
 } from '@/lib/types';
-import { ChartProjectionPoint, LegendEntry, TIME_RANGES } from './types';
+import {
+  ChartProjectionPoint,
+  LegendEntry,
+  TIME_RANGES,
+  resolveChartLineStyle,
+} from './types';
 import {
   InvestmentGoalChartModel,
   UseInvestmentGoalChartModelInput,
@@ -219,6 +224,7 @@ export function useInvestmentGoalChartModel(
     scenarios,
     showTimeBasedAnalysis,
     showBehavioralAnalysis,
+    theme,
     colors,
     monteCarloColors,
   } = input;
@@ -276,7 +282,7 @@ export function useInvestmentGoalChartModel(
         id: 'base',
         name: 'Base Case',
         returnAdjustment: 0,
-        color: '#4ECDC4',
+        color: '#22d3ee',
         description: 'Your original plan',
         isActive: true,
       },
@@ -284,7 +290,7 @@ export function useInvestmentGoalChartModel(
         id: 'optimistic',
         name: 'Optimistic',
         returnAdjustment: 0.02,
-        color: '#10b981',
+        color: '#22c55e',
         description: '+2% annual return',
         isActive: true,
       },
@@ -292,7 +298,7 @@ export function useInvestmentGoalChartModel(
         id: 'pessimistic',
         name: 'Pessimistic',
         returnAdjustment: -0.02,
-        color: '#ef4444',
+        color: '#f43f5e',
         description: '-2% annual return',
         isActive: true,
       },
@@ -521,14 +527,14 @@ export function useInvestmentGoalChartModel(
         {
           id: 'sp500',
           name: 'S&P 500',
-          color: '#3b82f6',
+          color: '#0ea5e9',
           annualReturn: 0.07,
           data: sp500Projection,
         },
         {
           id: 'industry',
           name: 'Industry Avg',
-          color: '#8b5cf6',
+          color: '#a855f7',
           annualReturn: 0.05,
           data: industryProjection,
         },
@@ -732,100 +738,153 @@ export function useInvestmentGoalChartModel(
     }
   }, [customStartDate, customEndDate]);
 
-  const legendPayload = useMemo<LegendEntry[]>(
-    () => [
-      {
-        value: 'Portfolio Value',
-        color: colors.actualValue,
-        dataKey: 'actualValue',
-        type: 'actual' as const,
-      },
-      {
-        value: 'Contributions',
-        color: colors.actualContributions,
-        dataKey: 'actualContributions',
-        type: 'actual' as const,
-      },
-      {
-        value: 'Projected Value',
-        color: colors.projectedValue,
-        dataKey: 'value',
-        type: 'projected' as const,
-      },
-      {
-        value: 'Projected Contributions',
-        color: colors.projectedContributions,
-        dataKey: 'cumulativeContributions',
-        type: 'projected' as const,
-      },
-      {
-        value: 'Target Goal',
-        color: colors.target,
-        dataKey: 'goal',
-        type: 'target' as const,
-      },
-      ...(showMonteCarloLocal && effectiveMonteCarloResult
-        ? [
-            {
-              value: '90% Confidence',
-              color: monteCarloColors.p90,
-              dataKey: 'p90',
-              type: 'monte-carlo' as const,
-            },
-            {
-              value: 'Median',
-              color: monteCarloColors.p50,
-              dataKey: 'p50',
-              type: 'monte-carlo' as const,
-            },
-            {
-              value: '10% Confidence',
-              color: monteCarloColors.p10,
-              dataKey: 'p10',
-              type: 'monte-carlo' as const,
-            },
-          ]
-        : []),
-      ...(showScenarioAnalysisLocal && effectiveScenarioAnalysisResult
+  const legendPayload = useMemo<LegendEntry[]>(() => {
+    const legendEntryFromStyle = ({
+      value,
+      dataKey,
+      type,
+      seriesKind,
+      colorHint,
+      index,
+    }: {
+      value: string;
+      dataKey: string;
+      type: LegendEntry['type'];
+      seriesKind: Parameters<typeof resolveChartLineStyle>[0]['seriesKind'];
+      colorHint?: string;
+      index?: number;
+    }): LegendEntry => {
+      const style = resolveChartLineStyle({
+        dataKey,
+        seriesKind,
+        theme,
+        colors,
+        monteCarloColors,
+        background: colors.background,
+        colorHint,
+        index,
+      });
+
+      return {
+        value,
+        color: style.stroke,
+        dataKey,
+        type,
+        strokeDasharray: style.strokeDasharray,
+        strokeWidth: style.strokeWidth,
+        lineStyle: style.lineStyle,
+      };
+    };
+
+    const scenarioLegendEntries =
+      showScenarioAnalysisLocal && effectiveScenarioAnalysisResult
         ? activeScenarios
             .filter((s) => s.isActive && s.id !== 'base')
-            .map((scenario) => ({
-              value: scenario.name,
-              color: scenario.color,
-              dataKey: scenario.id,
-              type: 'scenario' as const,
-            }))
-        : []),
-      ...(showWhatIf && whatIfProjection
+            .map((scenario, index) =>
+              legendEntryFromStyle({
+                value: scenario.name,
+                dataKey: scenario.id,
+                type: 'scenario',
+                seriesKind: 'scenario',
+                colorHint: scenario.color,
+                index,
+              })
+            )
+        : [];
+
+    const whatIfLegendEntries =
+      showWhatIf && whatIfProjection
         ? [
-            {
+            legendEntryFromStyle({
               value: 'What-if Projection',
-              color: '#f59e0b',
               dataKey: 'whatIfValue',
-              type: 'scenario' as const,
-            },
+              type: 'scenario',
+              seriesKind: 'what-if',
+            }),
+          ]
+        : [];
+
+    const benchmarkLegendEntries = benchmarkData.map((benchmark, index) =>
+      legendEntryFromStyle({
+        value: benchmark.name,
+        dataKey: benchmark.id,
+        type: 'scenario',
+        seriesKind: 'benchmark',
+        colorHint: benchmark.color,
+        index,
+      })
+    );
+
+    return [
+      legendEntryFromStyle({
+        value: 'Portfolio Value',
+        dataKey: 'actualValue',
+        type: 'actual',
+        seriesKind: 'core',
+      }),
+      legendEntryFromStyle({
+        value: 'Contributions',
+        dataKey: 'actualContributions',
+        type: 'actual',
+        seriesKind: 'core',
+      }),
+      legendEntryFromStyle({
+        value: 'Projected Value',
+        dataKey: 'value',
+        type: 'projected',
+        seriesKind: 'core',
+      }),
+      legendEntryFromStyle({
+        value: 'Projected Contributions',
+        dataKey: 'cumulativeContributions',
+        type: 'projected',
+        seriesKind: 'core',
+      }),
+      legendEntryFromStyle({
+        value: 'Target Goal',
+        dataKey: 'goal',
+        type: 'target',
+        seriesKind: 'core',
+      }),
+      ...(showMonteCarloLocal && effectiveMonteCarloResult
+        ? [
+            legendEntryFromStyle({
+              value: '90% Confidence',
+              dataKey: 'p90',
+              type: 'monte-carlo',
+              seriesKind: 'monte-carlo',
+            }),
+            legendEntryFromStyle({
+              value: 'Median',
+              dataKey: 'p50',
+              type: 'monte-carlo',
+              seriesKind: 'monte-carlo',
+            }),
+            legendEntryFromStyle({
+              value: '10% Confidence',
+              dataKey: 'p10',
+              type: 'monte-carlo',
+              seriesKind: 'monte-carlo',
+            }),
           ]
         : []),
-      ...benchmarkData.map((benchmark) => ({
-        value: benchmark.name,
-        color: benchmark.color,
-        dataKey: benchmark.id,
-        type: 'scenario' as const,
-      })),
-    ],
-    [
-      colors,
-      showMonteCarloLocal,
-      effectiveMonteCarloResult,
-      showScenarioAnalysisLocal,
-      effectiveScenarioAnalysisResult,
-      activeScenarios,
-      showWhatIf,
-      whatIfProjection,
-      benchmarkData,
-      monteCarloColors,
-    ]
-  );
+      ...scenarioLegendEntries,
+      ...whatIfLegendEntries,
+      ...benchmarkLegendEntries,
+    ];
+  }, [
+    showScenarioAnalysisLocal,
+    effectiveScenarioAnalysisResult,
+    activeScenarios,
+    showWhatIf,
+    whatIfProjection,
+    benchmarkData,
+    showMonteCarloLocal,
+    effectiveMonteCarloResult,
+    theme,
+    colors,
+    monteCarloColors,
+  ]);
 
   return {
     headerModel: {

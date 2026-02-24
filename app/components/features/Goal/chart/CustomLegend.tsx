@@ -26,12 +26,21 @@ export const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, h
     >
       <span
         className={styles.legendIcon}
-        style={{
-          backgroundColor: hiddenLines.has(entry.dataKey) ? 'transparent' : entry.color,
-          borderColor: entry.color,
-          borderStyle: entry.type === 'projected' ? 'dashed' : 'solid',
-        }}
-      />
+      >
+        <svg viewBox="0 0 32 12" width="32" height="12" aria-hidden="true">
+          <line
+            x1="1"
+            y1="6"
+            x2="31"
+            y2="6"
+            stroke={entry.color}
+            strokeWidth={entry.strokeWidth ?? 2}
+            strokeDasharray={entry.strokeDasharray}
+            strokeLinecap="round"
+            opacity={hiddenLines.has(entry.dataKey) ? 0.45 : 1}
+          />
+        </svg>
+      </span>
       <span className={styles.legendText}>{entry.value}</span>
     </button>
   );
