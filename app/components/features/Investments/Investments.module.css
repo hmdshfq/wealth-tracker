@@ -191,7 +191,6 @@
 
 .resultsList {
   display: flex;
-  flex-direction: column;
   gap: var(--spacing-xs);
 }
 
@@ -205,10 +204,6 @@
   border: 1px solid var(--border-secondary);
   transition: background-color 0.2s ease, border-color 0.2s ease;
   gap: var(--spacing-sm);
-}
-
-.tickerResultRow:hover {
-  background-color: var(--bg-tertiary);
 }
 
 .tickerResultInfo {
@@ -256,9 +251,12 @@
     width: 100%;
   }
 
+  .tickerName {
+    display: none; 
+  }
+
   .tickerResultRow {
-    flex-direction: column;
-    align-items: flex-start;
+    width: 100%;
   }
 
   .tickerResultInfo {
@@ -266,14 +264,12 @@
   }
 
   .tickerResultActions {
-    width: 100%;
     justify-content: flex-start;
     flex-wrap: wrap;
   }
 
   .tickerResultButton {
     flex: 0 1 auto;
-    min-width: 96px;
   }
 }
 
@@ -295,7 +291,7 @@
 
 .resultsList {
   display: flex;
-  flex-direction: column;
+  flex-flow: row wrap;
   gap: 8px;
 }
 
@@ -310,10 +306,6 @@
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.tickerResultRow:hover {
-  background-color: var(--bg-tertiary);
-}
-
 .tickerResultInfo {
   overflow: hidden;
   margin-right: 10px;
@@ -325,14 +317,7 @@
   margin: 0;
 }
 
-.tickerName {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin: 0;
-}
+
 
 .errorMessage {
   color: var(--accent-red);

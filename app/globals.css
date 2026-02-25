@@ -78,7 +78,7 @@
   --bg-primary: #f8fafc;
   --bg-secondary: #f1f5f9;
   --bg-tertiary: #e2e8f0;
-  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card: oklch(1 0.004 162);
   --bg-card-solid: #ffffff;
   --bg-hover: rgba(100, 116, 139, 0.12);
   --bg-input: #ffffff;

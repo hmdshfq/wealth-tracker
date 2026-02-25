@@ -14,6 +14,12 @@
   white-space: nowrap;
 }
 
+@media (max-width: 530px) {
+  .tabButton {
+    padding: 5px 10px;
+  }
+}
+
 /* Hover state for inactive tabs */
 .tabButton:hover:not(.active) {
   color: var(--text-primary);

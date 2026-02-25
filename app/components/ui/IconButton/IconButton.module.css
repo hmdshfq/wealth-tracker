@@ -37,6 +37,12 @@
   border-color: var(--text-dimmed);
 }
 
+@media (max-width: 530px) {
+  .ghost {
+    display: none;
+  }
+}
+
 .ghost {
   background: transparent;
   color: var(--text-muted);

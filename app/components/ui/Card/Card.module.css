@@ -29,3 +29,9 @@
 .padding-large {
   padding: var(--spacing-xl);
 }
+
+@media (max-width: 530px) {
+  .padding-medium {
+    padding: 10px;
+  }
+}

@@ -46,7 +46,7 @@
 
 .transactionHeader {
   display: grid;
-  grid-template-columns: 100px 90px 70px 70px 90px 90px 100px 80px 90px;
+  grid-template-columns: repeat(9, 1fr);
   gap: var(--spacing-xs);
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-card);
@@ -56,18 +56,61 @@
   color: var(--text-dimmed);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  min-width: 780px;
+  justify-items: center;
 }
 
 .transactionRow {
   display: grid;
-  grid-template-columns: 100px 90px 70px 70px 90px 90px 100px 80px 90px;
+  grid-template-columns: repeat(9, 1fr);
   gap: var(--spacing-xs);
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-secondary);
   align-items: center;
   transition: background 0.15s;
-  min-width: 780px;
+  justify-items: center;
+}
+
+@media (max-width: 800px) {
+  .transactionHeader {
+    grid-template-columns: 80px 80px 40px 40px 70px 70px;
+  }
+
+  .transactionRow {
+    grid-template-columns: 80px 80px 40px 40px 70px 70px;
+  }
+  
+  .transactionHeader span:nth-child(5),
+  .transactionRow span:nth-child(5),
+  .transactionHeader span:nth-child(6),
+  .transactionRow span:nth-child(6),
+  .transactionHeader span:nth-child(7),
+  .transactionRow span:nth-child(7) {
+    display: none;
+  }
+}
+
+@media (max-width: 530px) {
+  .transactionHeader {
+    grid-template-columns: 80px 80px 40px 40px 50px;
+    padding: 8px 0px;
+  }
+
+  .transactionRow {
+    grid-template-columns: 80px 80px 40px 40px 50px;
+    padding: 8px 0px;
+  }
+  
+  .transactionHeader span:nth-child(5),
+  .transactionRow span:nth-child(5),
+  .transactionHeader span:nth-child(6),
+  .transactionRow span:nth-child(6),
+  .transactionHeader span:nth-child(7),
+  .transactionRow span:nth-child(7),
+  .transactionHeader span:nth-child(8),
+  .transactionRow span:nth-child(8)
+   {
+    display: none;
+  }
 }
 
 .transactionRow:hover {
@@ -220,36 +263,6 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .transactionHeader,
-  .transactionRow {
-    grid-template-columns: 90px 80px 70px 60px 80px 80px 90px;
-    min-width: 650px;
-  }
-
-  .transactionHeader span:nth-child(8),
-  .transactionRow span:nth-child(8),
-  .transactionHeader span:nth-child(9),
-  .transactionRow span:nth-child(9) {
-    display: none;
-  }
-}
-
-@media (max-width: 700px) {
-  .transactionHeader,
-  .transactionRow {
-    grid-template-columns: 80px 70px 60px 50px 70px 80px;
-    min-width: 500px;
-  }
-
-  .transactionHeader span:nth-child(6),
-  .transactionRow span:nth-child(6),
-  .transactionHeader span:nth-child(7),
-  .transactionRow span:nth-child(7) {
-    display: none;
-  }
-}
-
 @media (max-width: 600px) {
   .formRow {
     align-items: stretch;
