@@ -431,6 +431,7 @@ export function useInvestmentGoalChartModel(
   const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
 
   useEffect(() => {
+    if (isMobile) return;
     if (!showWhatIf) {
       setWhatIfProjection(null);
       return;
@@ -446,7 +447,7 @@ export function useInvestmentGoalChartModel(
       () => generateProjectionData(tempGoal, currentNetWorth),
       () => generateProjectionDataMain(tempGoal, currentNetWorth)
     ).then(setWhatIfProjection);
-  }, [showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
+  }, [isMobile, showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
 
   const yearsToGoal = useMemo(() => {
     return calculateYearsToGoal(
@@ -465,10 +466,11 @@ export function useInvestmentGoalChartModel(
   ]);
 
   useEffect(() => {
+    if (isMobile) return;
     if (yearsToGoal.baseYears > 0) {
       setWhatIfParams((prev) => ({ ...prev, yearsToGoal: yearsToGoal.baseYears }));
     }
-  }, [yearsToGoal.baseYears]);
+  }, [isMobile, yearsToGoal.baseYears]);
 
   const requiredContributions = useMemo(() => {
     const targets = [5, 10, 15, 20];
@@ -576,6 +578,7 @@ export function useInvestmentGoalChartModel(
   }, [projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
 
   const filteredDataWithBenchmarks = useMemo(() => {
+    if (isMobile) return [];
     if (!samplingResult.data.length || !benchmarkData.length) return samplingResult.data;
 
     const result = samplingResult.data.map<ChartProjectionPoint>((point) => ({ ...point }));
@@ -588,10 +591,11 @@ export function useInvestmentGoalChartModel(
     });
 
     return result;
-  }, [samplingResult.data, benchmarkData]);
+  }, [isMobile, samplingResult.data, benchmarkData]);
 
   const convertedGoalAmount = convertCurrency(goal.amount, preferredCurrency);
   const currencyAdjustedData = useMemo(() => {
+    if (isMobile) return [];
     if (!filteredDataWithBenchmarks.length) return filteredDataWithBenchmarks;
 
     return filteredDataWithBenchmarks.map((point) => {
@@ -606,7 +610,7 @@ export function useInvestmentGoalChartModel(
       });
       return convertedPoint;
     });
-  }, [filteredDataWithBenchmarks, preferredCurrency]);
+  }, [isMobile, filteredDataWithBenchmarks, preferredCurrency]);
 
   const formatChartValue = useCallback(
     (value: number) => formatCurrency(value, preferredCurrency),
@@ -676,6 +680,7 @@ export function useInvestmentGoalChartModel(
   );
 
   const chartSummary = useMemo(() => {
+    if (isMobile) return '';
     if (!currencyAdjustedData.length) return 'No data available';
     const first = currencyAdjustedData[0];
     const last = currencyAdjustedData[currencyAdjustedData.length - 1];
@@ -692,6 +697,7 @@ export function useInvestmentGoalChartModel(
       1
     )}%).`;
   }, [
+    isMobile,
     currencyAdjustedData,
     currentNetWorth,
     goal.amount,
@@ -704,6 +710,7 @@ export function useInvestmentGoalChartModel(
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
+      if (isMobile) return;
       if (!currencyAdjustedData.length) return;
       const maxIndex = currencyAdjustedData.length - 1;
 
@@ -738,7 +745,7 @@ export function useInvestmentGoalChartModel(
           break;
       }
     },
-    [currencyAdjustedData, announceToScreenReader, formatChartValue, convertedGoalAmount]
+    [isMobile, currencyAdjustedData, announceToScreenReader, formatChartValue, convertedGoalAmount]
   );
 
   const handleResetZoom = useCallback(() => {
@@ -944,6 +951,7 @@ export function useInvestmentGoalChartModel(
       effectiveMonteCarloResult,
     },
     canvasModel: {
+      isMobile,
       legendPayload,
       handleLegendToggle,
       hiddenLines,
@@ -975,6 +983,7 @@ export function useInvestmentGoalChartModel(
       getHeatmapColor,
     },
     strategicModel: {
+      isMobile,
       effectiveScenarioAnalysisResult,
       setActiveHelpOverlay,
       showScenarioAnalysisLocal,

@@ -31,6 +31,7 @@ interface Benchmark {
 }
 
 interface StrategicPanelsSectionProps {
+  isMobile: boolean;
   effectiveScenarioAnalysisResult?: ScenarioAnalysisResult | null;
   setActiveHelpOverlay: React.Dispatch<
     React.SetStateAction<'confidence-bands' | 'scenario-analysis' | null>
@@ -76,6 +77,7 @@ interface StrategicPanelsSectionProps {
 }
 
 export function StrategicPanelsSection({
+  isMobile,
   effectiveScenarioAnalysisResult,
   setActiveHelpOverlay,
   showScenarioAnalysisLocal,

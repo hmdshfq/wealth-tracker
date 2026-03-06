@@ -334,6 +334,10 @@
     display: none;
   }
 
+  .whatIfControls {
+    display: none;
+  }
+
   .whatIfSliders {
     grid-template-columns: 1fr;
   }

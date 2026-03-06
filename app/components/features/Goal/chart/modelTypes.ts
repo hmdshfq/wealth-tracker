@@ -78,6 +78,7 @@ export interface HeaderModel {
 }
 
 export interface CanvasModel {
+  isMobile: boolean;
   legendPayload: LegendEntry[];
   handleLegendToggle: (dataKey: string) => void;
   hiddenLines: Set<string>;
@@ -121,6 +122,7 @@ export interface InsightsModel {
 }
 
 export interface StrategicModel {
+  isMobile: boolean;
   effectiveScenarioAnalysisResult: ScenarioAnalysisResult | null | undefined;
   setActiveHelpOverlay: React.Dispatch<
     React.SetStateAction<'confidence-bands' | 'scenario-analysis' | null>

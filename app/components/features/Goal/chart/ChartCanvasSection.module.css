@@ -106,6 +106,10 @@
   .instructions {
     display: none;
   }
+
+  .dataTableDetails {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {

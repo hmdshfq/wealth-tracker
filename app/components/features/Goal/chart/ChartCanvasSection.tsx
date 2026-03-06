@@ -23,6 +23,7 @@ import {
 import styles from './ChartCanvasSection.module.css';
 
 interface ChartCanvasSectionProps {
+  isMobile: boolean;
   legendPayload: LegendEntry[];
   handleLegendToggle: (dataKey: string) => void;
   hiddenLines: Set<string>;
@@ -60,6 +61,7 @@ interface ChartCanvasSectionProps {
 }
 
 export function ChartCanvasSection({
+  isMobile,
   legendPayload,
   handleLegendToggle,
   hiddenLines,
@@ -480,7 +482,8 @@ export function ChartCanvasSection({
         </ResponsiveContainer>
       </div>
 
-      <details className={styles.dataTableDetails}>
+      {!isMobile && (
+        <details className={styles.dataTableDetails}>
         <summary className={styles.dataTableSummary}>View data as table</summary>
         <div className={styles.tableWrapper}>
           <table className={styles.dataTable} aria-label="Investment progress data">
@@ -516,6 +519,7 @@ export function ChartCanvasSection({
           </table>
         </div>
       </details>
+      )}
 
       <div className={styles.instructions} aria-hidden="true">
         <span>Drag brush below chart to zoom</span>
