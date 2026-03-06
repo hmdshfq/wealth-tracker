@@ -37,35 +37,34 @@ export function AnalysisInsightsSection({
 }: AnalysisInsightsSectionProps) {
   return (
     <>
-      {(timeBasedAnalysisResultLocal || timeBasedAnalysisResult) && (
-        <div className={styles.timeBasedAnalysisControls}>
-          <div className={styles.timeBasedAnalysisHeader}>
-            <h4>Time-Based Analysis</h4>
-            <button
-              onClick={() => setActiveHelpOverlay('scenario-analysis')}
-              className={styles.helpButton}
-              aria-label="Learn about time-based analysis"
-            >
-              ⓘ Help
-            </button>
-          </div>
-          <div className={styles.timeBasedAnalysisToggle}>
-            <label>
-              <input
-                type="checkbox"
-                checked={showTimeBasedAnalysisLocal}
-                onChange={() => setShowTimeBasedAnalysisLocal(!showTimeBasedAnalysisLocal)}
-              />
-              Show Time-Based Analysis
-              <HelpTooltip content="Analyze seasonal patterns and year-over-year performance trends">
-                <span className={styles.helpIcon} aria-label="Help">
-                  ⓘ
-                </span>
-              </HelpTooltip>
-            </label>
-          </div>
+      <div className={styles.timeBasedAnalysisControls}>
+        <div className={styles.timeBasedAnalysisHeader}>
+          <h4>Time-Based Analysis</h4>
+          <button
+            onClick={() => setActiveHelpOverlay('scenario-analysis')}
+            className={styles.helpButton}
+            aria-label="Learn about time-based analysis"
+          >
+            ⓘ Help
+          </button>
+        </div>
+        <div className={styles.timeBasedAnalysisToggle}>
+          <label>
+            <input
+              type="checkbox"
+              checked={showTimeBasedAnalysisLocal}
+              onChange={() => setShowTimeBasedAnalysisLocal(!showTimeBasedAnalysisLocal)}
+            />
+            Show Time-Based Analysis
+            <HelpTooltip content="Analyze seasonal patterns and year-over-year performance trends">
+              <span className={styles.helpIcon} aria-label="Help">
+                ⓘ
+              </span>
+            </HelpTooltip>
+          </label>
+        </div>
 
-          {showTimeBasedAnalysisLocal && (
+        {showTimeBasedAnalysisLocal && (
             <div className={styles.timeBasedAnalysisContent}>
               <div className={styles.seasonalPatterns}>
                 <h5>Seasonal Patterns</h5>
@@ -203,7 +202,6 @@ export function AnalysisInsightsSection({
             </div>
           )}
         </div>
-      )}
 
       {behavioralAnalysisResult && (
         <div className={styles.behavioralAnalysisControls}>

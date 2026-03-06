@@ -339,6 +339,10 @@
 }
 
 @media (max-width: 768px) {
+  .timeBasedAnalysisControls {
+    display: none;
+  }
+  
   .bestWorstMonths {
     grid-template-columns: 1fr;
   }

@@ -100,12 +100,11 @@
 
 @media (max-width: 768px) {
   .chartWrapper {
-    height: 300px;
+    display: none;
   }
 
   .instructions {
-    flex-direction: column;
-    gap: 8px;
+    display: none;
   }
 }
 

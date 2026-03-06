@@ -253,3 +253,91 @@ export function calculateCumulativeContributions(
     return total;
   }, 0);
 }
+
+export interface ActualPortfolioDataPoint {
+  year: number;
+  month: number;
+  date: string;
+  portfolioValue: number;
+  contributions: number;
+  cumulativeContributions: number;
+}
+
+/**
+ * Calculate actual portfolio values over time from transactions.
+ * Uses assumed return rate to estimate portfolio growth between transactions.
+ */
+export function calculateActualPortfolioValues(
+  transactions: Transaction[],
+  exchangeRates: { EUR_PLN: number; USD_PLN: number },
+  currentPortfolioValue: number,
+  assumedAnnualReturn: number = 0.07
+): ActualPortfolioDataPoint[] {
+  if (transactions.length === 0) return [];
+
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const firstDate = new Date(sortedTransactions[0].date);
+  const lastDate = new Date();
+  
+  const monthlyReturn = assumedAnnualReturn / 12;
+  const data: ActualPortfolioDataPoint[] = [];
+  
+  let portfolioValue = 0;
+  let cumulativeContributions = 0;
+
+  const current = new Date(firstDate);
+  let txIndex = 0;
+
+  while (current <= lastDate) {
+    const monthKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+    
+    while (txIndex < sortedTransactions.length) {
+      const txDate = new Date(sortedTransactions[txIndex].date);
+      if (txDate.getFullYear() < current.getFullYear() ||
+          (txDate.getFullYear() === current.getFullYear() && txDate.getMonth() < current.getMonth())) {
+        const tx = sortedTransactions[txIndex];
+        let amountPLN = tx.shares * tx.price;
+        if (tx.currency === 'EUR') {
+          amountPLN *= exchangeRates.EUR_PLN;
+        } else if (tx.currency === 'USD') {
+          amountPLN *= exchangeRates.USD_PLN;
+        }
+
+        if (tx.action === 'Buy') {
+          cumulativeContributions += amountPLN;
+          portfolioValue += amountPLN;
+        } else if (tx.action === 'Sell') {
+          cumulativeContributions -= amountPLN;
+          portfolioValue -= amountPLN;
+        }
+        txIndex++;
+      } else {
+        break;
+      }
+    }
+
+    portfolioValue *= (1 + monthlyReturn);
+
+    if (current.getTime() === lastDate.getTime() || 
+        current.getMonth() === lastDate.getMonth() && 
+        current.getFullYear() === lastDate.getFullYear()) {
+      portfolioValue = currentPortfolioValue;
+    }
+
+    data.push({
+      year: current.getFullYear(),
+      month: current.getMonth() + 1,
+      date: monthKey,
+      portfolioValue: Math.round(portfolioValue),
+      contributions: 0,
+      cumulativeContributions: Math.round(cumulativeContributions),
+    });
+
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  return data;
+}

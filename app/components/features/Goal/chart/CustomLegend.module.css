@@ -79,8 +79,7 @@
 
 @media (max-width: 768px) {
   .legendContainer {
-    flex-direction: column;
-    gap: 16px;
+    display: none;
   }
 
   .legendItems {

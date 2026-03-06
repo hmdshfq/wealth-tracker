@@ -222,6 +222,7 @@ export function useInvestmentGoalChartModel(
     scenarioAnalysisResult,
     showScenarioAnalysis,
     scenarios,
+    timeBasedAnalysisResult,
     showTimeBasedAnalysis,
     showBehavioralAnalysis,
     theme,
@@ -238,6 +239,17 @@ export function useInvestmentGoalChartModel(
     error: workerError,
     withFallback,
   } = useFinancialWorker();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const [selectedRange, setSelectedRange] = useState<string>('all');
   const [customStartDate, setCustomStartDate] = useState<string>(() => {
@@ -362,6 +374,8 @@ export function useInvestmentGoalChartModel(
   }, [scenarioAnalysisResult]);
 
   useEffect(() => {
+    if (isMobile) return;
+
     let isCancelled = false;
 
     withFallback(
@@ -385,6 +399,7 @@ export function useInvestmentGoalChartModel(
       isCancelled = true;
     };
   }, [
+    isMobile,
     goal,
     currentNetWorth,
     monteCarloSimulations,
@@ -394,6 +409,8 @@ export function useInvestmentGoalChartModel(
   ]);
 
   useEffect(() => {
+    if (isMobile) return;
+
     let isCancelled = false;
 
     withFallback(
@@ -408,7 +425,7 @@ export function useInvestmentGoalChartModel(
     return () => {
       isCancelled = true;
     };
-  }, [goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
+  }, [isMobile, goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
 
   const effectiveMonteCarloResult = monteCarloResultLocal || monteCarloResult;
   const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
@@ -510,6 +527,7 @@ export function useInvestmentGoalChartModel(
   });
 
   useEffect(() => {
+    if (isMobile) return;
     const sp500Goal = { ...goal, annualReturn: 0.07 };
     const industryGoal = { ...goal, annualReturn: 0.05 };
 
@@ -540,7 +558,7 @@ export function useInvestmentGoalChartModel(
         },
       ]);
     });
-  }, [goal, currentNetWorth, withFallback, generateProjectionData]);
+  }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData]);
 
   useEffect(() => {
     if (projectionData && projectionData.length > 0 && showTimeBasedAnalysisLocal) {
@@ -940,6 +958,7 @@ export function useInvestmentGoalChartModel(
       setBrushRange,
     },
     insightsModel: {
+      timeBasedAnalysisResult,
       timeBasedAnalysisResultLocal,
       showTimeBasedAnalysisLocal,
       setShowTimeBasedAnalysisLocal,

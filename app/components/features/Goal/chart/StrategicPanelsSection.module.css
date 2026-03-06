@@ -330,6 +330,10 @@
 }
 
 @media (max-width: 768px) {
+  .scenarioAnalysisControls {
+    display: none;
+  }
+
   .whatIfSliders {
     grid-template-columns: 1fr;
   }

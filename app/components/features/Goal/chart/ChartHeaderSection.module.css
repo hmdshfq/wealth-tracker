@@ -444,9 +444,11 @@
   }
 
   .controlsRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    display: none;
+  }
+
+  .monteCarloControls {
+    display: none;
   }
 
   .timeRangeButtons {

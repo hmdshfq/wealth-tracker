@@ -108,6 +108,7 @@ export interface CanvasModel {
 }
 
 export interface InsightsModel {
+  timeBasedAnalysisResult?: TimeBasedAnalysisResult;
   timeBasedAnalysisResultLocal: TimeBasedAnalysisResult | null;
   showTimeBasedAnalysisLocal: boolean;
   setShowTimeBasedAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;

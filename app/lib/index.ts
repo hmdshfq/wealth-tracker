@@ -14,6 +14,7 @@ export {
   calculateCumulativeActualContributions,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
+  calculateActualPortfolioValues,
   runScenarioAnalysis,
   getDefaultScenarios,
   calculateRiskMetrics,

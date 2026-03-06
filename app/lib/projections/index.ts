@@ -4,8 +4,9 @@ export {
   calculateCumulativeActualContributions,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
+  calculateActualPortfolioValues,
 } from './baseProjection';
-export type { ExtendedProjectionDataPoint } from './baseProjection';
+export type { ExtendedProjectionDataPoint, ActualPortfolioDataPoint } from './baseProjection';
 
 export { runMonteCarloSimulation } from './monteCarlo';
 
