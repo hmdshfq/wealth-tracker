@@ -240,7 +240,10 @@ export function useInvestmentGoalChartModel(
     withFallback,
   } = useFinancialWorker();
 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -567,6 +570,7 @@ export function useInvestmentGoalChartModel(
   }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData]);
 
   useEffect(() => {
+    if (isMobile) return;
     if (projectionData && projectionData.length > 0 && showTimeBasedAnalysisLocal) {
       withFallback(
         () => performTimeBasedAnalysis(projectionData),
@@ -575,7 +579,7 @@ export function useInvestmentGoalChartModel(
     } else {
       setTimeBasedAnalysisResultLocal(null);
     }
-  }, [projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
+  }, [isMobile, projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
 
   const filteredDataWithBenchmarks = useMemo(() => {
     if (isMobile) return [];
