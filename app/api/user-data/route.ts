@@ -7,6 +7,7 @@ type UserDataPayload = {
   cash: unknown;
   cashTransactions?: unknown;
   customTickers?: unknown;
+  tickerOrder?: unknown;
 };
 
 async function ensureTable() {

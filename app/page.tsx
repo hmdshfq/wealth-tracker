@@ -77,6 +77,10 @@ export default function InvestmentTracker() {
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
   const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>(INITIAL_CASH_TRANSACTIONS);
   const [customTickers, setCustomTickers] = useState<Record<string, TickerInfo>>({});
+  
+  // Live prices edit mode
+  const [tickerOrder, setTickerOrder] = useState<string[]>([]);
+  const [isEditingPrices, setIsEditingPrices] = useState(false);
 
   // Compute holdings from transactions
   const holdings = useMemo(() => calculateHoldingsFromTransactions(transactions), [transactions]);
@@ -131,8 +135,9 @@ export default function InvestmentTracker() {
       cash,
       cashTransactions,
       customTickers,
+      tickerOrder,
     };
-  }, [goal, transactions, cash, cashTransactions, customTickers]);
+  }, [goal, transactions, cash, cashTransactions, customTickers, tickerOrder]);
 
   const saveToCloud = useCallback(
     async (showToast: boolean) => {
@@ -208,6 +213,7 @@ export default function InvestmentTracker() {
             if (data.cash) setCash(data.cash);
             if (data.cashTransactions) setCashTransactions(data.cashTransactions);
             if (data.customTickers) setCustomTickers(data.customTickers);
+            if (data.tickerOrder) setTickerOrder(data.tickerOrder);
           }
         } catch (error) {
           console.error('Failed to load data from database:', error);
@@ -227,6 +233,7 @@ export default function InvestmentTracker() {
           if (parsedData.cash) setCash(parsedData.cash);
           if (parsedData.cashTransactions) setCashTransactions(parsedData.cashTransactions);
           if (parsedData.customTickers) setCustomTickers(parsedData.customTickers);
+          if (parsedData.tickerOrder) setTickerOrder(parsedData.tickerOrder);
         } else {
           const demoPayload = {
             goal: DEMO_GOAL,
@@ -288,6 +295,14 @@ export default function InvestmentTracker() {
   }, [buildCloudPayload, isDataLoaded, isCloudMode, saveToCloud]);
 
   const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers);
+
+  // Initialize ticker order from allTickers if not already set
+  useEffect(() => {
+    if (tickerOrder.length === 0 && Object.keys(allTickers).length > 0) {
+      const initialOrder = Object.keys(allTickers);
+      setTickerOrder(initialOrder);
+    }
+  }, [allTickers, tickerOrder.length]);
 
   // ---------------------------------------------------------------------------
   // Modal State
@@ -755,6 +770,10 @@ export default function InvestmentTracker() {
                 goalProgress={goalProgress}
                 preferredCurrency={preferredCurrency}
                 pricesLoading={pricesLoading}
+                isEditingPrices={isEditingPrices}
+                tickerOrder={tickerOrder}
+                onTogglePricesEdit={() => setIsEditingPrices(!isEditingPrices)}
+                onReorderTickers={setTickerOrder}
               />
             </div>
           )}

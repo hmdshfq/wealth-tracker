@@ -30,6 +30,10 @@ interface DashboardTabProps {
   goalProgress?: number;
   preferredCurrency?: PreferredCurrency;
   pricesLoading?: boolean;
+  isEditingPrices?: boolean;
+  tickerOrder?: string[];
+  onTogglePricesEdit?: () => void;
+  onReorderTickers?: (newOrder: string[]) => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -46,6 +50,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   goalProgress,
   preferredCurrency = 'PLN',
   pricesLoading = false,
+  isEditingPrices = false,
+  tickerOrder = Object.keys(etfData),
+  onTogglePricesEdit,
+  onReorderTickers,
 }) => {
   // Defer chart rendering until browser is idle
   const chartsReady = useIdleRender({ timeout: 2000 });
@@ -161,7 +169,15 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           variants={slideFromBottomVariants}
           transition={transitions.fast}
         >
-          <LivePrices prices={prices} etfData={etfData} isLoading={pricesLoading} />
+          <LivePrices
+            prices={prices}
+            etfData={etfData}
+            isLoading={pricesLoading}
+            isEditing={isEditingPrices}
+            tickerOrder={tickerOrder}
+            onToggleEdit={onTogglePricesEdit}
+            onReorderTickers={onReorderTickers}
+          />
         </motion.div>
       </motion.div>
     </motion.div>

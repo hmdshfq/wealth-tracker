@@ -7,6 +7,14 @@ interface PriceCardProps {
   price: string;
   change: string;
   changeType: 'positive' | 'negative';
+  isDragging?: boolean;
+  isDragOver?: boolean;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd?: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
 export const PriceCard: React.FC<PriceCardProps> = ({
@@ -15,9 +23,25 @@ export const PriceCard: React.FC<PriceCardProps> = ({
   price,
   change,
   changeType,
+  isDragging = false,
+  isDragOver = false,
+  draggable = false,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
 }) => {
   return (
-    <div className={styles.card}>
+    <div
+      className={`${styles.card} ${isDragging ? styles.dragging : ''} ${isDragOver ? styles.dragOver : ''}`}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       <p className={styles.ticker}>{ticker}</p>
       <p className={styles.name}>{name}</p>
       <div className={styles.priceRow}>
