@@ -337,6 +337,10 @@
   .whatIfSliders {
     grid-template-columns: 1fr;
   }
+
+  .benchmarkComparison {
+    display: none;
+  }
 }
 
 @media (max-width: 600px) {

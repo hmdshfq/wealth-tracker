@@ -491,16 +491,20 @@ export function useInvestmentGoalChartModel(
     return currentNetWorth - totalActualContributions;
   }, [currentNetWorth, totalActualContributions]);
 
-  const getHeatmapColor = useCallback((returnPercent: number): string => {
-    if (returnPercent > 10) return '#10b981';
-    if (returnPercent > 5) return '#34d399';
-    if (returnPercent > 2) return '#6ee7b7';
-    if (returnPercent > 0) return '#a7f3d0';
-    if (returnPercent > -2) return '#fecaca';
-    if (returnPercent > -5) return '#fca5a5';
-    if (returnPercent > -10) return '#f87171';
-    return '#ef4444';
-  }, []);
+  const getHeatmapColor = useCallback(
+    (returnPercent: number): string => {
+      if (isMobile) return '#6ee7b7';
+      if (returnPercent > 10) return '#10b981';
+      if (returnPercent > 5) return '#34d399';
+      if (returnPercent > 2) return '#6ee7b7';
+      if (returnPercent > 0) return '#a7f3d0';
+      if (returnPercent > -2) return '#fecaca';
+      if (returnPercent > -5) return '#fca5a5';
+      if (returnPercent > -10) return '#f87171';
+      return '#ef4444';
+    },
+    [isMobile]
+  );
 
   const actualReturnsPercent = useMemo(() => {
     return totalActualContributions > 0
@@ -757,6 +761,8 @@ export function useInvestmentGoalChartModel(
   }, [customStartDate, customEndDate]);
 
   const legendPayload = useMemo<LegendEntry[]>(() => {
+    if (isMobile) return [];
+
     const legendEntryFromStyle = ({
       value,
       dataKey,
@@ -891,6 +897,7 @@ export function useInvestmentGoalChartModel(
       ...benchmarkLegendEntries,
     ];
   }, [
+    isMobile,
     showScenarioAnalysisLocal,
     effectiveScenarioAnalysisResult,
     activeScenarios,
