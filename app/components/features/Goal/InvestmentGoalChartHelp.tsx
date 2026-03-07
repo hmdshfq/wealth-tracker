@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './InvestmentGoalChartHelp.module.css';
 
 interface HelpTooltipProps {
@@ -45,7 +46,15 @@ interface ConfidenceBandsHelpProps {
 }
 
 export const ConfidenceBandsHelp: React.FC<ConfidenceBandsHelpProps> = ({ onClose }) => {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const content = (
     <div className={styles.helpOverlay} role="dialog" aria-labelledby="confidence-bands-help-title">
       <div className={styles.helpContent}>
         <div className={styles.helpHeader}>
@@ -136,6 +145,8 @@ export const ConfidenceBandsHelp: React.FC<ConfidenceBandsHelpProps> = ({ onClos
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 };
 
 export const MonteCarloLegendHelp: React.FC = () => {
@@ -234,7 +245,15 @@ interface ScenarioAnalysisHelpProps {
 }
 
 export const ScenarioAnalysisHelp: React.FC<ScenarioAnalysisHelpProps> = ({ onClose }) => {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const content = (
     <div className={styles.helpOverlay} role="dialog" aria-labelledby="scenario-analysis-help-title">
       <div className={styles.helpContent}>
         <div className={styles.helpHeader}>
@@ -329,4 +348,6 @@ export const ScenarioAnalysisHelp: React.FC<ScenarioAnalysisHelpProps> = ({ onCl
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 };
