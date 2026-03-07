@@ -2,7 +2,7 @@
 .behavioralAnalysisControls {
   margin: 24px 0;
   padding: 16px;
-  background: var(--bg-card);
+  background: var(--bg-hover);
   border-radius: 12px;
   border: 1px solid var(--border-secondary);
 }

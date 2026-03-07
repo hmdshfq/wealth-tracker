@@ -282,9 +282,7 @@ export function useInvestmentGoalChartModel(
   const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(
     Boolean(showScenarioAnalysis)
   );
-  const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(
-    Boolean(showTimeBasedAnalysis)
-  );
+  const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(false);
   const [showBehavioralAnalysisLocal, setShowBehavioralAnalysisLocal] = useState(
     Boolean(showBehavioralAnalysis)
   );
