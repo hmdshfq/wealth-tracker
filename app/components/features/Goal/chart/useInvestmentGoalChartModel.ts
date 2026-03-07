@@ -750,11 +750,6 @@ export function useInvestmentGoalChartModel(
     [isMobile, currencyAdjustedData, announceToScreenReader, formatChartValue, convertedGoalAmount]
   );
 
-  const handleResetZoom = useCallback(() => {
-    setBrushRange({});
-    announceToScreenReader('Chart zoom reset');
-  }, [announceToScreenReader]);
-
   const handleRangeChange = useCallback((range: string) => {
     setSelectedRange(range);
     setShowCustomRange(false);
@@ -930,7 +925,6 @@ export function useInvestmentGoalChartModel(
       setCustomEndDate,
       handleRangeChange,
       handleCustomRange,
-      handleResetZoom,
       progressPercent,
       wsConnected,
       workerLoading,
@@ -973,6 +967,7 @@ export function useInvestmentGoalChartModel(
       benchmarkData,
       brushRange,
       setBrushRange,
+      isZoomActive: !!brushRange.startIndex || !!brushRange.endIndex,
     },
     insightsModel: {
       timeBasedAnalysisResult,

@@ -55,7 +55,6 @@ export interface HeaderModel {
   setCustomEndDate: React.Dispatch<React.SetStateAction<string>>;
   handleRangeChange: (range: string) => void;
   handleCustomRange: () => void;
-  handleResetZoom: () => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;
@@ -107,6 +106,7 @@ export interface CanvasModel {
   setBrushRange: React.Dispatch<
     React.SetStateAction<{ startIndex?: number | undefined; endIndex?: number | undefined }>
   >;
+  isZoomActive: boolean;
 }
 
 export interface InsightsModel {

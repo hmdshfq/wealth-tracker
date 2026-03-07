@@ -22,7 +22,6 @@ interface ChartHeaderSectionProps {
   setCustomEndDate: React.Dispatch<React.SetStateAction<string>>;
   handleRangeChange: (range: string) => void;
   handleCustomRange: () => void;
-  handleResetZoom: () => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;
@@ -64,7 +63,6 @@ export function ChartHeaderSection({
   setCustomEndDate,
   handleRangeChange,
   handleCustomRange,
-  handleResetZoom,
   progressPercent,
   wsConnected,
   workerLoading,
@@ -197,10 +195,6 @@ export function ChartHeaderSection({
             Apply
           </button>
         </div>
-
-        <button onClick={handleResetZoom} className={styles.resetButton}>
-          Reset Zoom
-        </button>
       </div>
 
       {effectiveMonteCarloResult && enableMonteCarlo !== false && (

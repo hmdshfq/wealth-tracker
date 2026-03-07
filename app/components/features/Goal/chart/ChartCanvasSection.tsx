@@ -58,6 +58,7 @@ interface ChartCanvasSectionProps {
   setBrushRange: React.Dispatch<
     React.SetStateAction<{ startIndex?: number | undefined; endIndex?: number | undefined }>
   >;
+  isZoomActive: boolean;
 }
 
 export function ChartCanvasSection({
@@ -88,6 +89,7 @@ export function ChartCanvasSection({
   benchmarkData,
   brushRange,
   setBrushRange,
+  isZoomActive,
 }: ChartCanvasSectionProps) {
   const goalLineStyle = resolveChartLineStyle({
     dataKey: 'goal',
@@ -474,8 +476,10 @@ export function ChartCanvasSection({
               height={30}
               stroke={colors.actualValue}
               fill={colors.background}
-              startIndex={brushRange.startIndex}
-              endIndex={brushRange.endIndex}
+              {...(isZoomActive && {
+                startIndex: brushRange.startIndex,
+                endIndex: brushRange.endIndex,
+              })}
               onChange={(range) => setBrushRange({ startIndex: range.startIndex, endIndex: range.endIndex })}
             />
           </ComposedChart>
