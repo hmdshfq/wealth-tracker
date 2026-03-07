@@ -53,6 +53,12 @@ interface InvestmentsTabProps {
   onEditCancel: () => void;
   onEditSave: () => void;
   onTempGoalChange: (updates: Partial<Goal>) => void;
+
+  // Goal feature settings
+  enableMonteCarlo: boolean;
+  enableTimeAnalysis: boolean;
+  enableScenarioAnalysis: boolean;
+  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis', enabled: boolean) => void;
 }
 
 export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
@@ -87,6 +93,12 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onEditCancel,
   onEditSave,
   onTempGoalChange,
+
+  // Goal feature settings
+  enableMonteCarlo,
+  enableTimeAnalysis,
+  enableScenarioAnalysis,
+  onGoalFeaturesChange,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
 
@@ -150,6 +162,9 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               portfolioValue={portfolioValue}
               exchangeRates={exchangeRates}
               preferredCurrency={preferredCurrency}
+              enableMonteCarlo={enableMonteCarlo}
+              enableTimeAnalysis={enableTimeAnalysis}
+              enableScenarioAnalysis={enableScenarioAnalysis}
             />
           </motion.div>
         )}
@@ -224,6 +239,10 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               onEditCancel={onEditCancel}
               onEditSave={onEditSave}
               onTempGoalChange={onTempGoalChange}
+              enableMonteCarlo={enableMonteCarlo}
+              enableTimeAnalysis={enableTimeAnalysis}
+              enableScenarioAnalysis={enableScenarioAnalysis}
+              onGoalFeaturesChange={onGoalFeaturesChange}
             />
           </motion.div>
         )}

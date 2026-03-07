@@ -32,6 +32,7 @@ export interface InvestmentGoalChartProps {
   showTimeBasedAnalysis?: boolean;
   behavioralAnalysisResult?: BehavioralAnalysisResult;
   showBehavioralAnalysis?: boolean;
+  enableScenarioAnalysis?: boolean;
 }
 
 export interface UseInvestmentGoalChartModelInput extends InvestmentGoalChartProps {

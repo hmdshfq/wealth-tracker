@@ -74,6 +74,7 @@ interface StrategicPanelsSectionProps {
     }
   >;
   activeHelpOverlay: 'confidence-bands' | 'scenario-analysis' | null;
+  enableScenarioAnalysis?: boolean;
 }
 
 export function StrategicPanelsSection({
@@ -98,7 +99,12 @@ export function StrategicPanelsSection({
   yearsToGoalBaseYears,
   requiredContributions,
   activeHelpOverlay,
+  enableScenarioAnalysis,
 }: StrategicPanelsSectionProps) {
+  if (enableScenarioAnalysis === false) {
+    return null;
+  }
+
   return (
     <>
       {effectiveScenarioAnalysisResult && (

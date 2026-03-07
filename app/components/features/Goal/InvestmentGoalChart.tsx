@@ -57,12 +57,14 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
         enableRealTimeUpdates={props.enableRealTimeUpdates ?? false}
         {...headerModel}
         setActiveHelpOverlay={strategicModel.setActiveHelpOverlay}
+        enableMonteCarlo={props.monteCarloResult !== undefined}
       />
 
       <AnalysisInsightsSection
         timeBasedAnalysisResult={props.timeBasedAnalysisResult}
         behavioralAnalysisResult={props.behavioralAnalysisResult}
         preferredCurrency={props.preferredCurrency}
+        showTimeBasedAnalysis={props.showTimeBasedAnalysis}
         {...insightsModel}
       />
 
@@ -83,6 +85,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
         preferredCurrency={props.preferredCurrency}
         colors={colors}
         projectionData={props.projectionData}
+        enableScenarioAnalysis={props.enableScenarioAnalysis ?? true}
       />
     </div>
   );

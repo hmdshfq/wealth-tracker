@@ -72,6 +72,18 @@ export default function InvestmentTracker() {
 
   // Currency preference
   const [preferredCurrency, setPreferredCurrency] = useState<PreferredCurrency>('PLN');
+  
+  // Goal feature settings
+  const [goalFeatures, setGoalFeatures] = useState<{
+    monteCarlo: boolean;
+    timeAnalysis: boolean;
+    scenarioAnalysis: boolean;
+  }>({
+    monteCarlo: true,
+    timeAnalysis: true,
+    scenarioAnalysis: true,
+  });
+  
   const [goal, setGoal] = useState<Goal>(INITIAL_GOAL);
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [cash, setCash] = useState<CashBalance[]>(INITIAL_CASH);
@@ -117,6 +129,24 @@ export default function InvestmentTracker() {
     const stored = localStorage.getItem('preferred-currency');
     if (stored === 'EUR' || stored === 'USD' || stored === 'PLN') {
       setPreferredCurrency(stored);
+    }
+  }, []);
+
+  // Load goal feature settings from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('goal-features');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setGoalFeatures({
+          monteCarlo: parsed.monteCarlo ?? true,
+          timeAnalysis: parsed.timeAnalysis ?? true,
+          scenarioAnalysis: parsed.scenarioAnalysis ?? true,
+        });
+      } catch (e) {
+        // Use defaults
+      }
     }
   }, []);
 
@@ -730,6 +760,18 @@ export default function InvestmentTracker() {
     }, 2500);
   }, []);
 
+  // Goal feature settings handlers
+  const handleGoalFeaturesChange = useCallback((
+    feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis',
+    enabled: boolean
+  ) => {
+    setGoalFeatures((prev) => {
+      const next = { ...prev, [feature]: enabled };
+      localStorage.setItem('goal-features', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   if (!isAuthLoaded || !isDataLoaded) {
     return <AppShellSkeleton />;
   }
@@ -810,6 +852,11 @@ export default function InvestmentTracker() {
                 onEditCancel={handleGoalEditCancel}
                 onEditSave={handleGoalEditSave}
                 onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
+                // Goal feature settings
+                enableMonteCarlo={goalFeatures.monteCarlo}
+                enableTimeAnalysis={goalFeatures.timeAnalysis}
+                enableScenarioAnalysis={goalFeatures.scenarioAnalysis}
+                onGoalFeaturesChange={handleGoalFeaturesChange}
               />
             </div>
           )}

@@ -13,6 +13,7 @@ interface AnalysisInsightsSectionProps {
   timeBasedAnalysisResultLocal: TimeBasedAnalysisResult | null;
   showTimeBasedAnalysisLocal: boolean;
   setShowTimeBasedAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
+  showTimeBasedAnalysis?: boolean;
   behavioralAnalysisResult?: BehavioralAnalysisResult;
   showBehavioralAnalysisLocal: boolean;
   setShowBehavioralAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,6 +29,7 @@ export function AnalysisInsightsSection({
   timeBasedAnalysisResultLocal,
   showTimeBasedAnalysisLocal,
   setShowTimeBasedAnalysisLocal,
+  showTimeBasedAnalysis,
   behavioralAnalysisResult,
   showBehavioralAnalysisLocal,
   setShowBehavioralAnalysisLocal,
@@ -35,6 +37,10 @@ export function AnalysisInsightsSection({
   preferredCurrency,
   getHeatmapColor,
 }: AnalysisInsightsSectionProps) {
+  if (showTimeBasedAnalysis === false) {
+    return null;
+  }
+
   return (
     <>
       <div className={styles.timeBasedAnalysisControls}>

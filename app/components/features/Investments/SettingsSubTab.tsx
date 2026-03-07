@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Card, SectionTitle, Button, Select } from '@/components/ui';
+import { Card, SectionTitle, Button, Select, ToggleSwitch } from '@/components/ui';
 import { GoalSettingsForm, GoalSettingsDisplay } from '../Goal';
 import { slideFromBottomVariants, transitions } from '@/lib/animations';
 import { Goal, PreferredCurrency } from '@/lib/types';
@@ -17,6 +17,10 @@ interface SettingsSubTabProps {
   onEditCancel: () => void;
   onEditSave: () => void;
   onTempGoalChange: (updates: Partial<Goal>) => void;
+  enableMonteCarlo: boolean;
+  enableTimeAnalysis: boolean;
+  enableScenarioAnalysis: boolean;
+  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis', enabled: boolean) => void;
 }
 
 export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
@@ -29,6 +33,10 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
   onEditCancel,
   onEditSave,
   onTempGoalChange,
+  enableMonteCarlo,
+  enableTimeAnalysis,
+  enableScenarioAnalysis,
+  onGoalFeaturesChange,
 }) => {
   return (
     <motion.div
@@ -78,6 +86,39 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
         ) : (
           <GoalSettingsDisplay goal={goal} preferredCurrency={preferredCurrency} />
         )}
+      </Card>
+
+      <div style={{ height: '24px' }} />
+
+      {/* Advanced Calculations Card */}
+      <Card>
+        <SectionTitle>Advanced Calculations</SectionTitle>
+        <p style={{ color: '#64748b', marginBottom: '20px', fontSize: '14px' }}>
+          Enable or disable intensive calculation features in the Goal tab. Disabling these features improves performance on slower devices.
+        </p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <ToggleSwitch
+            checked={enableMonteCarlo}
+            onChange={(enabled: boolean) => onGoalFeaturesChange('monteCarlo', enabled)}
+            label="Monte Carlo Simulation"
+            description="Run probability-based projections with confidence bands"
+          />
+          
+          <ToggleSwitch
+            checked={enableTimeAnalysis}
+            onChange={(enabled: boolean) => onGoalFeaturesChange('timeAnalysis', enabled)}
+            label="Time-Based Analysis"
+            description="Analyze seasonal patterns and year-over-year performance"
+          />
+          
+          <ToggleSwitch
+            checked={enableScenarioAnalysis}
+            onChange={(enabled: boolean) => onGoalFeaturesChange('scenarioAnalysis', enabled)}
+            label="Scenario Analysis"
+            description="Enable what-if scenarios and goal zone calculations"
+          />
+        </div>
       </Card>
     </motion.div>
   );

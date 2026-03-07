@@ -13,6 +13,7 @@ interface ChartHeaderSectionProps {
   totalActualContributions: number;
   colors: typeof CHART_COLORS.dark;
   enableRealTimeUpdates: boolean;
+  enableMonteCarlo?: boolean;
   selectedRange: string;
   showCustomRange: boolean;
   customStartDate: string;
@@ -54,6 +55,7 @@ export function ChartHeaderSection({
   totalActualContributions,
   colors,
   enableRealTimeUpdates,
+  enableMonteCarlo,
   selectedRange,
   showCustomRange,
   customStartDate,
@@ -201,7 +203,7 @@ export function ChartHeaderSection({
         </button>
       </div>
 
-      {effectiveMonteCarloResult && (
+      {effectiveMonteCarloResult && enableMonteCarlo !== false && (
         <div className={styles.monteCarloControls}>
           <div className={styles.monteCarloHeader}>
             <h4>Confidence Bands</h4>

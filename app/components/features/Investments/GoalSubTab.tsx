@@ -40,6 +40,9 @@ interface GoalSubTabProps {
     USD_PLN: number;
   };
   preferredCurrency: PreferredCurrency;
+  enableMonteCarlo: boolean;
+  enableTimeAnalysis: boolean;
+  enableScenarioAnalysis: boolean;
 }
 
 export const GoalSubTab: React.FC<GoalSubTabProps> = ({
@@ -50,6 +53,9 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   portfolioValue,
   exchangeRates,
   preferredCurrency,
+  enableMonteCarlo,
+  enableTimeAnalysis,
+  enableScenarioAnalysis,
 }) => {
   // Defer chart rendering until browser is idle
   const chartReady = useIdleRender({
@@ -66,10 +72,11 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
     return generateProjectionData(goal, totalNetWorth);
   }, [goal, totalNetWorth]);
 
-  // Run Monte Carlo simulation
+  // Run Monte Carlo simulation (conditional based on feature flag)
   const monteCarloResult = useMemo(() => {
+    if (!enableMonteCarlo) return undefined;
     return runMonteCarloSimulation(goal, totalNetWorth);
-  }, [goal, totalNetWorth]);
+  }, [goal, totalNetWorth, enableMonteCarlo]);
 
   // Calculate total actual contributions from transactions
   const totalActualContributions = useMemo(() => {
@@ -93,9 +100,9 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
     );
   }, [transactions, exchangeRates, portfolioValue, goal.annualReturn]);
 
-  // Run time-based analysis on actual portfolio data (disabled on mobile)
+  // Run time-based analysis on actual portfolio data (disabled on mobile and feature flag)
   const timeBasedAnalysisResult = useMemo((): TimeBasedAnalysisResult | undefined => {
-    if (isMobile || actualPortfolioData.length === 0) return undefined;
+    if (!enableTimeAnalysis || isMobile || actualPortfolioData.length === 0) return undefined;
     
     const projectionDataForAnalysis = actualPortfolioData.map((point) => ({
       year: point.year,
@@ -111,7 +118,7 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
     }));
 
     return performTimeBasedAnalysis(projectionDataForAnalysis);
-  }, [isMobile, actualPortfolioData, goal.amount]);
+  }, [enableTimeAnalysis, isMobile, actualPortfolioData, goal.amount]);
 
   // Merge projected data with actual transaction history
   const chartData = useMemo(() => {
@@ -148,7 +155,8 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               showMonteCarlo={false}
               preferredCurrency={preferredCurrency}
               timeBasedAnalysisResult={timeBasedAnalysisResult}
-              showTimeBasedAnalysis={!isMobile}
+              showTimeBasedAnalysis={!isMobile && enableTimeAnalysis}
+              enableScenarioAnalysis={enableScenarioAnalysis}
             />
           ) : (
             <ChartLoadingSkeleton />
