@@ -3,12 +3,12 @@ import { PreferredCurrency } from './types';
 
 export const formatPLN = (val: number | undefined | null): string => {
   if (typeof val !== 'number' || isNaN(val)) {
-    return 'zł0,00';
+    return '0,00 zł';
   }
-  return `zł${val.toLocaleString('en-US', {
+  return `${val.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  })}`;
+  })} zł`;
 };
 
 export const formatEUR = (val: number): string =>
@@ -21,11 +21,17 @@ export const formatPercent = (val: number): string =>
   `${val >= 0 ? '+' : ''}${val.toFixed(2)}%`;
 
 export const formatCurrency = (val: number, currency: string): string => {
-  const symbol = currency === 'PLN' ? 'zł' : currency === 'EUR' ? '€' : '$';
-  return `${symbol}${val.toLocaleString('pl-PL', {
+  const formatted = val.toLocaleString('pl-PL', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  })}`;
+  });
+  
+  if (currency === 'PLN') {
+    return `${formatted} zł`;
+  }
+  
+  const symbol = currency === 'EUR' ? '€' : '$';
+  return `${symbol}${formatted}`;
 };
 
 // Convert a PLN value to the preferred currency
