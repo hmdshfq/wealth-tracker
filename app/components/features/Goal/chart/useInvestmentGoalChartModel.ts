@@ -106,9 +106,6 @@ function useRealtimeNetWorth(
 function useProjectionTransforms({
   projectionData,
   selectedRange,
-  customStartDate,
-  customEndDate,
-  showCustomRange,
   goalAmount,
   showScenarioAnalysisLocal,
   effectiveScenarioAnalysisResult,
@@ -118,9 +115,6 @@ function useProjectionTransforms({
 }: {
   projectionData: ProjectionDataPoint[];
   selectedRange: string;
-  customStartDate: string;
-  customEndDate: string;
-  showCustomRange: boolean;
   goalAmount: number;
   showScenarioAnalysisLocal: boolean;
   effectiveScenarioAnalysisResult: ScenarioAnalysisResult | null | undefined;
@@ -140,9 +134,7 @@ function useProjectionTransforms({
 
     let filtered = [...projectionData];
 
-    if (showCustomRange && customStartDate && customEndDate) {
-      filtered = filtered.filter((d) => d.date >= customStartDate && d.date <= customEndDate);
-    } else if (selectedRange !== 'all') {
+    if (selectedRange !== 'all') {
       const range = TIME_RANGES.find((r) => r.value === selectedRange);
       if (range?.months) {
         filtered = filtered.slice(0, range.months);
@@ -192,9 +184,6 @@ function useProjectionTransforms({
   }, [
     projectionData,
     selectedRange,
-    customStartDate,
-    customEndDate,
-    showCustomRange,
     goalAmount,
     showScenarioAnalysisLocal,
     effectiveScenarioAnalysisResult,
@@ -254,17 +243,6 @@ export function useInvestmentGoalChartModel(
   }, []);
 
   const [selectedRange, setSelectedRange] = useState<string>('all');
-  const [customStartDate, setCustomStartDate] = useState<string>(() => {
-    if (!firstTransactionDate) return '';
-    return firstTransactionDate.substring(0, 7);
-  });
-  const [customEndDate, setCustomEndDate] = useState<string>(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  });
-  const [showCustomRange, setShowCustomRange] = useState(false);
 
   const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set());
   const [, setFocusedDataIndex] = useState<number | null>(null);
@@ -521,9 +499,6 @@ export function useInvestmentGoalChartModel(
   const samplingResult = useProjectionTransforms({
     projectionData,
     selectedRange,
-    customStartDate,
-    customEndDate,
-    showCustomRange,
     goalAmount: goal.amount,
     showScenarioAnalysisLocal,
     effectiveScenarioAnalysisResult,
@@ -751,17 +726,8 @@ export function useInvestmentGoalChartModel(
 
   const handleRangeChange = useCallback((range: string) => {
     setSelectedRange(range);
-    setShowCustomRange(false);
     setBrushRange({});
   }, []);
-
-  const handleCustomRange = useCallback(() => {
-    if (customStartDate && customEndDate) {
-      setShowCustomRange(true);
-      setSelectedRange('custom');
-      setBrushRange({});
-    }
-  }, [customStartDate, customEndDate]);
 
   const legendPayload = useMemo<LegendEntry[]>(() => {
     if (isMobile) return [];
@@ -917,13 +883,7 @@ export function useInvestmentGoalChartModel(
   return {
     headerModel: {
       selectedRange,
-      showCustomRange,
-      customStartDate,
-      customEndDate,
-      setCustomStartDate,
-      setCustomEndDate,
       handleRangeChange,
-      handleCustomRange,
       progressPercent,
       wsConnected,
       workerLoading,

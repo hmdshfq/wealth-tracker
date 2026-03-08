@@ -48,13 +48,7 @@ export interface UseInvestmentGoalChartModelInput extends InvestmentGoalChartPro
 
 export interface HeaderModel {
   selectedRange: string;
-  showCustomRange: boolean;
-  customStartDate: string;
-  customEndDate: string;
-  setCustomStartDate: React.Dispatch<React.SetStateAction<string>>;
-  setCustomEndDate: React.Dispatch<React.SetStateAction<string>>;
   handleRangeChange: (range: string) => void;
-  handleCustomRange: () => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;

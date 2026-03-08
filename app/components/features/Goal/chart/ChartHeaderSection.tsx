@@ -15,13 +15,7 @@ interface ChartHeaderSectionProps {
   enableRealTimeUpdates: boolean;
   enableMonteCarlo?: boolean;
   selectedRange: string;
-  showCustomRange: boolean;
-  customStartDate: string;
-  customEndDate: string;
-  setCustomStartDate: React.Dispatch<React.SetStateAction<string>>;
-  setCustomEndDate: React.Dispatch<React.SetStateAction<string>>;
   handleRangeChange: (range: string) => void;
-  handleCustomRange: () => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;
@@ -56,13 +50,7 @@ export function ChartHeaderSection({
   enableRealTimeUpdates,
   enableMonteCarlo,
   selectedRange,
-  showCustomRange,
-  customStartDate,
-  customEndDate,
-  setCustomStartDate,
-  setCustomEndDate,
   handleRangeChange,
-  handleCustomRange,
   progressPercent,
   wsConnected,
   workerLoading,
@@ -160,9 +148,9 @@ export function ChartHeaderSection({
             <button
               key={range.value}
               role="tab"
-              aria-selected={selectedRange === range.value && !showCustomRange}
+              aria-selected={selectedRange === range.value}
               className={`${styles.rangeButton} ${
-                selectedRange === range.value && !showCustomRange ? styles.active : ''
+                selectedRange === range.value ? styles.active : ''
               }`}
               onClick={() => handleRangeChange(range.value)}
             >
@@ -171,30 +159,7 @@ export function ChartHeaderSection({
           ))}
         </div>
 
-        <div className={styles.customRange}>
-          <input
-            type="month"
-            value={customStartDate}
-            onChange={(e) => setCustomStartDate(e.target.value)}
-            className={styles.dateInput}
-            aria-label="Start date"
-          />
-          <span className={styles.dateSeparator}>to</span>
-          <input
-            type="month"
-            value={customEndDate}
-            onChange={(e) => setCustomEndDate(e.target.value)}
-            className={styles.dateInput}
-            aria-label="End date"
-          />
-          <button
-            onClick={handleCustomRange}
-            className={styles.applyButton}
-            disabled={!customStartDate || !customEndDate}
-          >
-            Apply
-          </button>
-        </div>
+
       </div>
 
       {effectiveMonteCarloResult && enableMonteCarlo !== false && (
