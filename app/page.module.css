@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: var(--gradient-bg);
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-family: var(--font-mono);
   padding: 24px;
   transition: background 0.3s ease, color 0.3s ease;
 }
