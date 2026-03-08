@@ -335,6 +335,50 @@
   -webkit-appearance: none;
 }
 
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.numberInput {
+  width: 70px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.numberInput:focus {
+  border-color: var(--accent-blue);
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputSuffix {
+  font-size: 0.875rem;
+  color: var(--text-dimmed);
+  min-width: 16px;
+}
+
+.rangeSlider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-secondary);
+  outline: none;
+  -webkit-appearance: none;
+}
+
 .paramGroup input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -346,6 +390,25 @@
 }
 
 .paramGroup input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+  border: none;
+}
+
+.rangeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+}
+
+.rangeSlider::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;

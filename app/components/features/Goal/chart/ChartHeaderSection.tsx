@@ -194,41 +194,60 @@ export function ChartHeaderSection({
             <div className={styles.monteCarloParams}>
               <div className={styles.paramGroup}>
                 <label>
-                  Volatility: {Math.round(monteCarloVolatility * 100)}%
+                  Volatility
                   <HelpTooltip content="Adjust based on your portfolio's risk level (5% for bonds, 15% for balanced, 30% for aggressive growth)">
                     <span className={styles.helpIcon} aria-label="Help">
                       ⓘ
                     </span>
                   </HelpTooltip>
+                </label>
+                <VolatilityGuide />
+                <div className={styles.inputContainer}>
                   <input
-                    type="range"
+                    type="number"
                     min="0.05"
                     max="0.3"
                     step="0.01"
                     value={monteCarloVolatility}
-                    onChange={(e) => setMonteCarloVolatility(parseFloat(e.target.value))}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        setMonteCarloVolatility(Math.min(0.3, Math.max(0.05, value)));
+                      }
+                    }}
+                    className={styles.numberInput}
+                    aria-label="Volatility percentage"
                   />
-                  <VolatilityGuide />
-                </label>
+                  <span className={styles.inputSuffix}>%</span>
+                </div>
               </div>
 
               <div className={styles.paramGroup}>
                 <label>
-                  Simulations: {monteCarloSimulations}
+                  Simulations
                   <HelpTooltip content="More simulations provide more accurate percentiles (1,000 recommended for good balance)">
                     <span className={styles.helpIcon} aria-label="Help">
                       ⓘ
                     </span>
                   </HelpTooltip>
+                </label>
+                <div className={styles.inputContainer}>
                   <input
-                    type="range"
+                    type="number"
                     min="100"
                     max="5000"
                     step="100"
                     value={monteCarloSimulations}
-                    onChange={(e) => setMonteCarloSimulations(parseInt(e.target.value, 10))}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value)) {
+                        setMonteCarloSimulations(Math.min(5000, Math.max(100, value)));
+                      }
+                    }}
+                    className={styles.numberInput}
+                    aria-label="Number of simulations"
                   />
-                </label>
+                </div>
               </div>
 
               <button
