@@ -97,6 +97,16 @@
 
 .pieContainer {
   height: 225px;
+  /* CSS containment to prevent layout thrashing during interactions */
+  contain: layout style paint;
+  /* Content visibility for performance - delays rendering until visible */
+  content-visibility: auto;
+  /* Hint for browser optimization */
+  will-change: transform;
+  /* Ensure smooth rendering with GPU acceleration */
+  transform: translateZ(0);
+  /* Prevent text size adjustments */
+  text-size-adjust: none;
 }
 
 .legend {

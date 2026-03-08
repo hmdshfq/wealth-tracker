@@ -36,7 +36,7 @@ interface DashboardTabProps {
   onReorderTickers?: (newOrder: string[]) => void;
 }
 
-export const DashboardTab: React.FC<DashboardTabProps> = ({
+export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
   portfolioValue,
   totalGain,
   totalGainPercent,
@@ -182,6 +182,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       </motion.div>
     </motion.div>
   );
-};
+});
+
+DashboardTab.displayName = 'DashboardTab';
 
 export default DashboardTab;

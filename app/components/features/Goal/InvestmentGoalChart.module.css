@@ -5,6 +5,12 @@
   padding: 24px;
   border: 1px solid var(--border-secondary);
   transition: background 0.3s ease, border-color 0.3s ease;
+  /* CSS containment to isolate layout during interactions */
+  contain: layout style;
+  /* Create new stacking context */
+  transform: translateZ(0);
+  /* Hint for browser optimization */
+  will-change: transform;
 }
 
 .srOnly {

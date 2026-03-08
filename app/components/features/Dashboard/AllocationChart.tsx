@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card } from '@/components/ui';
 import { COLORS } from '@/lib/constants';
@@ -11,11 +11,21 @@ interface AllocationChartProps {
   data: AllocationItem[];
 }
 
-export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
-  const chartData: Array<{ name: string; value: number }> = data.map((item) => ({
-    name: item.name,
-    value: item.value,
-  }));
+export const AllocationChart: React.FC<AllocationChartProps> = React.memo(({ data }) => {
+  // Memoize chart data to prevent unnecessary recalculations
+  const chartData = useMemo(() => 
+    data.map((item) => ({
+      name: item.name,
+      value: item.value,
+    })),
+    [data]
+  );
+
+  // Memoize tooltip formatter to prevent function recreation
+  const tooltipFormatter = useMemo(() => 
+    (value: number, name: string) => [formatEUR(value), name],
+    []
+  );
 
   return (
     <Card>
@@ -37,7 +47,7 @@ export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number, name: string) => [formatEUR(value), name]}
+              formatter={tooltipFormatter}
               contentStyle={{
                 backgroundColor: 'var(--bg-card-solid)',
                 border: '1px solid var(--border-primary)',
@@ -66,6 +76,8 @@ export const AllocationChart: React.FC<AllocationChartProps> = ({ data }) => {
       </div>
     </Card>
   );
-};
+});
+
+AllocationChart.displayName = 'AllocationChart';
 
 export default AllocationChart;

@@ -3,6 +3,18 @@
   height: 400px;
   width: 100%;
   border-radius: 8px;
+  /* CSS containment to prevent layout thrashing during interactions */
+  contain: layout style paint;
+  /* Content visibility defers rendering until needed */
+  content-visibility: auto;
+  /* Hint for browser optimization */
+  will-change: transform;
+  /* Ensure smooth rendering with GPU acceleration */
+  transform: translateZ(0);
+  /* Prevent text size adjustments */
+  text-size-adjust: none;
+  /* Contain overscroll to prevent scroll chaining */
+  overscroll-behavior: contain;
 }
 
 .chartWrapper:focus {

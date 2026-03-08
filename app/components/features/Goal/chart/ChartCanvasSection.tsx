@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Area,
   Brush,
@@ -61,7 +61,7 @@ interface ChartCanvasSectionProps {
   isZoomActive: boolean;
 }
 
-export function ChartCanvasSection({
+export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   isMobile,
   legendPayload,
   handleLegendToggle,
@@ -91,78 +91,87 @@ export function ChartCanvasSection({
   setBrushRange,
   isZoomActive,
 }: ChartCanvasSectionProps) {
-  const goalLineStyle = resolveChartLineStyle({
+  // Memoize line styles to prevent recalculation on every render
+  const goalLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'goal',
     seriesKind: 'core',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const projectedContributionsLineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const projectedContributionsLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'cumulativeContributions',
     seriesKind: 'core',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const projectedValueLineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const projectedValueLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'value',
     seriesKind: 'core',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const actualContributionsLineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const actualContributionsLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'actualContributions',
     seriesKind: 'core',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const actualValueLineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const actualValueLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'actualValue',
     seriesKind: 'core',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const p90LineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const p90LineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'p90',
     seriesKind: 'monte-carlo',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const p50LineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const p50LineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'p50',
     seriesKind: 'monte-carlo',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const p10LineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const p10LineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'p10',
     seriesKind: 'monte-carlo',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
-  const whatIfLineStyle = resolveChartLineStyle({
+  }), [theme, colors, monteCarloColors]);
+
+  const whatIfLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'whatIfValue',
     seriesKind: 'what-if',
     theme,
     colors,
     monteCarloColors,
     background: colors.background,
-  });
+  }), [theme, colors, monteCarloColors]);
 
   return (
     <>
@@ -532,4 +541,4 @@ export function ChartCanvasSection({
       </div>
     </>
   );
-}
+});

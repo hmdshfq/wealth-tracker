@@ -11,7 +11,7 @@ import { ChartHeaderSection } from './chart/ChartHeaderSection';
 import { useInvestmentGoalChartModel } from './chart/useInvestmentGoalChartModel';
 import { InvestmentGoalChartProps } from './chart/modelTypes';
 
-export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) => {
+export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.memo((props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
   const colors = CHART_COLORS[theme];
@@ -91,6 +91,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
       />
     </div>
   );
-};
+});
+
+InvestmentGoalChart.displayName = 'InvestmentGoalChart';
 
 export default InvestmentGoalChart;
