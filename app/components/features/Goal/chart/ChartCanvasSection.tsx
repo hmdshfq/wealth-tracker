@@ -277,41 +277,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
 
                   return (
                     <>
-                      <defs>
-                        <linearGradient id={`confidenceGradient-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={colors.projectedValue} stopOpacity={0.3} />
-                          <stop offset="50%" stopColor={colors.projectedValue} stopOpacity={0.15} />
-                          <stop offset="100%" stopColor={colors.projectedValue} stopOpacity={0.05} />
-                        </linearGradient>
-                        <linearGradient id={`confidenceGradientDark-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={colors.projectedValue} stopOpacity={0.4} />
-                          <stop offset="50%" stopColor={colors.projectedValue} stopOpacity={0.2} />
-                          <stop offset="100%" stopColor={colors.projectedValue} stopOpacity={0.1} />
-                        </linearGradient>
-                      </defs>
-
-                      {showP90 && showP10 && (
-                        <>
-                          <Area
-                            type="monotone"
-                            dataKey="p90"
-                            stroke="none"
-                            fill={`url(#confidenceGradient${theme === 'dark' ? 'Dark' : ''}-${gradientId})`}
-                            activeDot={false}
-                            isAnimationActive={false}
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="p10"
-                            stroke="none"
-                            fill={colors.background}
-                            fillOpacity={1}
-                            activeDot={false}
-                            isAnimationActive={false}
-                          />
-                        </>
-                      )}
-
                       {showP90 && (
                         <Line
                           type="monotone"

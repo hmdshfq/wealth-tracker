@@ -2,10 +2,12 @@ import React from 'react';
 import { formatPreferredCurrency } from '@/lib/formatters';
 import {
   BehavioralAnalysisResult,
+  MonteCarloSimulationResult,
   PreferredCurrency,
   TimeBasedAnalysisResult,
 } from '@/lib/types';
 import { HelpTooltip } from '../InvestmentGoalChartHelp';
+import { ChartProjectionPoint } from './types';
 import styles from './AnalysisInsightsSection.module.css';
 
 interface AnalysisInsightsSectionProps {
@@ -22,6 +24,12 @@ interface AnalysisInsightsSectionProps {
   >;
   preferredCurrency: PreferredCurrency;
   getHeatmapColor: (returnPercent: number) => string;
+  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
+  showMonteCarloLocal: boolean;
+  setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
+  currencyAdjustedData: ChartProjectionPoint[];
+  convertedGoalAmount: number;
+  formatChartValue: (value: number) => string;
 }
 
 export function AnalysisInsightsSection({
@@ -36,13 +44,92 @@ export function AnalysisInsightsSection({
   setActiveHelpOverlay,
   preferredCurrency,
   getHeatmapColor,
+  effectiveMonteCarloResult,
+  showMonteCarloLocal,
+  setShowMonteCarloLocal,
+  currencyAdjustedData,
+  convertedGoalAmount,
+  formatChartValue,
 }: AnalysisInsightsSectionProps) {
-  if (showTimeBasedAnalysis === false) {
+  if (showTimeBasedAnalysis === false && !effectiveMonteCarloResult) {
     return null;
   }
 
   return (
     <>
+      {effectiveMonteCarloResult && (
+        <div className={styles.confidenceBandsControls}>
+          <div className={styles.confidenceBandsHeader}>
+            <h4>Confidence Bands</h4>
+            <button
+              onClick={() => setActiveHelpOverlay('confidence-bands')}
+              className={styles.helpButton}
+              aria-label="Learn about confidence bands"
+            >
+              ⓘ Help
+            </button>
+          </div>
+          <div className={styles.confidenceBandsToggle}>
+            <label>
+              <input
+                type="checkbox"
+                checked={showMonteCarloLocal}
+                onChange={() => setShowMonteCarloLocal(!showMonteCarloLocal)}
+              />
+              Show Confidence Bands
+              <HelpTooltip content="Probabilistic analysis showing 90%, 50%, and 10% confidence scenarios">
+                <span className={styles.helpIcon} aria-label="Help">
+                  ⓘ
+                </span>
+              </HelpTooltip>
+            </label>
+          </div>
+
+          {showMonteCarloLocal && (
+            <div className={styles.confidenceBandsContent}>
+              <div className={styles.confidenceBandsTable}>
+                <table className={styles.bandsTable} aria-label="Confidence bands analysis">
+                  <thead>
+                    <tr>
+                      <th scope="col">Scenario</th>
+                      <th scope="col">Probability</th>
+                      <th scope="col">Final Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>90% Confidence</td>
+                      <td>90%</td>
+                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p90[effectiveMonteCarloResult.percentiles.p90.length - 1].value)}</td>
+                    </tr>
+                    <tr>
+                      <td>Median (50%)</td>
+                      <td>50%</td>
+                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p50[effectiveMonteCarloResult.percentiles.p50.length - 1].value)}</td>
+                    </tr>
+                    <tr>
+                      <td>10% Confidence</td>
+                      <td>10%</td>
+                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p10[effectiveMonteCarloResult.percentiles.p10.length - 1].value)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className={styles.confidenceBandsSummary}>
+                <h5>Analysis Summary</h5>
+                <div className={styles.summaryStats}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>Simulations Run</span>
+                    <span className={styles.statValue}>{effectiveMonteCarloResult.simulations.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className={styles.timeBasedAnalysisControls}>
         <div className={styles.timeBasedAnalysisHeader}>
           <h4>Time-Based Analysis</h4>

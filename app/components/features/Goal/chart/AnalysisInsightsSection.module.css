@@ -1,5 +1,6 @@
 .timeBasedAnalysisControls,
-.behavioralAnalysisControls {
+.behavioralAnalysisControls,
+.confidenceBandsControls {
   margin: 24px 0;
   padding: 16px;
   background: var(--bg-hover);
@@ -8,7 +9,8 @@
 }
 
 .timeBasedAnalysisHeader,
-.behavioralAnalysisHeader {
+.behavioralAnalysisHeader,
+.confidenceBandsHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,7 +18,8 @@
 }
 
 .timeBasedAnalysisHeader h4,
-.behavioralAnalysisHeader h4 {
+.behavioralAnalysisHeader h4,
+.confidenceBandsHeader h4 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
@@ -24,7 +27,8 @@
 }
 
 .timeBasedAnalysisToggle,
-.behavioralAnalysisToggle {
+.behavioralAnalysisToggle,
+.confidenceBandsToggle {
   margin-bottom: 16px;
 }
 
@@ -336,6 +340,81 @@
 .noBiases {
   text-align: center;
   padding: 12px;
+}
+
+.confidenceBandsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.confidenceBandsTable {
+  overflow-x: auto;
+}
+
+.bandsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.bandsTable thead {
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-secondary);
+}
+
+.bandsTable th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.bandsTable td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-secondary);
+  background: var(--bg-primary);
+}
+
+.bandsTable tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.confidenceBandsSummary h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.statLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dimmed);
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

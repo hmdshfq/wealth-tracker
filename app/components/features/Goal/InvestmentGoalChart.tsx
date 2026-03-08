@@ -60,14 +60,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
         enableMonteCarlo={props.enableMonteCarlo ?? true}
       />
 
-      <AnalysisInsightsSection
-        timeBasedAnalysisResult={props.timeBasedAnalysisResult}
-        behavioralAnalysisResult={props.behavioralAnalysisResult}
-        preferredCurrency={props.preferredCurrency}
-        showTimeBasedAnalysis={props.showTimeBasedAnalysis}
-        {...insightsModel}
-      />
-
       <ChartCanvasSection
         {...canvasModel}
         colors={colors}
@@ -77,6 +69,14 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
         gradientId={gradientId}
         theme={theme}
         monteCarloColors={monteCarloColors}
+      />
+
+      <AnalysisInsightsSection
+        timeBasedAnalysisResult={props.timeBasedAnalysisResult}
+        behavioralAnalysisResult={props.behavioralAnalysisResult}
+        preferredCurrency={props.preferredCurrency}
+        showTimeBasedAnalysis={props.showTimeBasedAnalysis}
+        {...insightsModel}
       />
 
       <StrategicPanelsSection

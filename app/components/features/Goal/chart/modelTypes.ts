@@ -118,6 +118,12 @@ export interface InsightsModel {
     React.SetStateAction<'confidence-bands' | 'scenario-analysis' | null>
   >;
   getHeatmapColor: (returnPercent: number) => string;
+  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
+  showMonteCarloLocal: boolean;
+  setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
+  currencyAdjustedData: ChartProjectionPoint[];
+  convertedGoalAmount: number;
+  formatChartValue: (value: number) => string;
 }
 
 export interface StrategicModel {

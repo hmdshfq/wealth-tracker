@@ -963,6 +963,12 @@ export function useInvestmentGoalChartModel(
       setShowBehavioralAnalysisLocal,
       setActiveHelpOverlay,
       getHeatmapColor,
+      effectiveMonteCarloResult,
+      showMonteCarloLocal,
+      setShowMonteCarloLocal,
+      currencyAdjustedData,
+      convertedGoalAmount,
+      formatChartValue,
     },
     strategicModel: {
       isMobile,
