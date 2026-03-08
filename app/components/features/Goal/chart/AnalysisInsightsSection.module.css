@@ -123,6 +123,19 @@
   padding: 8px 12px;
 }
 
+.visualizationModeToggle {
+  margin-bottom: 16px;
+}
+
+.visualizationModeToggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
 .patternHeader,
 .patternDetails,
 .monthItem,
@@ -425,9 +438,33 @@
   .bestWorstMonths {
     grid-template-columns: 1fr;
   }
-
+  
   .patternsGrid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .confidenceBandsControls {
+    padding: 12px;
+  }
+  
+  .bandsTable th,
+  .bandsTable td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .statItem {
+    padding: 8px;
+  }
+  
+  .statLabel {
+    font-size: 11px;
+  }
+  
+  .statValue {
+    font-size: 14px;
   }
 }
 

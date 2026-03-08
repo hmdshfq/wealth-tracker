@@ -173,6 +173,9 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
     background: colors.background,
   }), [theme, colors, monteCarloColors]);
 
+  // Confidence band gradient ID
+  const confidenceGradientId = `confidenceGradient-${gradientId}`;
+
   return (
     <>
       <CustomLegend payload={legendPayload} onToggle={handleLegendToggle} hiddenLines={hiddenLines} />
@@ -185,8 +188,16 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
         role="img"
         aria-label={chartSummary}
       >
-        <ResponsiveContainer width="100%" height="100%">
+         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={currencyAdjustedData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            {/* Confidence band gradient definition */}
+            <defs>
+              <linearGradient id={confidenceGradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={monteCarloColors.p90} stopOpacity={theme === 'dark' ? 0.15 : 0.1} />
+                <stop offset="50%" stopColor={monteCarloColors.p50} stopOpacity={theme === 'dark' ? 0.2 : 0.15} />
+                <stop offset="100%" stopColor={monteCarloColors.p10} stopOpacity={theme === 'dark' ? 0.15 : 0.1} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
 
             <XAxis
@@ -274,23 +285,37 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                   const showP90 = !hiddenLines.has('p90');
                   const showP50 = !hiddenLines.has('p50');
                   const showP10 = !hiddenLines.has('p10');
+                  const showConfidenceArea = showP90 && showP10;
 
                   return (
                     <>
-                      {showP90 && (
-                        <Line
-                          type="monotone"
-                          dataKey="p90"
-                          name="90% Confidence"
-                          stroke={p90LineStyle.stroke}
-                          strokeWidth={p90LineStyle.strokeWidth}
-                          strokeOpacity={p90LineStyle.strokeOpacity}
-                          strokeDasharray={p90LineStyle.strokeDasharray}
-                          dot={p90LineStyle.dot}
-                          activeDot={p90LineStyle.activeDot}
-                          isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                        />
+                      {/* Shaded confidence area between p10 and p90 */}
+                      {showConfidenceArea && (
+                        <>
+                          <Area
+                            type="monotone"
+                            dataKey="p90"
+                            fill={`url(#${confidenceGradientId})`}
+                            stroke="none"
+                            fillOpacity={1}
+                            isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                            aria-label="90% confidence upper bound"
+                            role="graphics-document"
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="p10"
+                            fill={`url(#${confidenceGradientId})`}
+                            stroke="none"
+                            fillOpacity={1}
+                            isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                            aria-label="10% confidence lower bound"
+                            role="graphics-document"
+                          />
+                        </>
                       )}
+
+                      {/* Median line - always shown when confidence bands are visible */}
                       {showP50 && (
                         <Line
                           type="monotone"
@@ -304,7 +329,23 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                           isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
                         />
                       )}
-                      {showP10 && (
+
+                      {/* Optional boundary lines for advanced users */}
+                      {showP90 && !showConfidenceArea && (
+                        <Line
+                          type="monotone"
+                          dataKey="p90"
+                          name="90% Confidence"
+                          stroke={p90LineStyle.stroke}
+                          strokeWidth={p90LineStyle.strokeWidth}
+                          strokeOpacity={p90LineStyle.strokeOpacity}
+                          strokeDasharray={p90LineStyle.strokeDasharray}
+                          dot={p90LineStyle.dot}
+                          activeDot={p90LineStyle.activeDot}
+                          isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                        />
+                      )}
+                      {showP10 && !showConfidenceArea && (
                         <Line
                           type="monotone"
                           dataKey="p10"

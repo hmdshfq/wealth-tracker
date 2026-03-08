@@ -30,6 +30,7 @@ interface AnalysisInsightsSectionProps {
   currencyAdjustedData: ChartProjectionPoint[];
   convertedGoalAmount: number;
   formatChartValue: (value: number) => string;
+
 }
 
 export function AnalysisInsightsSection({
@@ -47,8 +48,6 @@ export function AnalysisInsightsSection({
   effectiveMonteCarloResult,
   showMonteCarloLocal,
   setShowMonteCarloLocal,
-  currencyAdjustedData,
-  convertedGoalAmount,
   formatChartValue,
 }: AnalysisInsightsSectionProps) {
   if (showTimeBasedAnalysis === false && !effectiveMonteCarloResult) {
@@ -57,7 +56,7 @@ export function AnalysisInsightsSection({
 
   return (
     <>
-      {effectiveMonteCarloResult && (
+       {effectiveMonteCarloResult && (
         <div className={styles.confidenceBandsControls}>
           <div className={styles.confidenceBandsHeader}>
             <h4>Confidence Bands</h4>
@@ -84,6 +83,7 @@ export function AnalysisInsightsSection({
               </HelpTooltip>
             </label>
           </div>
+
 
           {showMonteCarloLocal && (
             <div className={styles.confidenceBandsContent}>

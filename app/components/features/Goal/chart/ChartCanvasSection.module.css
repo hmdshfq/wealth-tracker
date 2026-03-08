@@ -40,6 +40,34 @@
   font-size: 11px;
 }
 
+/* Confidence bands styling */
+.chartWrapper :global(.recharts-area) {
+  pointer-events: none;
+  transition: fill-opacity 0.3s ease, fill 0.3s ease;
+}
+
+.chartWrapper :global(.recharts-line) {
+  pointer-events: stroke;
+  transition: stroke-width 0.2s ease, stroke 0.2s ease;
+}
+
+/* Confidence bands animation */
+.chartWrapper :global(.recharts-area):hover {
+  fill-opacity: 0.8 !important;
+}
+
+.chartWrapper :global(line[data-key="p50"]):hover {
+  stroke-width: 4px !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .chartWrapper :global(.recharts-area),
+  .chartWrapper :global(.recharts-line) {
+    transition: none;
+  }
+}
+
 .dataTableDetails {
   margin-top: 16px;
 }
@@ -124,6 +152,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .chartWrapper {
+    height: 300px;
+  }
+}
+
 @media (max-width: 480px) {
   .chartWrapper {
     height: 260px;
@@ -136,6 +170,19 @@
   .dataTable th,
   .dataTable td {
     padding: 8px 6px;
+  }
+}
+
+/* Mobile-specific confidence bands styling */
+@media (max-width: 768px) {
+  /* Simplified confidence bands for mobile */
+  .chartWrapper :global(.recharts-area) {
+    fill-opacity: 0.2 !important;
+  }
+  
+  /* Thicker median line for better visibility on mobile */
+  .chartWrapper :global(line[data-key="p50"]) {
+    stroke-width: 3px !important;
   }
 }
 
