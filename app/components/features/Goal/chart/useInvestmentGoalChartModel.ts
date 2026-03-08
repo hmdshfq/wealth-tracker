@@ -145,8 +145,7 @@ function useProjectionTransforms({
     } else if (selectedRange !== 'all') {
       const range = TIME_RANGES.find((r) => r.value === selectedRange);
       if (range?.months) {
-        const cutoffIndex = Math.max(0, filtered.length - range.months);
-        filtered = filtered.slice(cutoffIndex);
+        filtered = filtered.slice(0, range.months);
       }
     }
 
