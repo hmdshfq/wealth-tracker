@@ -213,6 +213,11 @@ export function useInvestmentGoalChartModel(
     timeBasedAnalysisResult,
     showTimeBasedAnalysis,
     showBehavioralAnalysis,
+    enableScenarioAnalysis = true,
+    enableMonteCarlo = true,
+    enableTimeBasedAnalysis = true,
+    enableWhatIfScenarios = true,
+    enableBenchmarkComparison = true,
     theme,
     colors,
     monteCarloColors,
@@ -353,6 +358,10 @@ export function useInvestmentGoalChartModel(
 
   useEffect(() => {
     if (isMobile) return;
+    if (!enableMonteCarlo) {
+      setMonteCarloResultLocal(null);
+      return;
+    }
 
     let isCancelled = false;
 
@@ -378,6 +387,7 @@ export function useInvestmentGoalChartModel(
     };
   }, [
     isMobile,
+    enableMonteCarlo,
     goal,
     currentNetWorth,
     monteCarloSimulations,
@@ -388,6 +398,10 @@ export function useInvestmentGoalChartModel(
 
   useEffect(() => {
     if (isMobile) return;
+    if (!enableScenarioAnalysis) {
+      setScenarioAnalysisResultLocal(null);
+      return;
+    }
 
     let isCancelled = false;
 
@@ -403,13 +417,17 @@ export function useInvestmentGoalChartModel(
     return () => {
       isCancelled = true;
     };
-  }, [isMobile, goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
+  }, [isMobile, enableScenarioAnalysis, goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
 
   const effectiveMonteCarloResult = monteCarloResultLocal || monteCarloResult;
   const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
 
   useEffect(() => {
     if (isMobile) return;
+    if (!enableWhatIfScenarios) {
+      setWhatIfProjection(null);
+      return;
+    }
     if (!showWhatIf) {
       setWhatIfProjection(null);
       return;
@@ -425,7 +443,7 @@ export function useInvestmentGoalChartModel(
       () => generateProjectionData(tempGoal, currentNetWorth),
       () => generateProjectionDataMain(tempGoal, currentNetWorth)
     ).then(setWhatIfProjection);
-  }, [isMobile, showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
+  }, [isMobile, enableWhatIfScenarios, showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
 
   const yearsToGoal = useMemo(() => {
     return calculateYearsToGoal(
@@ -509,6 +527,10 @@ export function useInvestmentGoalChartModel(
 
   useEffect(() => {
     if (isMobile) return;
+    if (!enableBenchmarkComparison) {
+      setBenchmarkData([]);
+      return;
+    }
     const sp500Goal = { ...goal, annualReturn: 0.07 };
     const industryGoal = { ...goal, annualReturn: 0.05 };
 
@@ -539,10 +561,14 @@ export function useInvestmentGoalChartModel(
         },
       ]);
     });
-  }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData]);
+  }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData, enableBenchmarkComparison]);
 
   useEffect(() => {
     if (isMobile) return;
+    if (!enableTimeBasedAnalysis) {
+      setTimeBasedAnalysisResultLocal(null);
+      return;
+    }
     if (projectionData && projectionData.length > 0 && showTimeBasedAnalysisLocal) {
       withFallback(
         () => performTimeBasedAnalysis(projectionData),
@@ -551,7 +577,7 @@ export function useInvestmentGoalChartModel(
     } else {
       setTimeBasedAnalysisResultLocal(null);
     }
-  }, [isMobile, projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
+  }, [isMobile, enableTimeBasedAnalysis, projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
 
   const filteredDataWithBenchmarks = useMemo(() => {
     if (isMobile) return [];

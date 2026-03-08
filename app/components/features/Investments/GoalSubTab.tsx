@@ -43,6 +43,8 @@ interface GoalSubTabProps {
   enableMonteCarlo: boolean;
   enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
+  enableWhatIfScenarios: boolean;
+  enableBenchmarkComparison: boolean;
 }
 
 export const GoalSubTab: React.FC<GoalSubTabProps> = ({
@@ -56,6 +58,8 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   enableMonteCarlo,
   enableTimeAnalysis,
   enableScenarioAnalysis,
+  enableWhatIfScenarios,
+  enableBenchmarkComparison,
 }) => {
   // Defer chart rendering until browser is idle
   const chartReady = useIdleRender({
@@ -156,7 +160,11 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               preferredCurrency={preferredCurrency}
               timeBasedAnalysisResult={timeBasedAnalysisResult}
               showTimeBasedAnalysis={!isMobile && enableTimeAnalysis}
+              enableMonteCarlo={enableMonteCarlo}
               enableScenarioAnalysis={enableScenarioAnalysis}
+              enableTimeBasedAnalysis={enableTimeAnalysis}
+              enableWhatIfScenarios={enableWhatIfScenarios}
+              enableBenchmarkComparison={enableBenchmarkComparison}
             />
           ) : (
             <ChartLoadingSkeleton />

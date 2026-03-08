@@ -58,7 +58,9 @@ interface InvestmentsTabProps {
   enableMonteCarlo: boolean;
   enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
-  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis', enabled: boolean) => void;
+  enableWhatIfScenarios: boolean;
+  enableBenchmarkComparison: boolean;
+  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
 export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
@@ -98,6 +100,8 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   enableMonteCarlo,
   enableTimeAnalysis,
   enableScenarioAnalysis,
+  enableWhatIfScenarios,
+  enableBenchmarkComparison,
   onGoalFeaturesChange,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
@@ -165,6 +169,8 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               enableMonteCarlo={enableMonteCarlo}
               enableTimeAnalysis={enableTimeAnalysis}
               enableScenarioAnalysis={enableScenarioAnalysis}
+              enableWhatIfScenarios={enableWhatIfScenarios}
+              enableBenchmarkComparison={enableBenchmarkComparison}
             />
           </motion.div>
         )}
@@ -242,6 +248,8 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               enableMonteCarlo={enableMonteCarlo}
               enableTimeAnalysis={enableTimeAnalysis}
               enableScenarioAnalysis={enableScenarioAnalysis}
+              enableWhatIfScenarios={enableWhatIfScenarios}
+              enableBenchmarkComparison={enableBenchmarkComparison}
               onGoalFeaturesChange={onGoalFeaturesChange}
             />
           </motion.div>

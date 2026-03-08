@@ -20,7 +20,9 @@ interface SettingsSubTabProps {
   enableMonteCarlo: boolean;
   enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
-  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis', enabled: boolean) => void;
+  enableWhatIfScenarios: boolean;
+  enableBenchmarkComparison: boolean;
+  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
 export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
@@ -36,6 +38,8 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
   enableMonteCarlo,
   enableTimeAnalysis,
   enableScenarioAnalysis,
+  enableWhatIfScenarios,
+  enableBenchmarkComparison,
   onGoalFeaturesChange,
 }) => {
   return (
@@ -116,7 +120,21 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
             checked={enableScenarioAnalysis}
             onChange={(enabled: boolean) => onGoalFeaturesChange('scenarioAnalysis', enabled)}
             label="Scenario Analysis"
-            description="Enable what-if scenarios and goal zone calculations"
+            description="Compare different return scenarios to understand potential outcomes"
+          />
+
+          <ToggleSwitch
+            checked={enableWhatIfScenarios}
+            onChange={(enabled: boolean) => onGoalFeaturesChange('whatIfScenarios', enabled)}
+            label="What-if Scenarios"
+            description="Adjust return rate and contributions to see projected outcomes"
+          />
+
+          <ToggleSwitch
+            checked={enableBenchmarkComparison}
+            onChange={(enabled: boolean) => onGoalFeaturesChange('benchmarkComparison', enabled)}
+            label="Benchmark Performance Comparison"
+            description="Compare your plan against S&P 500 and industry average returns"
           />
         </div>
       </Card>

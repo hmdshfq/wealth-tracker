@@ -78,10 +78,14 @@ export default function InvestmentTracker() {
     monteCarlo: boolean;
     timeAnalysis: boolean;
     scenarioAnalysis: boolean;
+    whatIfScenarios: boolean;
+    benchmarkComparison: boolean;
   }>({
     monteCarlo: true,
     timeAnalysis: true,
     scenarioAnalysis: true,
+    whatIfScenarios: true,
+    benchmarkComparison: true,
   });
   
   const [goal, setGoal] = useState<Goal>(INITIAL_GOAL);
@@ -143,6 +147,8 @@ export default function InvestmentTracker() {
           monteCarlo: parsed.monteCarlo ?? true,
           timeAnalysis: parsed.timeAnalysis ?? true,
           scenarioAnalysis: parsed.scenarioAnalysis ?? true,
+          whatIfScenarios: parsed.whatIfScenarios ?? true,
+          benchmarkComparison: parsed.benchmarkComparison ?? true,
         });
       } catch (e) {
         // Use defaults
@@ -762,7 +768,7 @@ export default function InvestmentTracker() {
 
   // Goal feature settings handlers
   const handleGoalFeaturesChange = useCallback((
-    feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis',
+    feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison',
     enabled: boolean
   ) => {
     setGoalFeatures((prev) => {
@@ -856,6 +862,8 @@ export default function InvestmentTracker() {
                 enableMonteCarlo={goalFeatures.monteCarlo}
                 enableTimeAnalysis={goalFeatures.timeAnalysis}
                 enableScenarioAnalysis={goalFeatures.scenarioAnalysis}
+                enableWhatIfScenarios={goalFeatures.whatIfScenarios}
+                enableBenchmarkComparison={goalFeatures.benchmarkComparison}
                 onGoalFeaturesChange={handleGoalFeaturesChange}
               />
             </div>

@@ -57,7 +57,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
         enableRealTimeUpdates={props.enableRealTimeUpdates ?? false}
         {...headerModel}
         setActiveHelpOverlay={strategicModel.setActiveHelpOverlay}
-        enableMonteCarlo={props.monteCarloResult !== undefined}
+        enableMonteCarlo={props.enableMonteCarlo ?? true}
       />
 
       <AnalysisInsightsSection
@@ -86,6 +86,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = (props) =
         colors={colors}
         projectionData={props.projectionData}
         enableScenarioAnalysis={props.enableScenarioAnalysis ?? true}
+        enableWhatIfScenarios={props.enableWhatIfScenarios ?? true}
+        enableBenchmarkComparison={props.enableBenchmarkComparison ?? true}
       />
     </div>
   );

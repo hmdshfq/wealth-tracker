@@ -75,6 +75,8 @@ interface StrategicPanelsSectionProps {
   >;
   activeHelpOverlay: 'confidence-bands' | 'scenario-analysis' | null;
   enableScenarioAnalysis?: boolean;
+  enableWhatIfScenarios?: boolean;
+  enableBenchmarkComparison?: boolean;
 }
 
 export function StrategicPanelsSection({
@@ -100,14 +102,12 @@ export function StrategicPanelsSection({
   requiredContributions,
   activeHelpOverlay,
   enableScenarioAnalysis,
+  enableWhatIfScenarios,
+  enableBenchmarkComparison,
 }: StrategicPanelsSectionProps) {
-  if (enableScenarioAnalysis === false) {
-    return null;
-  }
-
   return (
     <>
-      {effectiveScenarioAnalysisResult && (
+      {enableScenarioAnalysis !== false && effectiveScenarioAnalysisResult && (
         <div className={styles.scenarioAnalysisControls}>
           <div className={styles.scenarioAnalysisHeader}>
             <h4>Scenario Analysis</h4>
@@ -246,9 +246,10 @@ export function StrategicPanelsSection({
         </div>
       )}
 
-      <div className={styles.whatIfControls}>
-        <div className={styles.whatIfHeader}>
-          <h4>What-if Scenarios</h4>
+      {enableWhatIfScenarios !== false && (
+        <div className={styles.whatIfControls}>
+          <div className={styles.whatIfHeader}>
+            <h4>What-if Scenarios</h4>
           <button
             onClick={() => setShowWhatIf(!showWhatIf)}
             className={styles.helpButton}
@@ -342,8 +343,9 @@ export function StrategicPanelsSection({
               )}
             </div>
           </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div className={styles.goalAchievementZones}>
         <h4>Goal Progress Milestones</h4>
@@ -387,8 +389,9 @@ export function StrategicPanelsSection({
         </div>
       </div>
 
-      <div className={styles.benchmarkComparison}>
-        <h4>Benchmark Performance Comparison</h4>
+      {enableBenchmarkComparison !== false && (
+        <div className={styles.benchmarkComparison}>
+          <h4>Benchmark Performance Comparison</h4>
         <div className={styles.benchmarkGrid}>
           {benchmarkData.map((benchmark) => {
             const finalValue = benchmark.data[benchmark.data.length - 1]?.value || 0;
@@ -427,11 +430,12 @@ export function StrategicPanelsSection({
                     {finalValue >= goal.amount ? '🎯 Goal Achieved' : '📊 On Track'}
                   </span>
                 </div>
-              </div>
-            );
-          })}
+          </div>
+        );
+      })}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={styles.contributionOptimization}>
         <h4>Contribution Optimization</h4>
