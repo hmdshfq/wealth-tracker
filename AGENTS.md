@@ -1,132 +1,158 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to agentic coding tools when working with code in this repository.
 
 ## Project Overview
 Investment Tracker is a Next.js 16 web application for tracking ETF portfolios and financial goals. Features include portfolio management, transaction history, multi-currency cash tracking, goal planning with projections, data import/export (JSON & CSV), and live price fetching from Yahoo Finance.
 
-## Architecture & Structure
+## Build/Lint/Test Commands
 
-### Directory Layout
-- `app/` - Next.js App Router
-  - `page.tsx` - Main component with all state and business logic
-  - `layout.tsx` - Root layout with ThemeProvider
-  - `context/ThemeContext.tsx` - Light/dark theme state (localStorage persisted)
-  - `api/` - Route handlers for external data
-  - `components/` - React components organized by type
-  - `lib/` - Utilities, types, constants
-
-### Component Organization
-**Atomic Design Structure:**
-- `components/ui/` - Reusable atomic components (Button, Card, Input, etc.)
-- `components/layout/` - Page structure (Header, Footer, Navigation)
-- `components/features/` - Feature-specific components (DashboardTab, CashTab, etc.)
-
-Each component is in its own folder with `index.ts` for named exports.
-
-### State Management
-All state lives in `app/page.tsx` as hooks (useState, useCallback, useMemo). Major state categories:
-- Core: Holdings, transactions, cash balances, goals, active tab
-- Derived: Portfolio value, gains, allocations, projections (computed via useMemo)
-- External: Live prices, exchange rates (fetched via /api/prices and /api/exchange-rates)
-- UI: Modal visibility, form inputs, export/import dialogs
-
-### Data Types
-Located in `app/lib/types.ts`. Key interfaces:
-- `Holding` - Base ticker/shares/cost; `HoldingWithDetails` adds calculated values
-- `Transaction` - Buy/sell records with id, date, ticker, action, shares, price
-- `CashBalance` & `CashTransaction` - Multi-currency (PLN/EUR/USD) cash tracking
-- `Goal` - Target amount and target year for projections
-- `AllocationItem` & `ProjectionDataPoint` - Chart data
-
-### API Routes
-- `app/api/prices/route.ts` - GET /api/prices?tickers=SYMBOL1,SYMBOL2 - Fetches live quotes from Yahoo Finance 2
-- `app/api/exchange-rates/route.ts` - GET /api/exchange-rates - Fetches EUR/USD to PLN rates
-
-### Styling
-- Framework: Tailwind CSS 4 with PostCSS
-- Colors: CSS variables in `app/globals.css` (dark/light theme aware, set via data-theme attribute on html)
-- Fonts: JetBrains Mono (monospace), Google Fonts via next/font
-- Module CSS: Component-specific styles in *.module.css files
-- Design: Dark theme default with light mode toggle via ThemeContext
-
-## Development Commands
+### Development
 ```bash
 pnpm dev          # Start development server (http://localhost:3000)
 pnpm build        # Production build
 pnpm start        # Run production server
+```
+
+### Linting
+```bash
 pnpm lint         # Run ESLint (configured for Next.js + TypeScript)
 ```
 
-## Key Patterns & Implementation Details
+### Testing
+- No test framework is currently configured
+- Focus on manual testing using browser DevTools
+- Console logs acceptable for debugging but remove before commit
+
+## Code Style Guidelines
+
+### Imports
+- Use `@/` path alias (configured in tsconfig.json)
+- Group imports by type: React, external libraries, local components, types
+- Avoid wildcard imports (`import * as`) - prefer named imports
+- Keep import lists alphabetized within each group
+
+### Formatting
+- Use 2-space indentation for all files (JS/TS/TSX/JSON/CSS)
+- Use semicolons in JavaScript/TypeScript
+- Maximum line length: 100 characters (soft limit)
+- Use single quotes for strings, backticks for template literals
+- Add spaces around operators and after commas
+- No trailing whitespace
+
+### TypeScript
+- Strict mode is enabled in tsconfig.json
+- Always specify return types for functions
+- Use interfaces for object shapes, types for unions/primitives
+- Prefer `type` over `interface` when you need union types or mapped types
+- Use `unknown` instead of `any` for unsafe types
+- Mark functions as `async` when they return promises
+
+### Naming Conventions
+- **Variables & Functions**: camelCase (e.g., `calculateTotalValue`)
+- **Components**: PascalCase (e.g., `PortfolioDashboard`)
+- **Types/Interfaces**: PascalCase (e.g., `Holding`, `Transaction`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_TRANSACTIONS`)
+- **Boolean variables**: Prefix with `is`, `has`, `can`, etc. (e.g., `isLoading`)
+- **Event handlers**: Prefix with `handle` (e.g., `handleSubmit`)
+
+### Component Structure
+- Functional components only (no class components)
+- Each component in its own folder with `index.ts` for exports
+- Component file: `ComponentName.tsx`
+- Styles file: `ComponentName.module.css`
+- Props interface: Define within the component file or in separate `types.ts`
+
+### Error Handling
+- Validate all user inputs and API responses
+- Use try/catch for async operations
+- Provide meaningful error messages to users
+- Log errors to console in development, consider error reporting in production
+- Implement fallback values for failed API calls
+
+### State Management
+- Use React hooks (useState, useReducer, useContext)
+- Lift state up to common ancestors when needed
+- Use useMemo for derived state calculations
+- Use useCallback for memoizing functions passed to child components
+- Avoid unnecessary re-renders with proper dependency arrays
+
+### API Calls
+- Create route handlers in `app/api/endpoint/route.ts`
+- Use NextResponse for consistent response formatting
+- Handle errors gracefully with fallback values
+- Implement rate limiting for external APIs
+- Cache responses when appropriate
+
+### Styling
+- Use Tailwind CSS classes for utility styling
+- Use CSS modules for component-specific styles
+- Use CSS variables for theme-aware colors
+- Follow dark theme default with light mode support
+- Keep styles scoped to components
+
+### Comments
+- Minimal comments - code should be self-documenting
+- Use section comments (===) for major code blocks
+- Document complex algorithms or business logic
+- Add TODO comments for future improvements
+- Remove commented-out code before committing
+
+### File Organization
+- Keep files small and focused (under 300 lines when possible)
+- Group related files in folders
+- Use barrel exports (`index.ts`) for cleaner imports
+- Follow atomic design structure for components
+
+## Common Patterns
 
 ### Data Flow
-1. User actions → setState hooks in page.tsx
+1. User actions → setState hooks in parent components
 2. useMemo/useCallback hooks compute derived state & memoize callbacks
 3. Props passed down to child components (unidirectional)
 4. Child components dispatch callbacks to parent (lift state up)
 
-### Transaction & Cash Handling
-Transaction CRUD operations recalculate affected holdings' average costs. Cash transactions reverse/apply delta updates to balances. Handles both ticker changes and amount changes correctly.
+### Transaction Handling
+- CRUD operations should recalculate affected holdings' average costs
+- Cash transactions should reverse/apply delta updates to balances
+- Handle both ticker changes and amount changes correctly
 
-### Price & Exchange Rate Updates
-Fetched on mount + every 60 seconds via useEffect interval. Fallback to base prices from constants if API fails. All portfolio calculations (PLN values) use current exchangeRates object.
+### Price Updates
+- Fetch on mount + periodic intervals via useEffect
+- Fallback to base prices from constants if API fails
+- All portfolio calculations should use current exchange rates
 
 ### Export/Import
 - JSON: Full state serialization with version/date metadata
-- CSV: Holdings, transactions, cash, or cash transactions separately
+- CSV: Separate exports for holdings, transactions, cash data
 - Import: Strict validation of required fields & data types
 
-### Theme Management
-ThemeContext reads localStorage('theme') on mount, respects system preference fallback. Updates html[data-theme] attribute when toggled. CSS variables switch light/dark values based on attribute.
+## Security Requirements
+- Never commit API keys or secrets
+- Always validate user input
+- Use HTTPS for external requests
+- Sanitize data before rendering
+- Implement proper error handling
 
-## Code Standards
-- TypeScript: Strict mode enabled
-- Naming: camelCase for vars/functions, PascalCase for components/types
-- Files: Functional components with hooks (no class components)
-- Comments: Minimal—code should be self-documenting. Use section comments (===) for major blocks
-- Imports: Use @/ path alias (configured in tsconfig.json)
-- Styling: Inline styles for simple cases, CSS modules for component-specific styles
+## Git Practices
+- Commit messages should be concise and descriptive
+- Use present tense ("Add feature" not "Added feature")
+- Reference issues when applicable
+- Keep commits small and focused
+- Run lint before committing
 
-## Common Tasks
+## Development Workflow
+1. Create feature branch from main
+2. Implement feature with proper tests
+3. Run lint and fix any issues
+4. Test manually in development environment
+5. Create pull request with descriptive summary
+6. Address review feedback
+7. Merge to main after approval
 
-### Adding a New Feature Tab
-1. Create feature component folder in `components/features/`
-2. Accept data & callbacks as props in interface
-3. Add tab name to `TabName` type in layout/Navigation
-4. Add state & logic in page.tsx
-5. Render conditionally in main based on activeTab
-6. Add navigation link in Navigation component
-
-### Adding a UI Component
-1. Create folder in `components/ui/ComponentName/`
-2. Write ComponentName.tsx with props interface
-3. Add styling in ComponentName.module.css
-4. Export from index.ts in folder
-5. Update `components/ui/index.ts` for barrel export
-
-### Fetching External Data
-1. Create route handler in `app/api/endpoint/route.ts`
-2. Use NextResponse for responses
-3. Handle errors gracefully with fallbacks
-4. Call from page.tsx via fetch() in useEffect/useCallback
-5. Update appropriate state with results
-
-### Theme-Aware Styling
-Use CSS variables (--bg-primary, --text-secondary, --accent-green, etc.) defined in globals.css. Dark/light values automatically switch via data-theme attribute. Reference variables in module CSS or inline styles.
-
-## Testing & Debugging
-- No test framework configured; focus on manual testing
-- ESLint enabled; run `pnpm lint` before commit
-- Browser DevTools for state inspection, network tab for API calls
-- Console logs acceptable for debugging but remove before commit
-
-## Dependencies
-- **Runtime:** Next.js 16, React 19, recharts (charts), yahoo-finance2 (price quotes)
-- **Dev:** TypeScript 5, Tailwind CSS 4, ESLint 9
-
-## Notes
+## Additional Notes
 - Assumes user has pnpm installed
-- API credentials (Yahoo Finance) are free tier; use rate limiting in production
-- Export format has version field for future backward compatibility
-- Holdings use decimal shares (important for fractional ETF shares in EU)
+- API credentials (Yahoo Finance) are free tier
+- Export format has version field for backward compatibility
+- Holdings use decimal shares for fractional ETF support
+- Respect system preference for theme (dark/light mode)
