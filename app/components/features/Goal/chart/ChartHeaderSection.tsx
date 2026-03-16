@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatPreferredCurrency } from '@/lib/formatters';
-import { Goal, MonteCarloSimulationResult, PreferredCurrency } from '@/lib/types';
-import { HelpTooltip, VolatilityGuide } from '../InvestmentGoalChartHelp';
+import { Goal, PreferredCurrency } from '@/lib/types';
+import { HelpTooltip } from '../InvestmentGoalChartHelp';
 import { InlineLoader } from '@/components/ui';
 import { CHART_COLORS, TIME_RANGES } from './types';
 import styles from './ChartHeaderSection.module.css';
@@ -13,7 +13,6 @@ interface ChartHeaderSectionProps {
   totalActualContributions: number;
   colors: typeof CHART_COLORS.dark;
   enableRealTimeUpdates: boolean;
-  enableMonteCarlo?: boolean;
   selectedRange: string;
   handleRangeChange: (range: string) => void;
   progressPercent: number;
@@ -29,16 +28,6 @@ interface ChartHeaderSectionProps {
     baseYears: number;
     confidenceInterval: [number, number];
   };
-  showMonteCarloLocal: boolean;
-  setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  monteCarloVolatility: number;
-  setMonteCarloVolatility: React.Dispatch<React.SetStateAction<number>>;
-  monteCarloSimulations: number;
-  setMonteCarloSimulations: React.Dispatch<React.SetStateAction<number>>;
-  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
-  setActiveHelpOverlay: React.Dispatch<
-    React.SetStateAction<'confidence-bands' | 'scenario-analysis' | null>
-  >;
 }
 
 export function ChartHeaderSection({
@@ -48,7 +37,6 @@ export function ChartHeaderSection({
   totalActualContributions,
   colors,
   enableRealTimeUpdates,
-  enableMonteCarlo,
   selectedRange,
   handleRangeChange,
   progressPercent,
@@ -61,14 +49,6 @@ export function ChartHeaderSection({
   actualReturns,
   actualReturnsPercent,
   yearsToGoal,
-  showMonteCarloLocal,
-  setShowMonteCarloLocal,
-  monteCarloVolatility,
-  setMonteCarloVolatility,
-  monteCarloSimulations,
-  setMonteCarloSimulations,
-  effectiveMonteCarloResult,
-  setActiveHelpOverlay,
 }: ChartHeaderSectionProps) {
   return (
     <div className={styles.chartHeader}>
@@ -162,107 +142,7 @@ export function ChartHeaderSection({
 
       </div>
 
-      {effectiveMonteCarloResult && enableMonteCarlo !== false && (
-        <div className={styles.monteCarloControls}>
-          <div className={styles.monteCarloHeader}>
-            <h4>Confidence Bands</h4>
-            <button
-              onClick={() => setActiveHelpOverlay('confidence-bands')}
-              className={styles.helpButton}
-              aria-label="Learn about confidence bands"
-            >
-              Help
-            </button>
-          </div>
-          <div className={styles.monteCarloToggle}>
-            <label>
-              <input
-                type="checkbox"
-                checked={showMonteCarloLocal}
-                onChange={() => setShowMonteCarloLocal(!showMonteCarloLocal)}
-              />
-              Show Confidence Bands
-              <HelpTooltip content="Visualize the range of possible outcomes based on market volatility">
-                <span className={styles.helpIcon} aria-label="Help">
-                  ⓘ
-                </span>
-              </HelpTooltip>
-            </label>
-          </div>
 
-          {showMonteCarloLocal && (
-            <div className={styles.monteCarloParams}>
-              <div className={styles.paramGroup}>
-                <label>
-                  Volatility
-                  <HelpTooltip content="Adjust based on your portfolio's risk level (5% for bonds, 15% for balanced, 30% for aggressive growth)">
-                    <span className={styles.helpIcon} aria-label="Help">
-                      ⓘ
-                    </span>
-                  </HelpTooltip>
-                </label>
-                <VolatilityGuide />
-                <div className={styles.inputContainer}>
-                  <input
-                    type="number"
-                    min="0.05"
-                    max="0.3"
-                    step="0.01"
-                    value={monteCarloVolatility}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
-                      if (!isNaN(value)) {
-                        setMonteCarloVolatility(Math.min(0.3, Math.max(0.05, value)));
-                      }
-                    }}
-                    className={styles.numberInput}
-                    aria-label="Volatility percentage"
-                  />
-                  <span className={styles.inputSuffix}>%</span>
-                </div>
-              </div>
-
-              <div className={styles.paramGroup}>
-                <label>
-                  Simulations
-                  <HelpTooltip content="More simulations provide more accurate percentiles (1,000 recommended for good balance)">
-                    <span className={styles.helpIcon} aria-label="Help">
-                      ⓘ
-                    </span>
-                  </HelpTooltip>
-                </label>
-                <div className={styles.inputContainer}>
-                  <input
-                    type="number"
-                    min="100"
-                    max="5000"
-                    step="100"
-                    value={monteCarloSimulations}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      if (!isNaN(value)) {
-                        setMonteCarloSimulations(Math.min(5000, Math.max(100, value)));
-                      }
-                    }}
-                    className={styles.numberInput}
-                    aria-label="Number of simulations"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setMonteCarloVolatility(0.15);
-                  setMonteCarloSimulations(1000);
-                }}
-                className={styles.resetButton}
-              >
-                Reset
-              </button>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

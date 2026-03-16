@@ -6,7 +6,7 @@ import {
   PreferredCurrency,
   TimeBasedAnalysisResult,
 } from '@/lib/types';
-import { HelpTooltip } from '../InvestmentGoalChartHelp';
+import { HelpTooltip, VolatilityGuide } from '../InvestmentGoalChartHelp';
 import { ChartProjectionPoint } from './types';
 import styles from './AnalysisInsightsSection.module.css';
 
@@ -27,8 +27,10 @@ interface AnalysisInsightsSectionProps {
   effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
   showMonteCarloLocal: boolean;
   setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  currencyAdjustedData: ChartProjectionPoint[];
-  convertedGoalAmount: number;
+  monteCarloVolatility: number;
+  setMonteCarloVolatility: React.Dispatch<React.SetStateAction<number>>;
+  monteCarloSimulations: number;
+  setMonteCarloSimulations: React.Dispatch<React.SetStateAction<number>>;
   formatChartValue: (value: number) => string;
 
 }
@@ -48,6 +50,10 @@ export function AnalysisInsightsSection({
   effectiveMonteCarloResult,
   showMonteCarloLocal,
   setShowMonteCarloLocal,
+  monteCarloVolatility,
+  setMonteCarloVolatility,
+  monteCarloSimulations,
+  setMonteCarloSimulations,
   formatChartValue,
 }: AnalysisInsightsSectionProps) {
   if (showTimeBasedAnalysis === false && !effectiveMonteCarloResult) {
@@ -84,7 +90,6 @@ export function AnalysisInsightsSection({
             </label>
           </div>
 
-
           {showMonteCarloLocal && (
             <div className={styles.confidenceBandsContent}>
               <div className={styles.confidenceBandsTable}>
@@ -114,6 +119,76 @@ export function AnalysisInsightsSection({
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <div className={styles.confidenceBandsParams}>
+                <div className={styles.paramGroup}>
+                  <label>
+                    Volatility
+                    <HelpTooltip content="Adjust based on your portfolio's risk level (5% for bonds, 15% for balanced, 30% for aggressive growth)">
+                      <span className={styles.helpIcon} aria-label="Help">
+                        ⓘ
+                      </span>
+                    </HelpTooltip>
+                  </label>
+                  <VolatilityGuide />
+                  <div className={styles.inputContainer}>
+                    <input
+                      type="number"
+                      min="0.05"
+                      max="0.3"
+                      step="0.01"
+                      value={monteCarloVolatility}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                          setMonteCarloVolatility(Math.min(0.3, Math.max(0.05, value)));
+                        }
+                      }}
+                      className={styles.numberInput}
+                      aria-label="Volatility percentage"
+                    />
+                    <span className={styles.inputSuffix}>%</span>
+                  </div>
+                </div>
+
+                <div className={styles.paramGroup}>
+                  <label>
+                    Simulations
+                    <HelpTooltip content="More simulations provide more accurate percentiles (1,000 recommended for good balance)">
+                      <span className={styles.helpIcon} aria-label="Help">
+                        ⓘ
+                      </span>
+                    </HelpTooltip>
+                  </label>
+                  <div className={styles.inputContainer}>
+                    <input
+                      type="number"
+                      min="100"
+                      max="5000"
+                      step="100"
+                      value={monteCarloSimulations}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        if (!isNaN(value)) {
+                          setMonteCarloSimulations(Math.min(5000, Math.max(100, value)));
+                        }
+                      }}
+                      className={styles.numberInput}
+                      aria-label="Number of simulations"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setMonteCarloVolatility(0.15);
+                    setMonteCarloSimulations(1000);
+                  }}
+                  className={styles.resetButton}
+                >
+                  Reset
+                </button>
               </div>
 
               <div className={styles.confidenceBandsSummary}>

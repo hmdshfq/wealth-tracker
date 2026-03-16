@@ -56,8 +56,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
         colors={colors}
         enableRealTimeUpdates={props.enableRealTimeUpdates ?? false}
         {...headerModel}
-        setActiveHelpOverlay={strategicModel.setActiveHelpOverlay}
-        enableMonteCarlo={props.enableMonteCarlo ?? true}
       />
 
       <ChartCanvasSection

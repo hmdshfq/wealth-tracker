@@ -66,13 +66,6 @@ export interface HeaderModel {
     baseYears: number;
     confidenceInterval: [number, number];
   };
-  showMonteCarloLocal: boolean;
-  setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  monteCarloVolatility: number;
-  setMonteCarloVolatility: React.Dispatch<React.SetStateAction<number>>;
-  monteCarloSimulations: number;
-  setMonteCarloSimulations: React.Dispatch<React.SetStateAction<number>>;
-  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
 }
 
 export interface CanvasModel {
@@ -121,8 +114,10 @@ export interface InsightsModel {
   effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
   showMonteCarloLocal: boolean;
   setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  currencyAdjustedData: ChartProjectionPoint[];
-  convertedGoalAmount: number;
+  monteCarloVolatility: number;
+  setMonteCarloVolatility: React.Dispatch<React.SetStateAction<number>>;
+  monteCarloSimulations: number;
+  setMonteCarloSimulations: React.Dispatch<React.SetStateAction<number>>;
   formatChartValue: (value: number) => string;
 }
 
