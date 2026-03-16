@@ -2,9 +2,9 @@
 .behavioralAnalysisControls,
 .confidenceBandsControls {
   margin: 24px 0;
-  padding: 16px;
+  padding: 20px;
   background: var(--bg-hover);
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid var(--border-secondary);
 }
 
@@ -14,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .timeBasedAnalysisHeader h4,
@@ -29,11 +29,12 @@
 .timeBasedAnalysisToggle,
 .behavioralAnalysisToggle,
 .confidenceBandsToggle {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .timeBasedAnalysisToggle label,
-.behavioralAnalysisToggle label {
+.behavioralAnalysisToggle label,
+.confidenceBandsToggle label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -281,7 +282,7 @@
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 4px;
-  background: rgba(16, 185, 133, 0.1);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .milestoneBadge {
@@ -355,12 +356,327 @@
   padding: 12px;
 }
 
+/* Confidence Bands Section - New Design */
 .confidenceBandsContent {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dimmed);
+  margin-bottom: 12px;
+}
+
+/* Scenarios Grid */
+.scenariosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.scenarioCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.scenarioCard:hover {
+  border-color: var(--border-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.scenarioHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scenarioIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.scenarioInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scenarioName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.scenarioDesc {
+  font-size: 12px;
+  color: var(--text-dimmed);
+}
+
+.scenarioValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.probabilityBar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.probabilityFill {
+  height: 6px;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.probabilityLabel {
+  font-size: 11px;
+  color: var(--text-dimmed);
+  font-weight: 500;
+}
+
+/* Parameters Section */
+.parametersSection {
+  border-top: 1px solid var(--border-secondary);
+  padding-top: 24px;
+}
+
+.paramsGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr;
+  gap: 16px;
+}
+
+.paramCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.paramHeader {
+  margin-bottom: 12px;
+}
+
+.paramLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.helpIconSmall {
+  font-size: 11px;
+  color: var(--text-dimmed);
+  cursor: help;
+}
+
+/* Volatility Input */
+.volatilityInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rangeInput {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-secondary);
+  cursor: pointer;
+}
+
+.rangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.rangeInput::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.volatilityValue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.volatilityNumberInput {
+  width: 60px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.volatilityNumberInput:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.inputUnit {
+  font-size: 14px;
+  color: var(--text-dimmed);
+  font-weight: 500;
+}
+
+.volatilityScale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dimmed);
+  margin-top: 4px;
+}
+
+.volatilityScale span {
+  transition: all 0.2s ease;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.scaleActive {
+  color: var(--accent-blue);
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Simulation Input */
+.simulationInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.simulationPresets {
+  display: flex;
+  gap: 8px;
+}
+
+.presetButton {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dimmed);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.presetButton:hover {
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.presetActive {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.presetActive:hover {
+  color: white;
+}
+
+.simulationInput {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.simulationInput:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+/* Summary Card */
+.summaryCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 8px 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.resetParamsButton {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dimmed);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetParamsButton:hover {
+  background: var(--border-secondary);
+  color: var(--text-primary);
+}
+
+/* Old styles - keeping for compatibility */
 .confidenceBandsTable {
   overflow-x: auto;
 }
@@ -442,6 +758,14 @@
   .patternsGrid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
+
+  .scenariosGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .paramsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
@@ -465,6 +789,19 @@
   
   .statValue {
     font-size: 14px;
+  }
+
+  .scenarioCard {
+    padding: 12px;
+  }
+
+  .scenarioValue {
+    font-size: 20px;
+  }
+
+  .paramCard,
+  .summaryCard {
+    padding: 12px;
   }
 }
 

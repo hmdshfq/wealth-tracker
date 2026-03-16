@@ -6,8 +6,7 @@ import {
   PreferredCurrency,
   TimeBasedAnalysisResult,
 } from '@/lib/types';
-import { HelpTooltip, VolatilityGuide } from '../InvestmentGoalChartHelp';
-import { ChartProjectionPoint } from './types';
+import { HelpTooltip } from '../InvestmentGoalChartHelp';
 import styles from './AnalysisInsightsSection.module.css';
 
 interface AnalysisInsightsSectionProps {
@@ -92,111 +91,166 @@ export function AnalysisInsightsSection({
 
           {showMonteCarloLocal && (
             <div className={styles.confidenceBandsContent}>
-              <div className={styles.confidenceBandsTable}>
-                <table className={styles.bandsTable} aria-label="Confidence bands analysis">
-                  <thead>
-                    <tr>
-                      <th scope="col">Scenario</th>
-                      <th scope="col">Probability</th>
-                      <th scope="col">Final Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>90% Confidence</td>
-                      <td>90%</td>
-                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p90[effectiveMonteCarloResult.percentiles.p90.length - 1].value)}</td>
-                    </tr>
-                    <tr>
-                      <td>Median (50%)</td>
-                      <td>50%</td>
-                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p50[effectiveMonteCarloResult.percentiles.p50.length - 1].value)}</td>
-                    </tr>
-                    <tr>
-                      <td>10% Confidence</td>
-                      <td>10%</td>
-                      <td>{formatChartValue(effectiveMonteCarloResult.percentiles.p10[effectiveMonteCarloResult.percentiles.p10.length - 1].value)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <div className={styles.scenariosSection}>
+                <div className={styles.sectionLabel}>Projected Outcomes</div>
+                <div className={styles.scenariosGrid}>
+                  <div className={`${styles.scenarioCard} ${styles.scenarioOptimistic}`}>
+                    <div className={styles.scenarioHeader}>
+                      <div className={styles.scenarioIndicator} style={{ background: '#38bdf8' }} />
+                      <div className={styles.scenarioInfo}>
+                        <span className={styles.scenarioName}>Optimistic</span>
+                        <span className={styles.scenarioDesc}>90% confidence</span>
+                      </div>
+                    </div>
+                    <div className={styles.scenarioValue}>
+                      {formatChartValue(effectiveMonteCarloResult.percentiles.p90[effectiveMonteCarloResult.percentiles.p90.length - 1].value)}
+                    </div>
+                    <div className={styles.probabilityBar}>
+                      <div className={styles.probabilityFill} style={{ width: '90%', background: '#38bdf8' }} />
+                      <span className={styles.probabilityLabel}>90% probability</span>
+                    </div>
+                  </div>
 
-              <div className={styles.confidenceBandsParams}>
-                <div className={styles.paramGroup}>
-                  <label>
-                    Volatility
-                    <HelpTooltip content="Adjust based on your portfolio's risk level (5% for bonds, 15% for balanced, 30% for aggressive growth)">
-                      <span className={styles.helpIcon} aria-label="Help">
-                        ⓘ
-                      </span>
-                    </HelpTooltip>
-                  </label>
-                  <VolatilityGuide />
-                  <div className={styles.inputContainer}>
-                    <input
-                      type="number"
-                      min="0.05"
-                      max="0.3"
-                      step="0.01"
-                      value={monteCarloVolatility}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value);
-                        if (!isNaN(value)) {
-                          setMonteCarloVolatility(Math.min(0.3, Math.max(0.05, value)));
-                        }
-                      }}
-                      className={styles.numberInput}
-                      aria-label="Volatility percentage"
-                    />
-                    <span className={styles.inputSuffix}>%</span>
+                  <div className={`${styles.scenarioCard} ${styles.scenarioMedian}`}>
+                    <div className={styles.scenarioHeader}>
+                      <div className={styles.scenarioIndicator} style={{ background: '#f43f5e' }} />
+                      <div className={styles.scenarioInfo}>
+                        <span className={styles.scenarioName}>Median</span>
+                        <span className={styles.scenarioDesc}>50% confidence</span>
+                      </div>
+                    </div>
+                    <div className={styles.scenarioValue}>
+                      {formatChartValue(effectiveMonteCarloResult.percentiles.p50[effectiveMonteCarloResult.percentiles.p50.length - 1].value)}
+                    </div>
+                    <div className={styles.probabilityBar}>
+                      <div className={styles.probabilityFill} style={{ width: '50%', background: '#f43f5e' }} />
+                      <span className={styles.probabilityLabel}>50% probability</span>
+                    </div>
+                  </div>
+
+                  <div className={`${styles.scenarioCard} ${styles.scenarioConservative}`}>
+                    <div className={styles.scenarioHeader}>
+                      <div className={styles.scenarioIndicator} style={{ background: '#a3e635' }} />
+                      <div className={styles.scenarioInfo}>
+                        <span className={styles.scenarioName}>Conservative</span>
+                        <span className={styles.scenarioDesc}>10% confidence</span>
+                      </div>
+                    </div>
+                    <div className={styles.scenarioValue}>
+                      {formatChartValue(effectiveMonteCarloResult.percentiles.p10[effectiveMonteCarloResult.percentiles.p10.length - 1].value)}
+                    </div>
+                    <div className={styles.probabilityBar}>
+                      <div className={styles.probabilityFill} style={{ width: '10%', background: '#a3e635' }} />
+                      <span className={styles.probabilityLabel}>10% probability</span>
+                    </div>
                   </div>
                 </div>
-
-                <div className={styles.paramGroup}>
-                  <label>
-                    Simulations
-                    <HelpTooltip content="More simulations provide more accurate percentiles (1,000 recommended for good balance)">
-                      <span className={styles.helpIcon} aria-label="Help">
-                        ⓘ
-                      </span>
-                    </HelpTooltip>
-                  </label>
-                  <div className={styles.inputContainer}>
-                    <input
-                      type="number"
-                      min="100"
-                      max="5000"
-                      step="100"
-                      value={monteCarloSimulations}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value, 10);
-                        if (!isNaN(value)) {
-                          setMonteCarloSimulations(Math.min(5000, Math.max(100, value)));
-                        }
-                      }}
-                      className={styles.numberInput}
-                      aria-label="Number of simulations"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setMonteCarloVolatility(0.15);
-                    setMonteCarloSimulations(1000);
-                  }}
-                  className={styles.resetButton}
-                >
-                  Reset
-                </button>
               </div>
 
-              <div className={styles.confidenceBandsSummary}>
-                <h5>Analysis Summary</h5>
-                <div className={styles.summaryStats}>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Simulations Run</span>
-                    <span className={styles.statValue}>{effectiveMonteCarloResult.simulations.length}</span>
+              <div className={styles.parametersSection}>
+                <div className={styles.sectionLabel}>Simulation Parameters</div>
+                <div className={styles.paramsGrid}>
+                  <div className={styles.paramCard}>
+                    <div className={styles.paramHeader}>
+                      <label className={styles.paramLabel}>
+                        Volatility
+                        <HelpTooltip content="Annual volatility based on portfolio risk (5% bonds, 15% balanced, 30% growth)">
+                          <span className={styles.helpIconSmall}>ⓘ</span>
+                        </HelpTooltip>
+                      </label>
+                    </div>
+                    <div className={styles.volatilityInputWrapper}>
+                      <input
+                        type="range"
+                        min="5"
+                        max="30"
+                        step="1"
+                        value={Math.round(monteCarloVolatility * 100)}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value, 10);
+                          setMonteCarloVolatility(value / 100);
+                        }}
+                        className={styles.rangeInput}
+                        aria-label="Volatility percentage"
+                      />
+                      <div className={styles.volatilityValue}>
+                        <input
+                          type="number"
+                          min="5"
+                          max="30"
+                          value={Math.round(monteCarloVolatility * 100)}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value, 10);
+                            if (!isNaN(value)) {
+                              setMonteCarloVolatility(Math.min(30, Math.max(5, value)) / 100);
+                            }
+                          }}
+                          className={styles.volatilityNumberInput}
+                          aria-label="Volatility percentage"
+                        />
+                        <span className={styles.inputUnit}>%</span>
+                      </div>
+                    </div>
+                    <div className={styles.volatilityScale}>
+                      <span className={monteCarloVolatility <= 0.1 ? styles.scaleActive : ''}>Conservative</span>
+                      <span className={monteCarloVolatility > 0.1 && monteCarloVolatility <= 0.18 ? styles.scaleActive : ''}>Balanced</span>
+                      <span className={monteCarloVolatility > 0.18 ? styles.scaleActive : ''}>Aggressive</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.paramCard}>
+                    <div className={styles.paramHeader}>
+                      <label className={styles.paramLabel}>
+                        Simulations
+                        <HelpTooltip content="Number of Monte Carlo paths (1,000 recommended for accuracy)">
+                          <span className={styles.helpIconSmall}>ⓘ</span>
+                        </HelpTooltip>
+                      </label>
+                    </div>
+                    <div className={styles.simulationInputWrapper}>
+                      <div className={styles.simulationPresets}>
+                        {[500, 1000, 2500].map((preset) => (
+                          <button
+                            key={preset}
+                            onClick={() => setMonteCarloSimulations(preset)}
+                            className={`${styles.presetButton} ${monteCarloSimulations === preset ? styles.presetActive : ''}`}
+                          >
+                            {preset.toLocaleString()}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="number"
+                        min="100"
+                        max="5000"
+                        step="100"
+                        value={monteCarloSimulations}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value, 10);
+                          if (!isNaN(value)) {
+                            setMonteCarloSimulations(Math.min(5000, Math.max(100, value)));
+                          }
+                        }}
+                        className={styles.simulationInput}
+                        aria-label="Number of simulations"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryLabel}>Simulations Run</div>
+                    <div className={styles.summaryValue}>
+                      {effectiveMonteCarloResult.simulations.length.toLocaleString()}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMonteCarloVolatility(0.15);
+                        setMonteCarloSimulations(1000);
+                      }}
+                      className={styles.resetParamsButton}
+                    >
+                      Reset to defaults
+                    </button>
                   </div>
                 </div>
               </div>
