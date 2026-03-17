@@ -252,6 +252,7 @@ export function useInvestmentGoalChartModel(
   const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set());
   const [, setFocusedDataIndex] = useState<number | null>(null);
   const [brushRange, setBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({});
+  const [yAxisDomain, setYAxisDomain] = useState<[number, number] | undefined>(undefined);
   const [announcement, setAnnouncement] = useState('');
 
   const [showMonteCarloLocal, setShowMonteCarloLocal] = useState(Boolean(showMonteCarlo));
@@ -906,6 +907,68 @@ export function useInvestmentGoalChartModel(
     monteCarloColors,
   ]);
 
+  const visibleDataBounds = useMemo(() => {
+    if (!currencyAdjustedData.length) return { min: 0, max: 0 };
+
+    let visibleData = currencyAdjustedData;
+    if (brushRange.startIndex !== undefined && brushRange.endIndex !== undefined) {
+      visibleData = currencyAdjustedData.slice(brushRange.startIndex, brushRange.endIndex + 1);
+    }
+
+    const allValues: number[] = [];
+    visibleData.forEach((point) => {
+      Object.entries(point).forEach(([key, value]) => {
+        if (key !== 'date' && typeof value === 'number' && !isNaN(value)) {
+          allValues.push(value);
+        }
+      });
+    });
+
+    if (allValues.length === 0) return { min: 0, max: 0 };
+
+    return {
+      min: Math.min(...allValues),
+      max: Math.max(...allValues),
+    };
+  }, [currencyAdjustedData, brushRange]);
+
+  const handleYAxisZoomIn = useCallback(() => {
+    setYAxisDomain((prev) => {
+      if (prev) {
+        const range = prev[1] - prev[0];
+        const center = (prev[0] + prev[1]) / 2;
+        const newRange = range * 0.7;
+        return [center - newRange / 2, center + newRange / 2];
+      } else {
+        const range = visibleDataBounds.max - visibleDataBounds.min;
+        const center = (visibleDataBounds.min + visibleDataBounds.max) / 2;
+        const newRange = range * 0.7;
+        return [center - newRange / 2, center + newRange / 2];
+      }
+    });
+  }, [visibleDataBounds]);
+
+  const handleYAxisZoomOut = useCallback(() => {
+    setYAxisDomain((prev) => {
+      if (prev) {
+        const range = prev[1] - prev[0];
+        const center = (prev[0] + prev[1]) / 2;
+        const newRange = range / 0.7;
+
+        const maxRange = visibleDataBounds.max - visibleDataBounds.min;
+        if (newRange >= maxRange) {
+          return undefined;
+        }
+        return [center - newRange / 2, center + newRange / 2];
+      }
+      return undefined;
+    });
+  }, [visibleDataBounds]);
+
+  const handleYAxisZoomReset = useCallback(() => {
+    setYAxisDomain(undefined);
+  }, []);
+
   return {
     headerModel: {
       selectedRange,
@@ -946,6 +1009,11 @@ export function useInvestmentGoalChartModel(
       brushRange,
       setBrushRange,
       isZoomActive: !!brushRange.startIndex || !!brushRange.endIndex,
+      yAxisDomain,
+      handleYAxisZoomIn,
+      handleYAxisZoomOut,
+      handleYAxisZoomReset,
+      isYAxisZoomActive: !!yAxisDomain,
     },
     insightsModel: {
       timeBasedAnalysisResult,

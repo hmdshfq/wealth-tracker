@@ -98,6 +98,11 @@ export interface CanvasModel {
     React.SetStateAction<{ startIndex?: number | undefined; endIndex?: number | undefined }>
   >;
   isZoomActive: boolean;
+  yAxisDomain?: [number, number];
+  handleYAxisZoomIn: () => void;
+  handleYAxisZoomOut: () => void;
+  handleYAxisZoomReset: () => void;
+  isYAxisZoomActive: boolean;
 }
 
 export interface InsightsModel {

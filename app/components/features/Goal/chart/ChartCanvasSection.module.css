@@ -40,6 +40,41 @@
     font-size: 11px;
 }
 
+/* Y-axis zoom controls */
+.zoomControls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 6px;
+    background: var(--bg-hover);
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.zoomButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.zoomButton:hover:not(:disabled) {
+    background: var(--accent-green);
+    color: var(--bg-primary);
+    border-color: var(--accent-green);
+}
+
+.zoomButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* Confidence bands styling */
 .chartWrapper :global(.recharts-area) {
     pointer-events: none;
