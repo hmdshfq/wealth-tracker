@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Card, Badge, SectionTitle, IconButton, AnimatedModal, Button, Input, Select } from '@/components/ui';
 import { ETF_DATA } from '@/lib/constants';
+import { useMediaQuery } from '@/lib/hooks';
 import { Transaction } from '@/lib/types';
 import styles from './Transactions.module.css';
 
@@ -56,8 +57,10 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const isMobile = useMediaQuery('(max-width: 800px)');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [pageSize, setPageSize] = useState<string>('50');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -149,7 +152,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               const isPositive = gainLoss >= 0;
               
               return (
-                <div key={tx.id} className={styles.transactionRow}>
+                <div
+                  key={tx.id}
+                  className={styles.transactionRow}
+                  onClick={() => isMobile && setSelectedTransaction({ ...tx })}
+                  role={isMobile ? 'button' : undefined}
+                  tabIndex={isMobile ? 0 : undefined}
+                >
                   <span className={styles.txDate}>{tx.date}</span>
                   <span className={styles.ticker}>{tx.ticker}</span>
                   <span>
@@ -294,6 +303,86 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             Delete
           </Button>
         </div>
+      </AnimatedModal>
+
+      {/* Transaction Detail Modal (mobile) */}
+      <AnimatedModal
+        isOpen={selectedTransaction !== null}
+        onClose={() => setSelectedTransaction(null)}
+        title="Transaction Details"
+      >
+        {selectedTransaction && (() => {
+          const { currentPrice, gainLoss, gainLossPercent } = getTransactionGainLoss(selectedTransaction);
+          const isPositive = gainLoss >= 0;
+          return (
+            <div className={styles.detailView}>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Date</span>
+                <span className={styles.detailValue}>{selectedTransaction.date}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Ticker</span>
+                <span className={`${styles.detailValue} ${styles.ticker}`}>{selectedTransaction.ticker}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Action</span>
+                <span className={styles.detailValue}>
+                  <Badge variant={selectedTransaction.action === 'Buy' ? 'success' : 'danger'}>
+                    {selectedTransaction.action}
+                  </Badge>
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Shares</span>
+                <span className={styles.detailValue}>{selectedTransaction.shares}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Buy Price</span>
+                <span className={styles.detailValue}>€{selectedTransaction.price.toFixed(2)}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Current Price</span>
+                <span className={styles.detailValue}>€{currentPrice.toFixed(2)}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Gain/Loss</span>
+                <span className={`${styles.detailValue} ${isPositive ? styles.positive : styles.negative}`}>
+                  {isPositive ? '+' : ''}€{gainLoss.toFixed(2)}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Change %</span>
+                <span className={`${styles.detailValue} ${isPositive ? styles.positive : styles.negative}`}>
+                  {isPositive ? '+' : ''}{gainLossPercent.toFixed(2)}%
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Currency</span>
+                <span className={styles.detailValue}>{selectedTransaction.currency}</span>
+              </div>
+              <div className={styles.modalActions}>
+                <Button
+                  variant="blue"
+                  onClick={() => {
+                    setEditingTransaction({ ...selectedTransaction });
+                    setSelectedTransaction(null);
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="red"
+                  onClick={() => {
+                    setDeleteConfirmId(selectedTransaction.id);
+                    setSelectedTransaction(null);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
       </AnimatedModal>
     </>
   );
