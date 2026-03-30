@@ -157,9 +157,11 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 <div key={tx.id} className={styles.transactionRow}>
                   {/* Row 1: Ticker + Badge + Actions */}
                   <span className={styles.ticker}>{tx.ticker}</span>
-                  <Badge variant={tx.action === 'Buy' ? 'success' : 'danger'}>
-                    {tx.action}
-                  </Badge>
+                  <span className={styles.badgeWrapper}>
+                    <Badge variant={tx.action === 'Buy' ? 'success' : 'danger'}>
+                      {tx.action}
+                    </Badge>
+                  </span>
                   <span className={styles.txActions}>
                     <IconButton
                       icon={<EditIcon />}
