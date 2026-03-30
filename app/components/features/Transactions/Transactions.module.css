@@ -72,20 +72,20 @@
 
 @media (max-width: 800px) {
   .transactionHeader {
-    grid-template-columns: 80px 80px 40px 40px 70px 70px;
+    grid-template-columns: 80px 80px 40px 40px 70px;
   }
 
   .transactionRow {
-    grid-template-columns: 80px 80px 40px 40px 70px 70px;
+    grid-template-columns: 80px 80px 40px 40px 70px;
     cursor: pointer;
   }
-  
-  .transactionHeader span:nth-child(5),
-  .transactionRow span:nth-child(5),
+
   .transactionHeader span:nth-child(6),
   .transactionRow span:nth-child(6),
   .transactionHeader span:nth-child(7),
   .transactionRow span:nth-child(7),
+  .transactionHeader span:nth-child(8),
+  .transactionRow span:nth-child(8),
   .transactionHeader span:nth-child(9),
   .transactionRow span:nth-child(9) {
     display: none;
@@ -103,8 +103,6 @@
     padding: 8px 0px;
   }
   
-  .transactionHeader span:nth-child(5),
-  .transactionRow span:nth-child(5),
   .transactionHeader span:nth-child(6),
   .transactionRow span:nth-child(6),
   .transactionHeader span:nth-child(7),
