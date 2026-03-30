@@ -72,47 +72,76 @@
 
 @media (max-width: 800px) {
   .transactionHeader {
-    grid-template-columns: 80px 80px 40px 40px 70px;
+    display: none;
+  }
+
+  .transactionList {
+    gap: 10px;
   }
 
   .transactionRow {
-    grid-template-columns: 80px 80px 40px 40px 70px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
     cursor: pointer;
+    gap: 8px;
   }
 
-  .transactionHeader span:nth-child(6),
-  .transactionRow span:nth-child(6),
-  .transactionHeader span:nth-child(7),
-  .transactionRow span:nth-child(7),
-  .transactionHeader span:nth-child(8),
-  .transactionRow span:nth-child(8),
-  .transactionHeader span:nth-child(9),
-  .transactionRow span:nth-child(9) {
+  .transactionRow:hover {
+    background: var(--bg-hover);
+  }
+
+  .transactionRow span:nth-child(3) {
+    order: 2;
+  }
+
+  .transactionRow span:nth-child(1) {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .transactionRow span:nth-child(4) {
+    order: 4;
+    flex: 1;
+    text-align: left;
+    padding-top: 6px;
+    border-top: 1px solid var(--border-secondary);
+  }
+
+  .transactionRow span:nth-child(5) {
+    order: 7;
     display: none;
+  }
+
+  .transactionRow span:nth-child(6) {
+    order: 5;
+    text-align: center;
+  }
+
+  .transactionRow span:nth-child(7) {
+    order: 6;
+    text-align: center;
+  }
+
+  .transactionRow span:nth-child(8) {
+    display: none;
+  }
+
+  .transactionRow span:nth-child(9) {
+    order: 8;
+    margin-left: auto;
   }
 }
 
 @media (max-width: 530px) {
-  .transactionHeader {
-    grid-template-columns: 80px 80px 40px 40px 50px;
-    padding: 8px 0px;
-  }
-
   .transactionRow {
-    grid-template-columns: 80px 80px 40px 40px 50px;
-    padding: 8px 0px;
-  }
-  
-  .transactionHeader span:nth-child(6),
-  .transactionRow span:nth-child(6),
-  .transactionHeader span:nth-child(7),
-  .transactionRow span:nth-child(7),
-  .transactionHeader span:nth-child(8),
-  .transactionRow span:nth-child(8),
-  .transactionHeader span:nth-child(9),
-  .transactionRow span:nth-child(9)
-   {
-    display: none;
+    padding: 10px 12px;
+    gap: 6px;
   }
 }
 
