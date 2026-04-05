@@ -11,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { MonteCarloSimulationResult, ProjectionDataPoint, ScenarioAnalysisResult } from '@/lib/types';
 import { CustomLegend } from './CustomLegend';
 import { CustomTooltip } from './CustomTooltip';
@@ -61,10 +60,7 @@ interface ChartCanvasSectionProps {
   >;
   isZoomActive: boolean;
   yAxisDomain?: [number, number];
-  handleYAxisZoomIn: () => void;
-  handleYAxisZoomOut: () => void;
-  handleYAxisZoomReset: () => void;
-  isYAxisZoomActive: boolean;
+
 }
 
 export const ChartCanvasSection = React.memo(function ChartCanvasSection({
@@ -97,10 +93,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   setBrushRange,
   isZoomActive,
   yAxisDomain,
-  handleYAxisZoomIn,
-  handleYAxisZoomOut,
-  handleYAxisZoomReset,
-  isYAxisZoomActive,
+
 }: ChartCanvasSectionProps) {
   // Memoize line styles to prevent recalculation on every render
   const goalLineStyle = useMemo(() => resolveChartLineStyle({
@@ -190,35 +183,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   return (
     <>
       <CustomLegend payload={legendPayload} onToggle={handleLegendToggle} hiddenLines={hiddenLines} />
-
-      <div className={styles.zoomControls}>
-        <button
-          onClick={handleYAxisZoomIn}
-          className={styles.zoomButton}
-          title="Zoom in on Y-axis"
-          aria-label="Zoom in on value axis"
-        >
-          <ZoomIn size={16} />
-        </button>
-        <button
-          onClick={handleYAxisZoomOut}
-          className={styles.zoomButton}
-          disabled={!isYAxisZoomActive}
-          title="Zoom out on Y-axis"
-          aria-label="Zoom out on value axis"
-        >
-          <ZoomOut size={16} />
-        </button>
-        <button
-          onClick={handleYAxisZoomReset}
-          className={styles.zoomButton}
-          disabled={!isYAxisZoomActive}
-          title="Reset Y-axis zoom"
-          aria-label="Reset value axis zoom"
-        >
-          <RotateCcw size={16} />
-        </button>
-      </div>
 
       <div
         className={styles.chartWrapper}
@@ -585,7 +549,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
         <span>Drag brush below chart to zoom</span>
         <span>Arrow keys to navigate</span>
         <span>Escape to reset</span>
-        <span>Zoom buttons for Y-axis</span>
+
       </div>
     </>
   );
