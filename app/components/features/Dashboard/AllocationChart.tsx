@@ -28,7 +28,7 @@ export const AllocationChart: React.FC<AllocationChartProps> = React.memo(({ dat
   );
 
   return (
-    <Card>
+    <Card className={styles.allocationCard}>
       <p className={styles.chartTitle}>Allocation</p>
       <div className={styles.pieContainer}>
         <ResponsiveContainer width="100%" height="100%">

@@ -35,12 +35,21 @@
 @media (min-width: 1024px) {
   .mainContent {
     grid-template-columns: 1fr 1fr;
-    align-items: start;
   }
 
   .rightColumn {
     position: sticky;
     top: 24px;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    height: 100%;
+  }
+
+  .leftColumn > *:first-child,
+  .rightColumn > *:first-child {
+    height: 100%;
   }
 }
 
@@ -107,6 +116,19 @@
   transform: translateZ(0);
   /* Prevent text size adjustments */
   text-size-adjust: none;
+}
+
+@media (min-width: 1024px) {
+  .allocationCard {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .leftColumn .pieContainer {
+    flex: 1;
+    height: auto;
+    min-height: 225px;
+  }
 }
 
 .legend {
