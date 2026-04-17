@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Card, Input, Select, Button, SectionTitle, IconButton, Badge, Modal } from '@/components/ui';
-import { formatPLN, formatCurrency, convertCurrency } from '@/lib/formatters';
+import { formatPLN, formatCurrency, convertCurrency, convertToPLN } from '@/lib/formatters';
 import { CashBalance, CashTransaction, NewCash, PreferredCurrency } from '@/lib/types';
 import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
 import styles from './Cash.module.css';
@@ -27,9 +27,29 @@ interface CashTabProps {
 }
 
 const currencyOptions = [
-  { value: 'PLN', label: 'PLN' },
-  { value: 'EUR', label: 'EUR' },
-  { value: 'USD', label: 'USD' },
+  { value: 'USD', label: 'USD ($) - US Dollar' },
+  { value: 'EUR', label: 'EUR (€) - Euro' },
+  { value: 'GBP', label: 'GBP (£) - British Pound' },
+  { value: 'JPY', label: 'JPY (¥) - Japanese Yen' },
+  { value: 'CHF', label: 'CHF - Swiss Franc' },
+  { value: 'CAD', label: 'CAD ($) - Canadian Dollar' },
+  { value: 'AUD', label: 'AUD ($) - Australian Dollar' },
+  { value: 'CNY', label: 'CNY (¥) - Chinese Yuan' },
+  { value: 'INR', label: 'INR (₹) - Indian Rupee' },
+  { value: 'KRW', label: 'KRW (₩) - South Korean Won' },
+  { value: 'SGD', label: 'SGD ($) - Singapore Dollar' },
+  { value: 'HKD', label: 'HKD ($) - Hong Kong Dollar' },
+  { value: 'NZD', label: 'NZD ($) - New Zealand Dollar' },
+  { value: 'SEK', label: 'SEK - Swedish Krona' },
+  { value: 'NOK', label: 'NOK - Norwegian Krone' },
+  { value: 'DKK', label: 'DKK - Danish Krone' },
+  { value: 'MXN', label: 'MXN ($) - Mexican Peso' },
+  { value: 'BRL', label: 'BRL (R$) - Brazilian Real' },
+  { value: 'PLN', label: 'PLN (zł) - Polish Złoty' },
+  { value: 'CZK', label: 'CZK - Czech Koruna' },
+  { value: 'HUF', label: 'HUF - Hungarian Forint' },
+  { value: 'TRY', label: 'TRY (₺) - Turkish Lira' },
+  { value: 'ZAR', label: 'ZAR (R) - South African Rand' },
 ];
 
 const typeOptions = [
@@ -102,10 +122,7 @@ export const CashTab: React.FC<CashTabProps> = ({
   const formatTotalCash = (val: number) => formatCurrency(val, preferredCurrency);
 
   const getCashInPLN = (c: CashBalance): number => {
-    if (c.currency === 'PLN') return c.amount;
-    if (c.currency === 'EUR') return c.amount * exchangeRates.EUR_PLN;
-    if (c.currency === 'USD') return c.amount * exchangeRates.USD_PLN;
-    return c.amount;
+    return convertToPLN(c.amount, c.currency);
   };
 
   const handleEditSave = () => {

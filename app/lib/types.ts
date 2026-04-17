@@ -25,7 +25,7 @@ export interface Transaction {
 }
 
 export interface CashBalance {
-  currency: 'PLN' | 'EUR' | 'USD';
+  currency: PreferredCurrency;
   amount: number;
 }
 
@@ -33,7 +33,7 @@ export interface CashTransaction {
   id: number;
   date: string;
   type: 'deposit' | 'withdrawal';
-  currency: 'PLN' | 'EUR' | 'USD';
+  currency: PreferredCurrency;
   amount: number;
   note?: string;
 }
