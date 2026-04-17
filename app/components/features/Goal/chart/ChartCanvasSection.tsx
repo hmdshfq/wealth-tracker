@@ -161,11 +161,40 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
             <XAxis
               dataKey="date"
               stroke={colors.textMuted}
-              tick={{ fill: colors.textMuted, fontSize: 12 }}
-              tickLine={{ stroke: colors.textMuted }}
+              tickLine={false}
+              tick={(props) => {
+                const { x, y, payload } = props;
+                const parts = payload.value.split('-');
+                const year = parseInt(parts[0], 10);
+                const month = parts[1];
+                // Only show tick for first data point of years that are multiples of 5
+                if (year % 5 === 0 && month === '01') {
+                  return (
+                      <g>
+                          <line
+                              x1={x}
+                              y1={y - 16}
+                              x2={x}
+                              y2={y - 10}
+                              stroke={colors.textMuted}
+                              strokeWidth={1}
+                          />
+                          <text
+                              x={x}
+                              y={y}
+                              textAnchor="middle"
+                              fill={colors.textMuted}
+                              fontSize={12}>
+                              {year}
+                          </text>
+                      </g>
+                  );
+                }
+                return null;
+              }}
               axisLine={{ stroke: colors.grid }}
               label={{ value: 'Date', position: 'insideBottom', offset: -10, fill: colors.textMuted, fontSize: 12 }}
-              interval="preserveStartEnd"
+              interval={0}
               tickMargin={10}
             />
 
