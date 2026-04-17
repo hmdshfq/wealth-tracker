@@ -12,6 +12,7 @@ import {
   CashTab,
   ExportModal,
   ImportModal,
+  OnboardingFlow,
 } from '@/components/features';
 
 // UI components
@@ -69,6 +70,9 @@ export default function InvestmentTracker() {
   // Core State
   // ---------------------------------------------------------------------------
   const [activeTab, setActiveTab] = useState<TabName>('dashboard');
+
+  // Onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Currency preference
   const [preferredCurrency, setPreferredCurrency] = useState<PreferredCurrency>('PLN');
@@ -300,6 +304,55 @@ export default function InvestmentTracker() {
       isActive = false;
     };
   }, [isAuthLoaded, isSignedIn]);
+
+  // Check for first-time user and show onboarding
+  // We check if onboarding completed key is NOT set - this runs AFTER demo data is loaded
+  // so the user sees onboarding on first visit, regardless of data
+  useEffect(() => {
+    if (!isDataLoaded) return;
+    if (typeof window === 'undefined') return;
+
+    const hasOnboarded = localStorage.getItem('onboarding-completed');
+
+    // Show onboarding ONLY if user hasn't seen it before
+    // (data can exist from demo, but onboarding should show once)
+    if (!hasOnboarded) {
+      setShowOnboarding(true);
+    }
+  }, [isDataLoaded]);
+
+  // Onboarding handlers
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
+    localStorage.setItem('onboarding-completed', 'true');
+    // Load demo data for user to explore
+    setGoal(DEMO_GOAL);
+    setTransactions(DEMO_TRANSACTIONS);
+    setCash(DEMO_CASH);
+    setCashTransactions(DEMO_CASH_TRANSACTIONS);
+    setCustomTickers(DEMO_CUSTOM_TICKERS);
+    const demoPayload = {
+      goal: DEMO_GOAL,
+      transactions: DEMO_TRANSACTIONS,
+      cash: DEMO_CASH,
+      cashTransactions: DEMO_CASH_TRANSACTIONS,
+      customTickers: DEMO_CUSTOM_TICKERS,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(demoPayload));
+  }, []);
+
+  const handleOnboardingSkip = useCallback(() => {
+    setShowOnboarding(false);
+    localStorage.setItem('onboarding-completed', 'true');
+  }, []);
+
+  const handleLoadDemo = useCallback(() => {
+    setGoal(DEMO_GOAL);
+    setTransactions(DEMO_TRANSACTIONS);
+    setCash(DEMO_CASH);
+    setCashTransactions(DEMO_CASH_TRANSACTIONS);
+    setCustomTickers(DEMO_CUSTOM_TICKERS);
+  }, []);
 
   useEffect(() => {
     if (!isDataLoaded) return;
@@ -900,6 +953,14 @@ export default function InvestmentTracker() {
         onImportDataChange={setImportData}
         onFileUpload={handleFileUpload}
         onImport={handleImport}
+      />
+
+      {/* Onboarding Flow */}
+      <OnboardingFlow
+        isOpen={showOnboarding}
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingSkip}
+        onLoadDemo={handleLoadDemo}
       />
 
       {/* Toast */}

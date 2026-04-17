@@ -12,7 +12,9 @@
 
 .modal {
   position: fixed;
-  inset: 50% auto auto 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: var(--bg-card-solid);
   border-radius: 16px;
   padding: 32px;
