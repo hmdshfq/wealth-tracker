@@ -18,7 +18,7 @@
 }
 
 .trigger:hover, .trigger:focus {
-  background: rgba(var(--accent-blue-rgb), 0.1);
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .tooltip {
@@ -270,7 +270,7 @@
 }
 
 .primaryButton:hover {
-  background: var(--accent-blue-hover);
+  background: #1d4ed8;
 }
 
 .secondaryButton {
@@ -280,7 +280,7 @@
 }
 
 .secondaryButton:hover {
-  background: rgba(var(--accent-blue-rgb), 0.1);
+  background: rgba(59, 130, 246, 0.1);
 }
 
 /* Legend Help */
@@ -359,7 +359,7 @@
   justify-content: space-between;
   margin: 8px 0;
   padding: 4px;
-  background: rgba(var(--accent-blue-rgb), 0.05);
+  background: rgba(59, 130, 246, 0.05);
   border-radius: 4px;
 }
 
@@ -409,7 +409,7 @@
 }
 
 .successTable tr:hover {
-  background: rgba(var(--accent-blue-rgb), 0.05);
+  background: rgba(59, 130, 246, 0.05);
 }
 
 /* Responsive Design */
