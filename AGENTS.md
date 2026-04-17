@@ -157,6 +157,30 @@ pnpm lint         # Run ESLint (configured for Next.js + TypeScript)
 - Holdings use decimal shares for fractional ETF support
 - Respect system preference for theme (dark/light mode)
 
+---
+
+## Context-Mode Routing (IMPORTANT)
+
+**Always use context-mode tools to prevent context flooding:**
+
+| Instead of | Use |
+|------------|-----|
+| `read` (for analysis) | `context-mode_ctx_execute_file` |
+| `bash grep` | `context-mode_ctx_execute(code: "grep...")` |
+| `web_search` | `context-mode_ctx_fetch_and_index` + `search` |
+| `fetch_content` | `context-mode_ctx_fetch_and_index` |
+| Large shell output | `ctx_batch_execute` or `ctx_execute` |
+
+**Blocked commands:**
+- `curl` / `wget` - blocked
+- Direct HTTP in shell - blocked
+- fetch('http...') - blocked
+
+**Trigger phrases for context-mode:**
+- "how does X work" / "find all" / "analyze" → use context-mode tools
+
+**Before each command, ask:** "Does this need context-mode routing?"
+
 # context-mode — MANDATORY routing rules
 
 You have context-mode MCP tools available. These rules are NOT optional — they protect your context window from flooding. A single unrouted command can dump 56 KB into context and waste the entire session.

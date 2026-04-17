@@ -55,9 +55,29 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
           value={preferredCurrency}
           onChange={(e) => onPreferredCurrencyChange(e.target.value as PreferredCurrency)}
           options={[
-            { value: 'PLN', label: 'PLN (zł) - Polish Złoty' },
+            { value: 'USD', label: 'USD ($) - US Dollar' },
             { value: 'EUR', label: 'EUR (€) - Euro' },
-            { value: 'USD', label: 'USD ($) - US Dollars' },
+            { value: 'GBP', label: 'GBP (£) - British Pound' },
+            { value: 'JPY', label: 'JPY (¥) - Japanese Yen' },
+            { value: 'CHF', label: 'CHF - Swiss Franc' },
+            { value: 'CAD', label: 'CAD ($) - Canadian Dollar' },
+            { value: 'AUD', label: 'AUD ($) - Australian Dollar' },
+            { value: 'CNY', label: 'CNY (¥) - Chinese Yuan' },
+            { value: 'INR', label: 'INR (₹) - Indian Rupee' },
+            { value: 'KRW', label: 'KRW (₩) - South Korean Won' },
+            { value: 'SGD', label: 'SGD ($) - Singapore Dollar' },
+            { value: 'HKD', label: 'HKD ($) - Hong Kong Dollar' },
+            { value: 'NZD', label: 'NZD ($) - New Zealand Dollar' },
+            { value: 'SEK', label: 'SEK - Swedish Krona' },
+            { value: 'NOK', label: 'NOK - Norwegian Krone' },
+            { value: 'DKK', label: 'DKK - Danish Krone' },
+            { value: 'MXN', label: 'MXN ($) - Mexican Peso' },
+            { value: 'BRL', label: 'BRL (R$) - Brazilian Real' },
+            { value: 'PLN', label: 'PLN (zł) - Polish Złoty' },
+            { value: 'CZK', label: 'CZK - Czech Koruna' },
+            { value: 'HUF', label: 'HUF - Hungarian Forint' },
+            { value: 'TRY', label: 'TRY (₺) - Turkish Lira' },
+            { value: 'ZAR', label: 'ZAR (R) - South African Rand' },
           ]}
         />
       </Card>

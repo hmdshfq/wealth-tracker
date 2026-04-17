@@ -194,4 +194,9 @@ export interface TickerInfo {
   basePrice: number; // Used as fallback
 }
 
-export type PreferredCurrency = 'PLN' | 'EUR' | 'USD';
+export type PreferredCurrency = 
+  | 'PLN' | 'EUR' | 'USD' | 'GBP' | 'JPY' | 'CHF' 
+  | 'CAD' | 'AUD' | 'CNY' | 'INR' | 'KRW' 
+  | 'SGD' | 'HKD' | 'NZD' | 'SEK' | 'NOK' 
+  | 'DKK' | 'MXN' | 'BRL' | 'CZK' | 'HUF' 
+  | 'TRY' | 'ZAR';

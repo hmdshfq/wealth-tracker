@@ -380,7 +380,7 @@ export default function InvestmentTracker() {
     }
   }, [buildCloudPayload, isDataLoaded, isCloudMode, saveToCloud]);
 
-  const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers);
+  const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers, preferredCurrency);
 
   // Initialize ticker order from allTickers if not already set
   useEffect(() => {

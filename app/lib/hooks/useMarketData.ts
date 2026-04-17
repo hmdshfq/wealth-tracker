@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ETF_DATA, EXCHANGE_RATES } from '../constants';
-import { TickerInfo } from '../types';
+import { PreferredCurrency, TickerInfo } from '../types';
+import { setExchangeRates as updateGlobalRates } from '../formatters';
 
 export type PriceData = {
   price: number;
@@ -9,11 +10,57 @@ export type PriceData = {
   currency: string;
 };
 
-export function useMarketData(allTickers: Record<string, TickerInfo>) {
+// Currencies that need additional API calls beyond base pairs
+const NEEDS_EXTRA_RATE: Record<string, boolean> = {
+  GBP: true,
+  JPY: true,
+  CHF: true,
+  CAD: true,
+  AUD: true,
+  CNY: true,
+  INR: true,
+  KRW: true,
+  SGD: true,
+  HKD: true,
+  NZD: true,
+  SEK: true,
+  NOK: true,
+  DKK: true,
+  MXN: true,
+  BRL: true,
+  CZK: true,
+  HUF: true,
+  TRY: true,
+  ZAR: true,
+};
+
+export function useMarketData(
+  allTickers: Record<string, TickerInfo>,
+  preferredCurrency?: PreferredCurrency
+) {
   const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const [pricesLoading, setPricesLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [exchangeRates, setExchangeRates] = useState(EXCHANGE_RATES);
+  const [fetchedCurrencies, setFetchedCurrencies] = useState<Set<string>>(new Set(['PLN', 'EUR', 'USD']));
+
+  // Fetch additional exchange rate for the preferred currency if needed
+  const fetchExtraRate = useCallback(async (currency: string) => {
+    if (!NEEDS_EXTRA_RATE[currency]) return;
+
+    try {
+      const response = await fetch(`/api/exchange-rates?target=${currency}`);
+      if (response.ok) {
+        const data = await response.json();
+        setExchangeRates((prev) => ({ ...prev, ...data.rates }));
+        // Also update global rates for currency conversion
+        updateGlobalRates(data.rates);
+        setFetchedCurrencies((prev) => new Set([...prev, currency]));
+      }
+    } catch (error) {
+      console.error('Failed to fetch extra exchange rate:', error);
+    }
+  }, []);
 
   const fetchPrices = useCallback(async () => {
     setPricesLoading(true);
@@ -51,7 +98,8 @@ export function useMarketData(allTickers: Record<string, TickerInfo>) {
       const ratesResponse = await fetch('/api/exchange-rates');
       if (ratesResponse.ok) {
         const ratesData = await ratesResponse.json();
-        setExchangeRates(ratesData.rates);
+        updateGlobalRates(ratesData.rates);
+        setFetchedCurrencies(new Set(['PLN', 'EUR', 'USD']));
       }
 
       setLastUpdate(new Date());
@@ -71,6 +119,15 @@ export function useMarketData(allTickers: Record<string, TickerInfo>) {
       setPricesLoading(false);
     }
   }, [allTickers]);
+
+  // Fetch extra rate when preferredCurrency changes (lazy)
+  useEffect(() => {
+    if (preferredCurrency && NEEDS_EXTRA_RATE[preferredCurrency]) {
+      if (!fetchedCurrencies.has(preferredCurrency)) {
+        fetchExtraRate(preferredCurrency);
+      }
+    }
+  }, [preferredCurrency, fetchExtraRate, fetchedCurrencies]);
 
   useEffect(() => {
     void fetchPrices();
