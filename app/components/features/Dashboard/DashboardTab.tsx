@@ -6,9 +6,9 @@ import { useIdleRender } from '@/lib/hooks';
 import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { LivePrices } from './LivePrices';
-import { GoalProgressCard } from '../Goal';
-import { formatPLN, formatPercent, convertCurrency, formatCurrency } from '@/lib/formatters';
-import { AllocationItem, CashBalance, TickerInfo, Goal, PreferredCurrency } from '@/lib/types';
+
+import { formatPercent, convertCurrency, formatCurrency } from '@/lib/formatters';
+import { AllocationItem, CashBalance, TickerInfo, PreferredCurrency } from '@/lib/types';
 import styles from './Dashboard.module.css';
 
 interface DashboardTabProps {
@@ -26,8 +26,6 @@ interface DashboardTabProps {
     currency: string;
   }>;
   etfData?: Record<string, TickerInfo>;
-  goal?: Goal;
-  goalProgress?: number;
   preferredCurrency?: PreferredCurrency;
   pricesLoading?: boolean;
   isEditingPrices?: boolean;
@@ -46,8 +44,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
   allocationData,
   prices,
   etfData = {},
-  goal,
-  goalProgress,
   preferredCurrency = 'PLN',
   pricesLoading = false,
   isEditingPrices = false,
@@ -124,23 +120,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
           />
         </motion.div>
       </motion.div>
-
-      {/* Goal Progress Card - only show if goal is defined */}
-      {goal && goalProgress !== undefined && (
-        <motion.div
-          variants={fadeVariants}
-          transition={transitions.fast}
-          style={{ gridColumn: '1 / -1' }} // Span full width
-        >
-          <GoalProgressCard
-            goal={goal}
-            totalNetWorth={totalNetWorth}
-            goalProgress={goalProgress}
-            preferredCurrency={preferredCurrency}
-          />
-        </motion.div>
-      )}
-
 
 
       {/* Main Content: 2-column layout on large screens */}
