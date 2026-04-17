@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './ToggleSwitch.module.css';
 
 interface ToggleSwitchProps {
@@ -19,7 +19,8 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   id,
   disabled = false,
 }) => {
-  const toggleId = id || `toggle-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const toggleId = id || `toggle-${generatedId}`;
 
   return (
     <div className={styles.container}>

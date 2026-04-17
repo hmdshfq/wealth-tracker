@@ -16,10 +16,9 @@ import {
 } from '@/lib/projectionCalculations';
 
 function useWindowWidth() {
-  const [width, setWidth] = useState<number | undefined>(undefined);
+  const [width, setWidth] = useState<number | undefined>(typeof window !== 'undefined' ? window.innerWidth : undefined);
 
   useEffect(() => {
-    setWidth(window.innerWidth);
     const handleResize = () => setWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
