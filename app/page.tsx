@@ -151,7 +151,7 @@ export default function InvestmentTracker() {
           whatIfScenarios: parsed.whatIfScenarios ?? true,
           benchmarkComparison: parsed.benchmarkComparison ?? true,
         });
-      } catch (e) {
+      } catch {
         // Use defaults
       }
     }

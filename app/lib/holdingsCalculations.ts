@@ -27,7 +27,7 @@ export function calculateHoldingsFromTransactions(transactions: Transaction[]): 
 
   // Convert to Holding[] and remove zero positions
   return Array.from(holdingsMap.entries())
-    .filter(([_, data]) => data.shares > 0)
+    .filter(([, data]) => data.shares > 0)
     .map(([ticker, data]) => ({
       ticker,
       shares: data.shares,

@@ -26,7 +26,7 @@ const getPreferredTheme = (): Theme => {
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(getPreferredTheme);
-  const [isThemeInitialized, setIsThemeInitialized] = useState(true);
+  const [isThemeInitialized] = useState(true);
 
   useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);

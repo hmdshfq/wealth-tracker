@@ -48,7 +48,6 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   goal,
   transactions,
   totalNetWorth,
-  goalProgress,
   portfolioValue,
   exchangeRates,
   preferredCurrency,

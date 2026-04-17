@@ -422,10 +422,9 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {displayYears && displayYears.map((yearData, yearIdx) => {
+                {displayYears && displayYears.map((yearData) => {
                   const year = yearData[0].year;
                   const yearsToGo = goal.retirementYear - year;
-                  const requiredForYear = goal.monthlyDeposits * Math.pow(1 + goal.depositIncreasePercentage, yearIdx);
 
                   return (
                     <tr key={year}>

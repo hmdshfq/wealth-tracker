@@ -30,7 +30,6 @@ export const ChartSubTab: React.FC<ChartSubTabProps> = ({
   goal,
   transactions,
   totalNetWorth,
-  goalProgress,
   portfolioValue,
   exchangeRates,
   preferredCurrency,

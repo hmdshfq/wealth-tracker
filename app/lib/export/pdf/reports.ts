@@ -83,7 +83,7 @@ export async function exportGoalProgressChartPDF(
   projectionData: ProjectionDataPoint[],
   currentNetWorth: number,
   totalActualContributions: number,
-  options: { filename?: string } = {}
+  _options?: { filename?: string }
 ): Promise<Blob> {
   const pdfOptions: jsPDFOptions = {
     orientation: 'landscape',
@@ -198,7 +198,7 @@ export async function exportSummaryReport(
   goal: Goal,
   holdings: HoldingWithDetails[],
   cash: CashBalance[],
-  options: PDFExportOptions = {}
+  _options?: PDFExportOptions
 ): Promise<Blob> {
   const doc = new jsPDF({
     orientation: 'portrait',

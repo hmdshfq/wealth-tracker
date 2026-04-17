@@ -4,7 +4,7 @@ import { formatPLN } from '../../../formatters';
 import { Goal, ProjectionDataPoint } from '../../../types';
 import { getLastAutoTableFinalY, THEME_COLOR } from '../utils';
 
-export function addProjectionChart(doc: jsPDF, projectionData: ProjectionDataPoint[], goal: Goal) {
+export function addProjectionChart(doc: jsPDF, projectionData: ProjectionDataPoint[], _goal: Goal) {
   // Add section header
   const currentY = getLastAutoTableFinalY(doc, 20);
   const startY = currentY + 15;

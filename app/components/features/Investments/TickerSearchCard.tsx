@@ -24,7 +24,6 @@ interface TickerSearchCardProps {
 export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
   onAddTicker,
   existingTickers,
-  customTickers,
   onEditTicker,
   onDeleteTicker,
   allTickers,
@@ -154,7 +153,6 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
           <SectionTitle>All Available Tickers</SectionTitle>
           <div className={styles.resultsList}>
             {Object.entries(allTickers).map(([symbol, info]) => {
-              const isCustom = !!customTickers[symbol];
               // Check if held (case-insensitive just in case)
               const isHeld = heldTickers.some(h => h.toLowerCase() === symbol.toLowerCase());
               return (

@@ -80,7 +80,6 @@ interface StrategicPanelsSectionProps {
 }
 
 export function StrategicPanelsSection({
-  isMobile,
   effectiveScenarioAnalysisResult,
   setActiveHelpOverlay,
   showScenarioAnalysisLocal,

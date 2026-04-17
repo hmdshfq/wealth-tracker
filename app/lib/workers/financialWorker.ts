@@ -9,7 +9,7 @@ import { FinancialWorkerMessage, FinancialWorkerResponse, FinancialWorkerRequest
 // For now, we'll implement simplified versions directly in the worker
 
 // Simplified projection calculation for the worker
-function generateProjectionData(goal: Goal, currentNetWorth: number): ProjectionDataPoint[] {
+function generateProjectionData(goal: Goal, _currentNetWorth: number): ProjectionDataPoint[] {
   if (!goal.startDate || !goal.retirementYear) {
     return [];
   }
@@ -226,14 +226,6 @@ self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
   self.postMessage(response);
 };
 
-// Helper function for formatting
-function formatPLN(amount: number): string {
-  return new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: 'PLN',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+
 
 export {}; // Make this a module

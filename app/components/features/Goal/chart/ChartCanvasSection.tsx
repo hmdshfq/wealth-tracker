@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Area,
   Brush,
   CartesianGrid,
   ComposedChart,
@@ -36,9 +35,7 @@ interface ChartCanvasSectionProps {
   preferredCurrency: string;
   convertedGoalAmount: number;
   formatChartValue: (value: number) => string;
-  goal: { amount: number };
   currentNetWorth: number;
-  gradientId: string;
   theme: 'dark' | 'light';
   showScenarioAnalysisLocal: boolean;
   effectiveScenarioAnalysisResult?: ScenarioAnalysisResult | null;
@@ -76,9 +73,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   preferredCurrency,
   convertedGoalAmount,
   formatChartValue,
-  goal,
   currentNetWorth,
-  gradientId,
   theme,
   showScenarioAnalysisLocal,
   effectiveScenarioAnalysisResult,

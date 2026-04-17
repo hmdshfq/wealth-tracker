@@ -188,7 +188,7 @@ export function mergeProjectedWithActual(
   // Calculate actual returns
   const actualReturns = currentNetWorth - totalActualContributions;
 
-  return projectedData.map((point, index) => {
+  return projectedData.map((point) => {
     const actualContrib = cumulativeActual.get(point.date);
     const isCurrentOrPast = point.date <= currentMonthKey;
 

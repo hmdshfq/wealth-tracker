@@ -103,7 +103,7 @@ export function useMarketData(
       }
 
       setLastUpdate(new Date());
-    } catch (error) {
+    } catch {
       // Fall back to base prices from constants
       const fallbackPrices: Record<string, PriceData> = {};
       Object.entries(allTickers || ETF_DATA).forEach(([ticker, data]) => {

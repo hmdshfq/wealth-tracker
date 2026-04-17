@@ -37,21 +37,13 @@ const FALLBACK_RATES = {
   USD_PLN: 4.05,
 };
 
-/** Get the Yahoo Finance symbol for converting from PLN to target currency */
-function getPLNSymbol(targetCurrency: string): string {
-  if (targetCurrency === 'PLN') return 'EURPLN=X'; // base
-  if (targetCurrency === 'EUR') return 'EURPLN=X';
-  if (targetCurrency === 'USD') return 'USDPLN=X';
-  // For other currencies, we need to go through USD
-  // e.g., PLN -> USD -> GBP
-  return `${targetCurrency}USD=X`;
-}
+
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const target = searchParams.get('target');
-    const base = searchParams.get('base') || 'PLN';
+
 
     // Determine which pairs to fetch
     const pairsToFetch = [...BASE_PAIRS];

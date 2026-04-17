@@ -352,7 +352,7 @@ export function calculateProgressMilestones(
 export function generateMotivationalMessages(
   goal: Goal,
   currentNetWorth: number,
-  projectionData: ProjectionDataPoint[]
+  _projectionData: ProjectionDataPoint[]
 ): string[] {
   const messages: string[] = [];
   

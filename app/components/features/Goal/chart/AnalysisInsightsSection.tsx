@@ -39,7 +39,6 @@ export function AnalysisInsightsSection({
   setActiveHelpOverlay,
   preferredCurrency,
   getHeatmapColor,
-  formatChartValue,
 }: AnalysisInsightsSectionProps) {
   if (showTimeBasedAnalysis === false) {
     return null;
