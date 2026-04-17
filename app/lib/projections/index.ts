@@ -8,8 +8,6 @@ export {
 } from './baseProjection';
 export type { ExtendedProjectionDataPoint, ActualPortfolioDataPoint } from './baseProjection';
 
-export { runMonteCarloSimulation } from './monteCarlo';
-
 export { runScenarioAnalysis, getDefaultScenarios } from './scenarioAnalysis';
 
 export { calculateRiskMetrics, getRiskRating, formatRiskMetrics } from './riskMetrics';

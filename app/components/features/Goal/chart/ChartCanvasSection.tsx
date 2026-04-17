@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { MonteCarloSimulationResult, ProjectionDataPoint, ScenarioAnalysisResult } from '@/lib/types';
+import { ProjectionDataPoint, ScenarioAnalysisResult } from '@/lib/types';
 import { CustomLegend } from './CustomLegend';
 import { CustomTooltip } from './CustomTooltip';
 import {
@@ -37,11 +37,8 @@ interface ChartCanvasSectionProps {
   formatChartValue: (value: number) => string;
   goal: { amount: number };
   currentNetWorth: number;
-  showMonteCarloLocal: boolean;
-  effectiveMonteCarloResult?: MonteCarloSimulationResult | null;
   gradientId: string;
   theme: 'dark' | 'light';
-  monteCarloColors: { p90: string; p50: string; p10: string };
   showScenarioAnalysisLocal: boolean;
   effectiveScenarioAnalysisResult?: ScenarioAnalysisResult | null;
   activeScenarios: { id: string; name: string; color: string; isActive: boolean }[];
@@ -78,11 +75,8 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   formatChartValue,
   goal,
   currentNetWorth,
-  showMonteCarloLocal,
-  effectiveMonteCarloResult,
   gradientId,
   theme,
-  monteCarloColors,
   showScenarioAnalysisLocal,
   effectiveScenarioAnalysisResult,
   activeScenarios,
@@ -101,84 +95,46 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
     seriesKind: 'core',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
+  }), [theme, colors]);
   const projectedContributionsLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'cumulativeContributions',
     seriesKind: 'core',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
+  }), [theme, colors]);
   const projectedValueLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'value',
     seriesKind: 'core',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
+  }), [theme, colors]);
   const actualContributionsLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'actualContributions',
     seriesKind: 'core',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
+  }), [theme, colors]);
   const actualValueLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'actualValue',
     seriesKind: 'core',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
-  const p90LineStyle = useMemo(() => resolveChartLineStyle({
-    dataKey: 'p90',
-    seriesKind: 'monte-carlo',
-    theme,
-    colors,
-    monteCarloColors,
-    background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
-  const p50LineStyle = useMemo(() => resolveChartLineStyle({
-    dataKey: 'p50',
-    seriesKind: 'monte-carlo',
-    theme,
-    colors,
-    monteCarloColors,
-    background: colors.background,
-  }), [theme, colors, monteCarloColors]);
-
-  const p10LineStyle = useMemo(() => resolveChartLineStyle({
-    dataKey: 'p10',
-    seriesKind: 'monte-carlo',
-    theme,
-    colors,
-    monteCarloColors,
-    background: colors.background,
-  }), [theme, colors, monteCarloColors]);
+  }), [theme, colors]);
 
   const whatIfLineStyle = useMemo(() => resolveChartLineStyle({
     dataKey: 'whatIfValue',
     seriesKind: 'what-if',
     theme,
     colors,
-    monteCarloColors,
     background: colors.background,
-  }), [theme, colors, monteCarloColors]);
+  }), [theme, colors]);
 
-  // Confidence band gradient ID
-  const confidenceGradientId = `confidenceGradient-${gradientId}`;
+
 
   return (
     <>
@@ -194,14 +150,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
       >
          <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={currencyAdjustedData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-            {/* Confidence band gradient definition */}
-            <defs>
-              <linearGradient id={confidenceGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={monteCarloColors.p90} stopOpacity={theme === 'dark' ? 0.15 : 0.1} />
-                <stop offset="50%" stopColor={monteCarloColors.p50} stopOpacity={theme === 'dark' ? 0.2 : 0.15} />
-                <stop offset="100%" stopColor={monteCarloColors.p10} stopOpacity={theme === 'dark' ? 0.15 : 0.1} />
-              </linearGradient>
-            </defs>
+
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} vertical={false} />
 
             <XAxis
@@ -284,92 +233,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
               />
             )}
 
-            {showMonteCarloLocal && effectiveMonteCarloResult && (
-              <>
-                {(() => {
-                  const showP90 = !hiddenLines.has('p90');
-                  const showP50 = !hiddenLines.has('p50');
-                  const showP10 = !hiddenLines.has('p10');
-                  const showConfidenceArea = showP90 && showP10;
-
-                  return (
-                    <>
-                      {/* Shaded confidence area between p10 and p90 */}
-                      {showConfidenceArea && (
-                        <>
-                          <Area
-                            type="monotone"
-                            dataKey="p90"
-                            fill={`url(#${confidenceGradientId})`}
-                            stroke="none"
-                            fillOpacity={1}
-                            isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                            aria-label="90% confidence upper bound"
-                            role="graphics-document"
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="p10"
-                            fill={`url(#${confidenceGradientId})`}
-                            stroke="none"
-                            fillOpacity={1}
-                            isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                            aria-label="10% confidence lower bound"
-                            role="graphics-document"
-                          />
-                        </>
-                      )}
-
-                      {/* Median line - always shown when confidence bands are visible */}
-                      {showP50 && (
-                        <Line
-                          type="monotone"
-                          dataKey="p50"
-                          name="Median Projection"
-                          stroke={p50LineStyle.stroke}
-                          strokeWidth={p50LineStyle.strokeWidth}
-                          strokeDasharray={p50LineStyle.strokeDasharray}
-                          dot={p50LineStyle.dot}
-                          activeDot={p50LineStyle.activeDot}
-                          isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                        />
-                      )}
-
-                      {/* Optional boundary lines for advanced users */}
-                      {showP90 && !showConfidenceArea && (
-                        <Line
-                          type="monotone"
-                          dataKey="p90"
-                          name="90% Confidence"
-                          stroke={p90LineStyle.stroke}
-                          strokeWidth={p90LineStyle.strokeWidth}
-                          strokeOpacity={p90LineStyle.strokeOpacity}
-                          strokeDasharray={p90LineStyle.strokeDasharray}
-                          dot={p90LineStyle.dot}
-                          activeDot={p90LineStyle.activeDot}
-                          isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                        />
-                      )}
-                      {showP10 && !showConfidenceArea && (
-                        <Line
-                          type="monotone"
-                          dataKey="p10"
-                          name="10% Confidence"
-                          stroke={p10LineStyle.stroke}
-                          strokeWidth={p10LineStyle.strokeWidth}
-                          strokeOpacity={p10LineStyle.strokeOpacity}
-                          strokeDasharray={p10LineStyle.strokeDasharray}
-                          dot={p10LineStyle.dot}
-                          activeDot={p10LineStyle.activeDot}
-                          isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
-                        />
-                      )}
-                    </>
-                  );
-                })()}
-              </>
-            )}
-
             {!hiddenLines.has('value') && (
               <Line
                 type="monotone"
@@ -397,7 +260,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                     seriesKind: 'scenario',
                     theme,
                     colors,
-                    monteCarloColors,
                     background: colors.background,
                     colorHint: scenario.color,
                     index,
@@ -441,7 +303,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                   seriesKind: 'benchmark',
                   theme,
                   colors,
-                  monteCarloColors,
                   background: colors.background,
                   colorHint: benchmark.color,
                   index,

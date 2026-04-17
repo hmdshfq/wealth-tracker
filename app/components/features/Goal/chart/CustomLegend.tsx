@@ -1,5 +1,4 @@
 import React from 'react';
-import { MonteCarloLegendHelp } from '../InvestmentGoalChartHelp';
 import { LegendEntry } from './types';
 import styles from './CustomLegend.module.css';
 
@@ -13,7 +12,6 @@ export const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, h
   const projectedItems = payload.filter((p) => p.type === 'projected');
   const actualItems = payload.filter((p) => p.type === 'actual');
   const targetItems = payload.filter((p) => p.type === 'target');
-  const monteCarloItems = payload.filter((p) => p.type === 'monte-carlo');
   const scenarioItems = payload.filter((p) => p.type === 'scenario');
 
   const renderItem = (entry: LegendEntry, index: number) => (
@@ -62,16 +60,6 @@ export const CustomLegend: React.FC<CustomLegendProps> = ({ payload, onToggle, h
       {targetItems.length > 0 && (
         <div className={styles.legendGroup}>
           <div className={styles.legendItems}>{targetItems.map(renderItem)}</div>
-        </div>
-      )}
-
-      {monteCarloItems.length > 0 && (
-        <div className={styles.legendGroup}>
-          <div className={styles.legendGroupHeader}>
-            <span className={styles.legendGroupTitle}>Confidence Bands</span>
-            <MonteCarloLegendHelp />
-          </div>
-          <div className={styles.legendItems}>{monteCarloItems.map(renderItem)}</div>
         </div>
       )}
 

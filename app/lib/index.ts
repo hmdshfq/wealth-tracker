@@ -8,7 +8,6 @@ export * from './holdingsCalculations';
 export * from './hooks';
 export * from './pdfExport';
 export {
-  runMonteCarloSimulation,
   generateProjectionData,
   calculateActualContributionsByMonth,
   calculateCumulativeActualContributions,

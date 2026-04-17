@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId, useMemo, useRef } from 'react';
+import React, { useId, useRef } from 'react';
 import styles from './InvestmentGoalChart.module.css';
 import { CHART_COLORS } from './chart/types';
 import { useTheme } from './chart/useTheme';
@@ -16,14 +16,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
   const theme = useTheme();
   const colors = CHART_COLORS[theme];
   const gradientId = useId();
-  const monteCarloColors = useMemo(
-    () => ({
-      p90: theme === 'dark' ? '#38bdf8' : '#0369a1',
-      p50: theme === 'dark' ? '#f43f5e' : '#be123c',
-      p10: theme === 'dark' ? '#a3e635' : '#4d7c0f',
-    }),
-    [theme]
-  );
 
   const { headerModel, canvasModel, insightsModel, strategicModel, a11yModel } =
     useInvestmentGoalChartModel({
@@ -31,7 +23,6 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
       theme,
       colors,
       gradientId,
-      monteCarloColors,
     });
 
   return (
@@ -66,7 +57,7 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
         currentNetWorth={props.currentNetWorth}
         gradientId={gradientId}
         theme={theme}
-        monteCarloColors={monteCarloColors}
+
       />
 
       <AnalysisInsightsSection

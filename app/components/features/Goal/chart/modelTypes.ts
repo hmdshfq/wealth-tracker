@@ -3,7 +3,6 @@ import {
   BehavioralAnalysisResult,
   Goal,
   InvestmentScenario,
-  MonteCarloSimulationResult,
   PreferredCurrency,
   ProjectionDataPoint,
   ScenarioAnalysisResult,
@@ -23,8 +22,6 @@ export interface InvestmentGoalChartProps {
   websocketUrl?: string;
   className?: string;
   firstTransactionDate?: string;
-  monteCarloResult?: MonteCarloSimulationResult;
-  showMonteCarlo?: boolean;
   scenarioAnalysisResult?: ScenarioAnalysisResult;
   showScenarioAnalysis?: boolean;
   scenarios?: InvestmentScenario[];
@@ -33,7 +30,6 @@ export interface InvestmentGoalChartProps {
   behavioralAnalysisResult?: BehavioralAnalysisResult;
   showBehavioralAnalysis?: boolean;
   enableScenarioAnalysis?: boolean;
-  enableMonteCarlo?: boolean;
   enableTimeBasedAnalysis?: boolean;
   enableWhatIfScenarios?: boolean;
   enableBenchmarkComparison?: boolean;
@@ -43,11 +39,6 @@ export interface UseInvestmentGoalChartModelInput extends InvestmentGoalChartPro
   theme: 'dark' | 'light';
   colors: typeof CHART_COLORS.dark;
   gradientId: string;
-  monteCarloColors: {
-    p90: string;
-    p50: string;
-    p10: string;
-  };
 }
 
 export interface HeaderModel {
@@ -79,8 +70,6 @@ export interface CanvasModel {
   formatYAxis: (value: number) => string;
   formatChartValue: (value: number) => string;
   convertedGoalAmount: number;
-  showMonteCarloLocal: boolean;
-  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
   showScenarioAnalysisLocal: boolean;
   effectiveScenarioAnalysisResult: ScenarioAnalysisResult | null | undefined;
   activeScenarios: InvestmentScenario[];
@@ -116,13 +105,6 @@ export interface InsightsModel {
     React.SetStateAction<'confidence-bands' | 'scenario-analysis' | null>
   >;
   getHeatmapColor: (returnPercent: number) => string;
-  effectiveMonteCarloResult: MonteCarloSimulationResult | null | undefined;
-  showMonteCarloLocal: boolean;
-  setShowMonteCarloLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  monteCarloVolatility: number;
-  setMonteCarloVolatility: React.Dispatch<React.SetStateAction<number>>;
-  monteCarloSimulations: number;
-  setMonteCarloSimulations: React.Dispatch<React.SetStateAction<number>>;
   formatChartValue: (value: number) => string;
 }
 

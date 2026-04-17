@@ -1,29 +1,17 @@
 import {
   Goal,
   ProjectionDataPoint,
-  MonteCarloSimulationResult,
   InvestmentScenario,
   ScenarioAnalysisResult,
   TimeBasedAnalysisResult,
 } from '@/lib/types';
 
-export interface FinancialWorkerMonteCarloParams {
-  numSimulations: number;
-  volatility: number;
-}
-
 export type FinancialWorkerRequestType =
-  | 'monte-carlo'
   | 'scenario-analysis'
   | 'time-based-analysis'
   | 'projection-data';
 
 export interface FinancialWorkerRequestPayloadMap {
-  'monte-carlo': {
-    goal: Goal;
-    currentNetWorth: number;
-    params: FinancialWorkerMonteCarloParams;
-  };
   'scenario-analysis': {
     goal: Goal;
     currentNetWorth: number;
@@ -39,7 +27,6 @@ export interface FinancialWorkerRequestPayloadMap {
 }
 
 export type FinancialWorkerResponsePayloadMap = {
-  'monte-carlo': MonteCarloSimulationResult;
   'scenario-analysis': ScenarioAnalysisResult;
   'time-based-analysis': TimeBasedAnalysisResult;
   'projection-data': ProjectionDataPoint[];

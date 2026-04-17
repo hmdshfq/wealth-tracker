@@ -88,20 +88,9 @@ export interface ExtendedProjectionDataPoint extends ProjectionDataPoint {
   actualContributions?: number;
   actualValue?: number;
   actualReturns?: number;
-  p10?: number; // 10th percentile (Monte Carlo)
-  p50?: number; // 50th percentile (median)
-  p90?: number; // 90th percentile
 }
 
-export interface MonteCarloSimulationResult {
-  baseProjection: ProjectionDataPoint[];
-  simulations: ProjectionDataPoint[][];
-  percentiles: {
-    p10: ProjectionDataPoint[];
-    p50: ProjectionDataPoint[];
-    p90: ProjectionDataPoint[];
-  };
-}
+
 
 // Risk Metrics Types
 export interface RiskMetrics {

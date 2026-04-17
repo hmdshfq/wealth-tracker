@@ -1,9 +1,4 @@
-import {
-  Goal,
-  ProjectionDataPoint,
-  Transaction,
-  MonteCarloSimulationResult,
-} from '../types';
+import { Goal, ProjectionDataPoint, Transaction } from '../types';
 
 /**
  * Extended projection data point with actual values.
@@ -165,8 +160,7 @@ export function mergeProjectedWithActual(
   projectedData: ProjectionDataPoint[],
   transactions: Transaction[],
   exchangeRates: { EUR_PLN: number; USD_PLN: number },
-  currentNetWorth: number,
-  monteCarloResult?: MonteCarloSimulationResult
+  currentNetWorth: number
 ): ExtendedProjectionDataPoint[] {
   if (projectedData.length === 0) return [];
 
@@ -200,21 +194,10 @@ export function mergeProjectedWithActual(
 
     let actualValue: number | undefined;
     let actualReturnsValue: number | undefined;
-    let p10: number | undefined;
-    let p50: number | undefined;
-    let p90: number | undefined;
-
     if (point.date === currentMonthKey) {
       // Current month - show actual portfolio value and returns
       actualValue = currentNetWorth;
       actualReturnsValue = actualReturns;
-    }
-
-    // Add Monte Carlo percentile data if available
-    if (monteCarloResult) {
-      p10 = monteCarloResult.percentiles.p10[index]?.value;
-      p50 = monteCarloResult.percentiles.p50[index]?.value;
-      p90 = monteCarloResult.percentiles.p90[index]?.value;
     }
 
     return {
@@ -222,9 +205,6 @@ export function mergeProjectedWithActual(
       actualContributions: isCurrentOrPast ? actualContrib : undefined,
       actualValue,
       actualReturns: point.date === currentMonthKey ? actualReturnsValue : undefined,
-      p10,
-      p50,
-      p90,
     };
   });
 }

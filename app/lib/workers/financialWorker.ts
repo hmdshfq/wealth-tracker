@@ -1,7 +1,7 @@
 // WebWorker for heavy financial calculations
 // This runs in a separate thread to avoid blocking the main UI
 
-import { Goal, ProjectionDataPoint, MonteCarloSimulationResult, InvestmentScenario, ScenarioAnalysisResult, TimeBasedAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
+import { Goal, ProjectionDataPoint, InvestmentScenario, ScenarioAnalysisResult, TimeBasedAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
 import { FinancialWorkerMessage, FinancialWorkerResponse, FinancialWorkerRequestPayloadMap } from './financialWorkerTypes';
 
 // Import the calculation functions we need
@@ -67,112 +67,6 @@ function generateProjectionData(goal: Goal, currentNetWorth: number): Projection
   }
 
   return data;
-}
-
-// Simplified Monte Carlo simulation
-function runMonteCarloSimulation(
-  goal: Goal,
-  currentNetWorth: number,
-  params: { numSimulations: number; volatility: number }
-): MonteCarloSimulationResult {
-  const baseProjection = generateProjectionData(goal, currentNetWorth);
-  
-  if (baseProjection.length === 0) {
-    return {
-      baseProjection: [],
-      percentiles: { p10: [], p50: [], p90: [] },
-      simulations: []
-    };
-  }
-
-  const numSimulations = Math.min(params.numSimulations, 2000); // Limit for performance
-  const volatility = params.volatility;
-  const numPeriods = baseProjection.length;
-  const simulations: ProjectionDataPoint[][] = [];
-
-  // Generate random returns using geometric Brownian motion
-  function generateRandomReturns(baseReturn: number, volatility: number, numPeriods: number): number[] {
-    const returns: number[] = [];
-    const dt = 1/12; // Monthly time step
-    
-    for (let i = 0; i < numPeriods; i++) {
-      // Generate random normal variable (Box-Muller transform)
-      let u = 0, v = 0;
-      while(u === 0) u = Math.random();
-      while(v === 0) v = Math.random();
-      const randomNormal = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-      
-      // Geometric Brownian motion formula
-      const drift = (baseReturn - 0.5 * volatility * volatility) * dt;
-      const diffusion = volatility * Math.sqrt(dt) * randomNormal;
-      const monthlyReturn = drift + diffusion;
-      
-      returns.push(monthlyReturn);
-    }
-    
-    return returns;
-  }
-
-  // Run simulations
-  for (let sim = 0; sim < numSimulations; sim++) {
-    const randomReturns = generateRandomReturns(goal.annualReturn, volatility, numPeriods);
-    
-    const simulationData: ProjectionDataPoint[] = [];
-    let portfolioValue = 0;
-    let cumulativeContributions = 0;
-    let currentMonthlyDeposit = goal.monthlyDeposits;
-    
-    for (let i = 0; i < numPeriods; i++) {
-      const point = baseProjection[i];
-      
-      // Annual deposit increase
-      if (i > 0 && new Date(point.date).getMonth() === 0 && goal.depositIncreasePercentage > 0) {
-        currentMonthlyDeposit *= (1 + goal.depositIncreasePercentage);
-      }
-      
-      // Use random return
-      const monthlyReturn = randomReturns[i];
-      const monthlyReturnAmount = portfolioValue * monthlyReturn;
-      cumulativeContributions += currentMonthlyDeposit;
-      
-      portfolioValue += monthlyReturnAmount + currentMonthlyDeposit;
-      
-      simulationData.push({
-        ...point,
-        value: Math.round(portfolioValue),
-        cumulativeContributions: Math.round(cumulativeContributions),
-        monthlyReturn: Math.round(monthlyReturnAmount),
-      });
-    }
-    
-    simulations.push(simulationData);
-  }
-
-  // Calculate percentiles
-  const p10Data: ProjectionDataPoint[] = [];
-  const p50Data: ProjectionDataPoint[] = [];
-  const p90Data: ProjectionDataPoint[] = [];
-  
-  for (let i = 0; i < numPeriods; i++) {
-    const valuesAtTime = simulations.map(sim => sim[i].value);
-    valuesAtTime.sort((a, b) => a - b);
-    
-    const p10Index = Math.floor(0.1 * numSimulations);
-    const p50Index = Math.floor(0.5 * numSimulations);
-    const p90Index = Math.floor(0.9 * numSimulations);
-    
-    const basePoint = baseProjection[i];
-    
-    p10Data.push({ ...basePoint, value: valuesAtTime[p10Index] });
-    p50Data.push({ ...basePoint, value: valuesAtTime[p50Index] });
-    p90Data.push({ ...basePoint, value: valuesAtTime[p90Index] });
-  }
-  
-  return {
-    baseProjection,
-    percentiles: { p10: p10Data, p50: p50Data, p90: p90Data },
-    simulations
-  };
 }
 
 // Simplified scenario analysis
@@ -304,12 +198,6 @@ self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
 
   try {
     switch (message.type) {
-      case 'monte-carlo': {
-        const payload = message.data as FinancialWorkerRequestPayloadMap['monte-carlo'];
-        response.result = runMonteCarloSimulation(payload.goal, payload.currentNetWorth, payload.params);
-        break;
-      }
-      
       case 'scenario-analysis': {
         const payload = message.data as FinancialWorkerRequestPayloadMap['scenario-analysis'];
         response.result = runScenarioAnalysis(payload.goal, payload.currentNetWorth, payload.scenarios);

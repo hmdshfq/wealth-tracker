@@ -9,7 +9,6 @@ import {
 } from '@/lib/workers';
 
 type PendingRequestCallback = (result: FinancialWorkerResponsePayload) => void;
-type MonteCarloPayload = FinancialWorkerRequestPayloadMap['monte-carlo'];
 type ScenarioPayload = FinancialWorkerRequestPayloadMap['scenario-analysis'];
 type TimeBasedPayload = FinancialWorkerRequestPayloadMap['time-based-analysis'];
 type ProjectionPayload = FinancialWorkerRequestPayloadMap['projection-data'];
@@ -131,15 +130,6 @@ export function useFinancialWorker() {
     });
   }, [worker]);
 
-  // Run Monte Carlo simulation
-  const runMonteCarloSimulation = useCallback((
-    goal: MonteCarloPayload['goal'],
-    currentNetWorth: MonteCarloPayload['currentNetWorth'],
-    params: MonteCarloPayload['params']
-  ) => {
-    return sendWorkerMessage('monte-carlo', { goal, currentNetWorth, params });
-  }, [sendWorkerMessage]);
-
   // Run scenario analysis
   const runScenarioAnalysis = useCallback((
     goal: ScenarioPayload['goal'],
@@ -180,7 +170,6 @@ export function useFinancialWorker() {
     isLoading,
     error,
     sendWorkerMessage,
-    runMonteCarloSimulation,
     runScenarioAnalysis,
     performTimeBasedAnalysis,
     generateProjectionData,

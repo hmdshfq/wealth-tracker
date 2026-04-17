@@ -11,7 +11,6 @@ import {
   generateProjectionData,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
-  runMonteCarloSimulation,
   calculateActualPortfolioValues,
   performTimeBasedAnalysis,
 } from '@/lib/projectionCalculations';
@@ -40,7 +39,6 @@ interface GoalSubTabProps {
     USD_PLN: number;
   };
   preferredCurrency: PreferredCurrency;
-  enableMonteCarlo: boolean;
   enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
   enableWhatIfScenarios: boolean;
@@ -55,7 +53,6 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   portfolioValue,
   exchangeRates,
   preferredCurrency,
-  enableMonteCarlo,
   enableTimeAnalysis,
   enableScenarioAnalysis,
   enableWhatIfScenarios,
@@ -75,12 +72,6 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   const projectionData = useMemo(() => {
     return generateProjectionData(goal, totalNetWorth);
   }, [goal, totalNetWorth]);
-
-  // Run Monte Carlo simulation (conditional based on feature flag)
-  const monteCarloResult = useMemo(() => {
-    if (!enableMonteCarlo) return undefined;
-    return runMonteCarloSimulation(goal, totalNetWorth);
-  }, [goal, totalNetWorth, enableMonteCarlo]);
 
   // Calculate total actual contributions from transactions
   const totalActualContributions = useMemo(() => {
@@ -130,10 +121,9 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
       projectionData,
       transactions,
       exchangeRates,
-      portfolioValue,
-      monteCarloResult
+      portfolioValue
     );
-  }, [projectionData, transactions, exchangeRates, portfolioValue, monteCarloResult]);
+  }, [projectionData, transactions, exchangeRates, portfolioValue]);
 
   return (
     <motion.div
@@ -155,12 +145,9 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               currentNetWorth={portfolioValue}
               totalActualContributions={totalActualContributions}
               firstTransactionDate={firstTransactionDate}
-              monteCarloResult={monteCarloResult}
-              showMonteCarlo={false}
               preferredCurrency={preferredCurrency}
               timeBasedAnalysisResult={timeBasedAnalysisResult}
               showTimeBasedAnalysis={!isMobile && enableTimeAnalysis}
-              enableMonteCarlo={enableMonteCarlo}
               enableScenarioAnalysis={enableScenarioAnalysis}
               enableTimeBasedAnalysis={enableTimeAnalysis}
               enableWhatIfScenarios={enableWhatIfScenarios}

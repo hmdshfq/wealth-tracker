@@ -7,7 +7,6 @@ export type ChartSeriesType =
   | 'projected'
   | 'actual'
   | 'target'
-  | 'monte-carlo'
   | 'scenario';
 
 export interface LegendEntry {
@@ -82,14 +81,9 @@ export interface ChartLineStyle {
 
 interface ResolveChartLineStyleInput {
   dataKey: string;
-  seriesKind: 'core' | 'monte-carlo' | 'scenario' | 'benchmark' | 'what-if';
+  seriesKind: 'core' | 'scenario' | 'benchmark' | 'what-if';
   theme: 'dark' | 'light';
   colors: typeof CHART_COLORS.dark;
-  monteCarloColors: {
-    p90: string;
-    p50: string;
-    p10: string;
-  };
   background: string;
   colorHint?: string;
   index?: number;
@@ -122,7 +116,6 @@ export function resolveChartLineStyle({
   seriesKind,
   theme,
   colors,
-  monteCarloColors,
   background,
   colorHint,
   index = 0,
@@ -178,43 +171,6 @@ export function resolveChartLineStyle({
         lineStyle: 'solid',
         dot: dotStyle(8, colors.actualValue, background, 3),
         activeDot: dotStyle(10, colors.actualValue, background, 3),
-      };
-    }
-  }
-
-  if (seriesKind === 'monte-carlo') {
-    if (dataKey === 'p90') {
-      return {
-        stroke: monteCarloColors.p90,
-        strokeWidth: 2,
-        strokeDasharray: '12 4',
-        strokeOpacity: 0.9,
-        lineStyle: 'dashed',
-        dot: false,
-        activeDot: false,
-      };
-    }
-
-    if (dataKey === 'p50') {
-      return {
-        stroke: monteCarloColors.p50,
-        strokeWidth: 2.5,
-        strokeDasharray: '4 2',
-        lineStyle: 'mixed',
-        dot: false,
-        activeDot: false,
-      };
-    }
-
-    if (dataKey === 'p10') {
-      return {
-        stroke: monteCarloColors.p10,
-        strokeWidth: 2,
-        strokeDasharray: '1 3',
-        strokeOpacity: 0.9,
-        lineStyle: 'dotted',
-        dot: false,
-        activeDot: false,
       };
     }
   }

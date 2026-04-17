@@ -18,12 +18,10 @@ import {
 import {
   generateProjectionData as generateProjectionDataMain,
   performTimeBasedAnalysis as performTimeBasedAnalysisMain,
-  runMonteCarloSimulation as runMonteCarloSimulationMain,
   runScenarioAnalysis as runScenarioAnalysisMain,
 } from '@/lib/projectionCalculations';
 import {
   InvestmentScenario,
-  MonteCarloSimulationResult,
   ProjectionDataPoint,
   ScenarioAnalysisResult,
   TimeBasedAnalysisResult,
@@ -205,8 +203,6 @@ export function useInvestmentGoalChartModel(
     enableRealTimeUpdates = false,
     websocketUrl,
     firstTransactionDate,
-    monteCarloResult,
-    showMonteCarlo,
     scenarioAnalysisResult,
     showScenarioAnalysis,
     scenarios,
@@ -214,17 +210,14 @@ export function useInvestmentGoalChartModel(
     showTimeBasedAnalysis,
     showBehavioralAnalysis,
     enableScenarioAnalysis = true,
-    enableMonteCarlo = true,
     enableTimeBasedAnalysis = true,
     enableWhatIfScenarios = true,
     enableBenchmarkComparison = true,
     theme,
     colors,
-    monteCarloColors,
   } = input;
 
   const {
-    runMonteCarloSimulation,
     runScenarioAnalysis,
     performTimeBasedAnalysis,
     generateProjectionData,
@@ -254,10 +247,6 @@ export function useInvestmentGoalChartModel(
   const [brushRange, setBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({});
   const [yAxisDomain, setYAxisDomain] = useState<[number, number] | undefined>(undefined);
   const [announcement, setAnnouncement] = useState('');
-
-  const [showMonteCarloLocal, setShowMonteCarloLocal] = useState(Boolean(showMonteCarlo));
-  const [monteCarloVolatility, setMonteCarloVolatility] = useState(0.15);
-  const [monteCarloSimulations, setMonteCarloSimulations] = useState(1000);
 
   const [activeHelpOverlay, setActiveHelpOverlay] = useState<
     'confidence-bands' | 'scenario-analysis' | null
@@ -306,8 +295,6 @@ export function useInvestmentGoalChartModel(
     [scenarios, defaultScenarios]
   );
   const [activeScenarios, setActiveScenarios] = useState<InvestmentScenario[]>(scenarioDefinitions);
-  const [monteCarloResultLocal, setMonteCarloResultLocal] =
-    useState<MonteCarloSimulationResult | null>(monteCarloResult || null);
   const [scenarioAnalysisResultLocal, setScenarioAnalysisResultLocal] =
     useState<ScenarioAnalysisResult | null>(scenarioAnalysisResult || null);
 
@@ -346,56 +333,10 @@ export function useInvestmentGoalChartModel(
   }, [scenarioDefinitions]);
 
   useEffect(() => {
-    if (monteCarloResult) {
-      setMonteCarloResultLocal(monteCarloResult);
-    }
-  }, [monteCarloResult]);
-
-  useEffect(() => {
     if (scenarioAnalysisResult) {
       setScenarioAnalysisResultLocal(scenarioAnalysisResult);
     }
   }, [scenarioAnalysisResult]);
-
-  useEffect(() => {
-    if (isMobile) return;
-    if (!enableMonteCarlo) {
-      setMonteCarloResultLocal(null);
-      return;
-    }
-
-    let isCancelled = false;
-
-    withFallback(
-      () =>
-        runMonteCarloSimulation(goal, currentNetWorth, {
-          numSimulations: monteCarloSimulations,
-          volatility: monteCarloVolatility,
-        }),
-      () =>
-        runMonteCarloSimulationMain(goal, currentNetWorth, {
-          numSimulations: monteCarloSimulations,
-          volatility: monteCarloVolatility,
-        })
-    ).then((result) => {
-      if (!isCancelled) {
-        setMonteCarloResultLocal(result);
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [
-    isMobile,
-    enableMonteCarlo,
-    goal,
-    currentNetWorth,
-    monteCarloSimulations,
-    monteCarloVolatility,
-    withFallback,
-    runMonteCarloSimulation,
-  ]);
 
   useEffect(() => {
     if (isMobile) return;
@@ -420,7 +361,6 @@ export function useInvestmentGoalChartModel(
     };
   }, [isMobile, enableScenarioAnalysis, goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
 
-  const effectiveMonteCarloResult = monteCarloResultLocal || monteCarloResult;
   const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
 
   useEffect(() => {
@@ -779,7 +719,6 @@ export function useInvestmentGoalChartModel(
         seriesKind,
         theme,
         colors,
-        monteCarloColors,
         background: colors.background,
         colorHint,
         index,
@@ -866,28 +805,6 @@ export function useInvestmentGoalChartModel(
         type: 'target',
         seriesKind: 'core',
       }),
-      ...(showMonteCarloLocal && effectiveMonteCarloResult
-        ? [
-            legendEntryFromStyle({
-              value: '90% Confidence',
-              dataKey: 'p90',
-              type: 'monte-carlo',
-              seriesKind: 'monte-carlo',
-            }),
-            legendEntryFromStyle({
-              value: 'Median',
-              dataKey: 'p50',
-              type: 'monte-carlo',
-              seriesKind: 'monte-carlo',
-            }),
-            legendEntryFromStyle({
-              value: '10% Confidence',
-              dataKey: 'p10',
-              type: 'monte-carlo',
-              seriesKind: 'monte-carlo',
-            }),
-          ]
-        : []),
       ...scenarioLegendEntries,
       ...whatIfLegendEntries,
       ...benchmarkLegendEntries,
@@ -900,11 +817,8 @@ export function useInvestmentGoalChartModel(
     showWhatIf,
     whatIfProjection,
     benchmarkData,
-    showMonteCarloLocal,
-    effectiveMonteCarloResult,
     theme,
     colors,
-    monteCarloColors,
   ]);
 
   const visibleDataBounds = useMemo(() => {
@@ -998,8 +912,6 @@ export function useInvestmentGoalChartModel(
       formatYAxis,
       formatChartValue,
       convertedGoalAmount,
-      showMonteCarloLocal,
-      effectiveMonteCarloResult,
       showScenarioAnalysisLocal,
       effectiveScenarioAnalysisResult,
       activeScenarios,
@@ -1024,13 +936,6 @@ export function useInvestmentGoalChartModel(
       setShowBehavioralAnalysisLocal,
       setActiveHelpOverlay,
       getHeatmapColor,
-      effectiveMonteCarloResult,
-      showMonteCarloLocal,
-      setShowMonteCarloLocal,
-      monteCarloVolatility,
-      setMonteCarloVolatility,
-      monteCarloSimulations,
-      setMonteCarloSimulations,
       formatChartValue,
     },
     strategicModel: {

@@ -17,12 +17,11 @@ interface SettingsSubTabProps {
   onEditCancel: () => void;
   onEditSave: () => void;
   onTempGoalChange: (updates: Partial<Goal>) => void;
-  enableMonteCarlo: boolean;
   enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
   enableWhatIfScenarios: boolean;
   enableBenchmarkComparison: boolean;
-  onGoalFeaturesChange: (feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
+  onGoalFeaturesChange: (feature: 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
 export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
@@ -35,7 +34,6 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
   onEditCancel,
   onEditSave,
   onTempGoalChange,
-  enableMonteCarlo,
   enableTimeAnalysis,
   enableScenarioAnalysis,
   enableWhatIfScenarios,
@@ -102,13 +100,6 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <ToggleSwitch
-            checked={enableMonteCarlo}
-            onChange={(enabled: boolean) => onGoalFeaturesChange('monteCarlo', enabled)}
-            label="Monte Carlo Simulation"
-            description="Run probability-based projections with confidence bands"
-          />
-          
           <ToggleSwitch
             checked={enableTimeAnalysis}
             onChange={(enabled: boolean) => onGoalFeaturesChange('timeAnalysis', enabled)}

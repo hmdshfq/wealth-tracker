@@ -75,13 +75,11 @@ export default function InvestmentTracker() {
   
   // Goal feature settings
   const [goalFeatures, setGoalFeatures] = useState<{
-    monteCarlo: boolean;
     timeAnalysis: boolean;
     scenarioAnalysis: boolean;
     whatIfScenarios: boolean;
     benchmarkComparison: boolean;
   }>({
-    monteCarlo: true,
     timeAnalysis: true,
     scenarioAnalysis: true,
     whatIfScenarios: true,
@@ -144,7 +142,6 @@ export default function InvestmentTracker() {
       try {
         const parsed = JSON.parse(stored);
         setGoalFeatures({
-          monteCarlo: parsed.monteCarlo ?? true,
           timeAnalysis: parsed.timeAnalysis ?? true,
           scenarioAnalysis: parsed.scenarioAnalysis ?? true,
           whatIfScenarios: parsed.whatIfScenarios ?? true,
@@ -768,7 +765,7 @@ export default function InvestmentTracker() {
 
   // Goal feature settings handlers
   const handleGoalFeaturesChange = useCallback((
-    feature: 'monteCarlo' | 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison',
+    feature: 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison',
     enabled: boolean
   ) => {
     setGoalFeatures((prev) => {
@@ -857,7 +854,6 @@ export default function InvestmentTracker() {
                 onEditSave={handleGoalEditSave}
                 onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
                 // Goal feature settings
-                enableMonteCarlo={goalFeatures.monteCarlo}
                 enableTimeAnalysis={goalFeatures.timeAnalysis}
                 enableScenarioAnalysis={goalFeatures.scenarioAnalysis}
                 enableWhatIfScenarios={goalFeatures.whatIfScenarios}
