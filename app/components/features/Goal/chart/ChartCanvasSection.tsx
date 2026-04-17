@@ -57,6 +57,8 @@ interface ChartCanvasSectionProps {
   >;
   isZoomActive: boolean;
   yAxisDomain?: [number, number];
+  crossoverStartDate?: string;
+  crossoverEndDate?: string;
 
 }
 
@@ -87,6 +89,8 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   setBrushRange,
   isZoomActive,
   yAxisDomain,
+  crossoverStartDate,
+  crossoverEndDate,
 
 }: ChartCanvasSectionProps) {
   // Memoize line styles to prevent recalculation on every render
@@ -195,15 +199,17 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
               label={{ value: 'Current', fill: colors.actualValue, fontSize: 11 }}
             />
 
-            {[0.25, 0.5, 0.75].map((milestone) => (
-              <ReferenceLine
-                key={milestone}
-                y={goal.amount * milestone}
-                stroke={colors.target}
-                strokeDasharray="1 4"
-                strokeOpacity={0.3}
+
+            {/* Crossover zone: when returns exceed contributions */}
+            {crossoverStartDate && (
+              <ReferenceArea
+                x1={crossoverStartDate}
+                x2={crossoverEndDate || currencyAdjustedData[currencyAdjustedData.length - 1]?.date}
+                strokeOpacity={0}
+                fill={colors.crossoverZone}
+                fillOpacity={0.5}
               />
-            ))}
+            )}
 
             {!hiddenLines.has('goal') && (
               <Line

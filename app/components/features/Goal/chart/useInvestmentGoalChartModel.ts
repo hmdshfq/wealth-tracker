@@ -846,6 +846,34 @@ export function useInvestmentGoalChartModel(
     };
   }, [currencyAdjustedData, brushRange]);
 
+  // Calculate crossover zone where returns exceed contributions
+  const crossoverZone = useMemo(() => {
+    if (!currencyAdjustedData.length) return { startDate: undefined, endDate: undefined };
+
+    let visibleData = currencyAdjustedData;
+    if (brushRange.startIndex !== undefined && brushRange.endIndex !== undefined) {
+      visibleData = currencyAdjustedData.slice(brushRange.startIndex, brushRange.endIndex + 1);
+    }
+
+    // Find first point where monthlyReturn >= monthlyContribution
+    let crossoverStartDate: string | undefined;
+    let crossoverEndDate: string | undefined;
+
+    for (const point of visibleData) {
+      if (point.monthlyReturn !== undefined && point.monthlyContribution !== undefined) {
+        if (point.monthlyReturn >= point.monthlyContribution && !crossoverStartDate) {
+          crossoverStartDate = point.date;
+        }
+        if (point.monthlyReturn < point.monthlyContribution && crossoverStartDate && !crossoverEndDate) {
+          crossoverEndDate = point.date;
+        }
+      }
+    }
+
+    // If we never cross back below, crossoverEndDate stays undefined (permanent)
+    return { startDate: crossoverStartDate, endDate: crossoverEndDate };
+  }, [currencyAdjustedData, brushRange]);
+
   const handleYAxisZoomIn = useCallback(() => {
     setYAxisDomain((prev) => {
       if (prev) {
@@ -926,6 +954,8 @@ export function useInvestmentGoalChartModel(
       handleYAxisZoomOut,
       handleYAxisZoomReset,
       isYAxisZoomActive: !!yAxisDomain,
+      crossoverStartDate: crossoverZone.startDate,
+      crossoverEndDate: crossoverZone.endDate,
     },
     insightsModel: {
       timeBasedAnalysisResult,

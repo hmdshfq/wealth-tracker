@@ -92,6 +92,8 @@ export interface CanvasModel {
   handleYAxisZoomOut: () => void;
   handleYAxisZoomReset: () => void;
   isYAxisZoomActive: boolean;
+  crossoverStartDate?: string;
+  crossoverEndDate?: string;
 }
 
 export interface InsightsModel {
