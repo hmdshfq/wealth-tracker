@@ -1,4 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Investment Tracker
+
+A Next.js 16 web application for tracking ETF portfolios, managing financial goals, and monitoring multi-currency cash positions. Built with React, TypeScript, Tailwind CSS, and Clerk authentication.
+
+## Features
+
+### Portfolio Management
+- **ETF Holdings Tracking** — Add, edit, and remove ETF positions with real-time price updates
+- **Average Cost Calculation** — Automatic recalculation of average purchase prices when transactions change
+- **Multi-Currency Support** — Track holdings and cash across different currencies with live exchange rates
+- **Visual Portfolio Overview** — Interactive charts showing allocation and performance
+
+### Transaction History
+- **Full CRUD Operations** — Create, read, update, and delete buy/sell transactions
+- **Transaction Types** — Support for buy, sell, dividend, and split transactions
+- **Delta Updates** — Smart balance adjustments that reverse old values and apply new ones on edits
+- **Ticker Validation** — Automatic validation of ETF symbols with price fetching
+
+### Cash Management
+- **Multi-Currency Cash Tracking** — Separate balances for USD, EUR, GBP, and other currencies
+- **Cash Transaction Logging** — Record deposits, withdrawals, and currency conversions
+- **Real-Time Conversion** — Live exchange rates for accurate portfolio valuation
+
+### Goal Planning
+- **Financial Goals** — Set target amounts and track progress toward investment objectives
+- **Projection Charts** — Visual forecasts based on current savings rate and market assumptions
+- **Milestone Tracking** — Monitor progress with percentage completion indicators
+
+### Data Import/Export
+- **JSON Export/Import** — Full state serialization with version metadata for backups
+- **CSV Export** — Separate exports for holdings, transactions, and cash data
+- **Data Validation** — Strict validation of imported data with clear error messages
+- **Cross-Device Sync** — Transfer portfolios between devices via file export
+
+### Live Market Data
+- **Yahoo Finance Integration** — Real-time price fetching for ETF holdings
+- **Automatic Updates** — Periodic refresh of prices with fallback to cached values
+- **Exchange Rate Fetching** — Live currency conversion rates
+- **Offline Resilience** — Graceful degradation when APIs are unavailable
+
+### User Experience
+- **Dark/Light Theme** — Respects system preference with manual toggle option
+- **Responsive Design** — Works seamlessly on desktop, tablet, and mobile devices
+- **Animated Interactions** — Smooth transitions and micro-interactions throughout
+- **Onboarding Flow** — Guided setup for new users with sample data option
+- **Authentication** — Secure sign-in/sign-up via Clerk with social providers
+
+### Technical Features
+- **TypeScript** — Full type safety across the codebase
+- **Local Storage Persistence** — Data saved locally between sessions
+- **PostgreSQL Backend** — Optional cloud database via Neon for multi-device sync
+- **Web Workers** — Background processing for data-heavy operations
+- **ESLint Configuration** — Strict linting with custom rules for import organization
 
 ## Getting Started
 
@@ -16,18 +68,35 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Install dependencies
+pnpm install
 
-## Learn More
+# Run development server
+pnpm dev
 
-To learn more about Next.js, take a look at the following resources:
+# Build for production
+pnpm build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run linting
+pnpm lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
+
+```
+app/
+├── components/
+│   ├── features/     # Domain-specific components (Dashboard, Holdings, Goals, etc.)
+│   ├── layout/       # Layout components (Header, Sidebar, etc.)
+│   └── ui/           # Reusable UI components (Button, Card, Modal, etc.)
+├── lib/              # Utilities, hooks, and workers
+├── context/          # React context providers
+├── api/              # Next.js API routes
+└── page.tsx          # Main application entry point
+```
 
 ## Environment Variables
 
@@ -65,10 +134,8 @@ You can also configure custom routes for authentication:
   - `@/context`
 - Avoid legacy deep imports through `@/app/components/*`, `@/app/lib/*`, and `@/app/context/*` (enforced by ESLint).
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy is using [Vercel](https://vercel.com/new). Make sure to add all required environment variables in your project settings.
 
-When deploying, make sure to add all the required environment variables in your Vercel project settings.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying) for more options.
