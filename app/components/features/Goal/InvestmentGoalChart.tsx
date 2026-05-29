@@ -53,11 +53,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
         {...canvasModel}
         colors={colors}
         preferredCurrency={props.preferredCurrency}
-        goal={props.goal}
         currentNetWorth={props.currentNetWorth}
-        gradientId={gradientId}
         theme={theme}
-
       />
 
       <AnalysisInsightsSection
