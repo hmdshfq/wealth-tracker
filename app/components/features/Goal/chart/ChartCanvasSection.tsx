@@ -437,12 +437,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
       </details>
       )}
 
-      <div className={styles.instructions} aria-hidden="true">
-        <span>Drag brush below chart to zoom</span>
-        <span>Arrow keys to navigate</span>
-        <span>Escape to reset</span>
 
-      </div>
     </>
   );
 });

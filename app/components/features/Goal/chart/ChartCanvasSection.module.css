@@ -127,27 +127,8 @@
     background: var(--bg-hover);
 }
 
-.instructions {
-    display: flex;
-    gap: 16px;
-    margin-top: 12px;
-    padding-top: 12px;
-    font-size: 0.75rem;
-    color: var(--text-dimmed);
-}
-
-.instructions span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
 @media (max-width: 768px) {
     .chartWrapper {
-        display: none;
-    }
-
-    .instructions {
         display: none;
     }
 
@@ -191,10 +172,6 @@
 }
 
 @media print {
-    .instructions {
-        display: none;
-    }
-
     .dataTableDetails {
         display: block;
     }
