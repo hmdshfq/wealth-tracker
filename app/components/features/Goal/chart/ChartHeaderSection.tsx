@@ -3,7 +3,7 @@ import { formatPreferredCurrency } from '@/lib/formatters';
 import { Goal, PreferredCurrency } from '@/lib/types';
 import { HelpTooltip } from '../InvestmentGoalChartHelp';
 import { InlineLoader } from '@/components/ui';
-import { CHART_COLORS, TIME_RANGES } from './types';
+import { CHART_COLORS } from './types';
 import styles from './ChartHeaderSection.module.css';
 
 interface ChartHeaderSectionProps {
@@ -13,8 +13,6 @@ interface ChartHeaderSectionProps {
   totalActualContributions: number;
   colors: typeof CHART_COLORS.dark;
   enableRealTimeUpdates: boolean;
-  selectedRange: string;
-  handleRangeChange: (range: string) => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;
@@ -37,8 +35,6 @@ export function ChartHeaderSection({
   totalActualContributions,
   colors,
   enableRealTimeUpdates,
-  selectedRange,
-  handleRangeChange,
   progressPercent,
   wsConnected,
   workerLoading,
@@ -122,25 +118,7 @@ export function ChartHeaderSection({
         </div>
       </div>
 
-      <div className={styles.controlsRow}>
-        <div className={styles.timeRangeButtons} role="tablist" aria-label="Time range selection">
-          {TIME_RANGES.map((range) => (
-            <button
-              key={range.value}
-              role="tab"
-              aria-selected={selectedRange === range.value}
-              className={`${styles.rangeButton} ${
-                selectedRange === range.value ? styles.active : ''
-              }`}
-              onClick={() => handleRangeChange(range.value)}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
 
-
-      </div>
 
 
     </div>

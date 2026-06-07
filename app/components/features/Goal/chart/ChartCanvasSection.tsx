@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Brush,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -49,11 +48,6 @@ interface ChartCanvasSectionProps {
     annualReturn: number;
     data: ProjectionDataPoint[];
   }[];
-  brushRange: { startIndex?: number; endIndex?: number };
-  setBrushRange: React.Dispatch<
-    React.SetStateAction<{ startIndex?: number | undefined; endIndex?: number | undefined }>
-  >;
-  isZoomActive: boolean;
   yAxisDomain?: [number, number];
   crossoverStartDate?: string;
   crossoverEndDate?: string;
@@ -81,9 +75,6 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
   showWhatIf,
   whatIfProjection,
   benchmarkData,
-  brushRange,
-  setBrushRange,
-  isZoomActive,
   yAxisDomain,
   crossoverStartDate,
   crossoverEndDate,
@@ -398,17 +389,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
               />
             )}
 
-            <Brush
-              dataKey="date"
-              height={30}
-              stroke={colors.actualValue}
-              fill={colors.background}
-              {...(isZoomActive && {
-                startIndex: brushRange.startIndex,
-                endIndex: brushRange.endIndex,
-              })}
-              onChange={(range) => setBrushRange({ startIndex: range.startIndex, endIndex: range.endIndex })}
-            />
+
           </ComposedChart>
         </ResponsiveContainer>
       </div>

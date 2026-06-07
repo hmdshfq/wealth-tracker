@@ -42,8 +42,6 @@ export interface UseInvestmentGoalChartModelInput extends InvestmentGoalChartPro
 }
 
 export interface HeaderModel {
-  selectedRange: string;
-  handleRangeChange: (range: string) => void;
   progressPercent: number;
   wsConnected: boolean;
   workerLoading: boolean;
@@ -82,11 +80,6 @@ export interface CanvasModel {
     annualReturn: number;
     data: ProjectionDataPoint[];
   }[];
-  brushRange: { startIndex?: number; endIndex?: number };
-  setBrushRange: React.Dispatch<
-    React.SetStateAction<{ startIndex?: number | undefined; endIndex?: number | undefined }>
-  >;
-  isZoomActive: boolean;
   yAxisDomain?: [number, number];
   handleYAxisZoomIn: () => void;
   handleYAxisZoomOut: () => void;
