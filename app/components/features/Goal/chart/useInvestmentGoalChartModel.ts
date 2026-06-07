@@ -846,32 +846,55 @@ export function useInvestmentGoalChartModel(
   }, [currencyAdjustedData, brushRange]);
 
   // Calculate crossover zone where returns exceed contributions
+  // Use raw projectionData (before sampling) to ensure accuracy
   const crossoverZone = useMemo(() => {
-    if (!currencyAdjustedData.length) return { startDate: undefined, endDate: undefined };
-
-    let visibleData = currencyAdjustedData;
-    if (brushRange.startIndex !== undefined && brushRange.endIndex !== undefined) {
-      visibleData = currencyAdjustedData.slice(brushRange.startIndex, brushRange.endIndex + 1);
+    if (!projectionData || projectionData.length === 0) {
+      return { startDate: undefined, endDate: undefined };
     }
 
-    // Find first point where monthlyReturn >= monthlyContribution
-    let crossoverStartDate: string | undefined;
-    let crossoverEndDate: string | undefined;
+    // Find first point where monthlyReturn >= monthlyContribution in raw data
+    let rawCrossoverDate: string | undefined;
+    let rawCrossoverEndDate: string | undefined;
 
-    for (const point of visibleData) {
+    for (const point of projectionData) {
       if (point.monthlyReturn !== undefined && point.monthlyContribution !== undefined) {
-        if (point.monthlyReturn >= point.monthlyContribution && !crossoverStartDate) {
-          crossoverStartDate = point.date;
+        if (point.monthlyReturn >= point.monthlyContribution && !rawCrossoverDate) {
+          rawCrossoverDate = point.date;
         }
-        if (point.monthlyReturn < point.monthlyContribution && crossoverStartDate && !crossoverEndDate) {
-          crossoverEndDate = point.date;
+        if (point.monthlyReturn < point.monthlyContribution && rawCrossoverDate && !rawCrossoverEndDate) {
+          rawCrossoverEndDate = point.date;
         }
       }
     }
 
-    // If we never cross back below, crossoverEndDate stays undefined (permanent)
-    return { startDate: crossoverStartDate, endDate: crossoverEndDate };
-  }, [currencyAdjustedData, brushRange]);
+    // If no crossover found, return empty
+    if (!rawCrossoverDate) {
+      return { startDate: undefined, endDate: undefined };
+    }
+
+    // Find the closest matching date in the sampled/adjusted data for rendering
+    // This ensures ReferenceArea gets a valid x1 value that exists in the chart data
+    const adjustedDates = currencyAdjustedData.map((d) => d.date);
+    let renderStartDate = rawCrossoverDate;
+    let renderEndDate = rawCrossoverEndDate;
+
+    // If exact date not in sampled data, find the next available date
+    if (!adjustedDates.includes(rawCrossoverDate)) {
+      const nextDate = adjustedDates.find((d) => d >= rawCrossoverDate);
+      if (nextDate) {
+        renderStartDate = nextDate;
+      }
+    }
+
+    if (rawCrossoverEndDate && !adjustedDates.includes(rawCrossoverEndDate)) {
+      const nextDate = adjustedDates.find((d) => d >= rawCrossoverEndDate);
+      if (nextDate) {
+        renderEndDate = nextDate;
+      }
+    }
+
+    return { startDate: renderStartDate, endDate: renderEndDate };
+  }, [projectionData, currencyAdjustedData]);
 
   const handleYAxisZoomIn = useCallback(() => {
     setYAxisDomain((prev) => {

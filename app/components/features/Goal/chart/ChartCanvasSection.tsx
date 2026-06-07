@@ -232,7 +232,22 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 x2={crossoverEndDate || currencyAdjustedData[currencyAdjustedData.length - 1]?.date}
                 strokeOpacity={0}
                 fill={colors.crossoverZone}
-                fillOpacity={0.5}
+                fillOpacity={0.6}
+              />
+            )}
+
+            {crossoverStartDate && (
+              <ReferenceLine
+                x={crossoverStartDate}
+                stroke={colors.actualValue}
+                strokeDasharray="4 4"
+                strokeOpacity={0.8}
+                label={{
+                  value: 'Returns > Contributions',
+                  position: 'top',
+                  fill: colors.actualValue,
+                  fontSize: 11,
+                }}
               />
             )}
 
