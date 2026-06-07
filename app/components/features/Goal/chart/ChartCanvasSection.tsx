@@ -232,7 +232,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 x2={crossoverEndDate || currencyAdjustedData[currencyAdjustedData.length - 1]?.date}
                 strokeOpacity={0}
                 fill={colors.crossoverZone}
-                fillOpacity={0.6}
+                fillOpacity={0.5}
               />
             )}
 

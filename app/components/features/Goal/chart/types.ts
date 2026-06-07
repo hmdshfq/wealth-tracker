@@ -47,7 +47,7 @@ export const CHART_COLORS = {
     text: '#e2e8f0',
     textMuted: '#94a3b8',
     background: '#1e293b',
-    crossoverZone: 'rgba(16, 185, 129, 0.35)',
+    crossoverZone: 'rgba(16, 185, 129, 0.15)',
   },
   light: {
     projectedValue: '#0e7490',
@@ -60,7 +60,7 @@ export const CHART_COLORS = {
     text: '#1e293b',
     textMuted: '#475569',
     background: '#ffffff',
-    crossoverZone: 'rgba(16, 185, 129, 0.30)',
+    crossoverZone: 'rgba(16, 185, 129, 0.12)',
   },
 };
 
