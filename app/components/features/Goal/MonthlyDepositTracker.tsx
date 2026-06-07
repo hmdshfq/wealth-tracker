@@ -228,12 +228,23 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
               {viewMode === 'monthly' ? 'Target/Month' : 'Total Invested'}
             </span>
             <span className={styles.summaryValue}>
-              {viewMode === 'monthly' 
-                ? formatValue(goal.monthlyDeposits) 
+              {viewMode === 'monthly'
+                ? formatValue(goal.monthlyDeposits)
                 : formatValue(summary.totalInvested)
               }
             </span>
           </div>
+          {viewMode === 'monthly' && (
+            <div className={styles.summaryItem}>
+              <span className={styles.summaryLabel}>Actual Avg./Month</span>
+              <span className={styles.summaryValue}>
+                {summary.monthsMet + summary.monthsUnmet > 0
+                  ? formatValue(summary.totalInvested / (summary.monthsMet + summary.monthsUnmet))
+                  : formatValue(0)
+                }
+              </span>
+            </div>
+          )}
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>
               {viewMode === 'monthly' ? 'Months Met' : 'Months On Track'}
@@ -303,7 +314,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             exit="exit"
             transition={transitions.fast}
           >
-            <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
+            <table className={styles.table} aria-describedby="investment-table-desc">
               <caption id="investment-table-desc" className={styles.visuallyHidden}>
                 Monthly investment tracking table showing required and actual investments for each month.
                 Green cells indicate the goal was met, red cells indicate below target.
@@ -348,7 +359,6 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                             key={monthData.month}
                             id={cellId}
                             className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
-                            role="gridcell"
                             aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
                               cellStatus === 'future'
                                 ? 'Future month'
@@ -374,7 +384,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                               <span className={styles.futureText}>—</span>
                             )}
                             {isCurrentMonth && (
-                              <span className={styles.currentIndicator} aria-label="Current month">
+                              <span className={styles.currentIndicator}>
                                 ●
                               </span>
                             )}
@@ -403,7 +413,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
             exit="exit"
             transition={transitions.fast}
           >
-            <table className={styles.table} role="grid" aria-describedby="investment-table-desc">
+            <table className={styles.table} aria-describedby="investment-table-desc">
               <caption id="investment-table-desc" className={styles.visuallyHidden}>
                 Cumulative investment tracking table showing running totals of investments vs requirements.
                 Green cells indicate on track, red cells indicate behind.
@@ -444,7 +454,6 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                             key={monthData.month}
                             id={cellId}
                             className={`${styles.cell} ${styles[cellStatus]} ${isCurrentMonth ? styles.currentMonth : ''}`}
-                            role="gridcell"
                             aria-label={`${MONTH_FULL_NAMES[monthData.month]} ${monthData.year}: ${
                               cellStatus === 'future'
                                 ? 'Future month'
@@ -470,7 +479,7 @@ export const MonthlyDepositTracker: React.FC<MonthlyDepositTrackerProps> = ({
                               <span className={styles.futureText}>—</span>
                             )}
                             {isCurrentMonth && (
-                              <span className={styles.currentIndicator} aria-label="Current month">
+                              <span className={styles.currentIndicator}>
                                 ●
                               </span>
                             )}
