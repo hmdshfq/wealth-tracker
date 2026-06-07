@@ -417,12 +417,13 @@ export function useInvestmentGoalChartModel(
         currentNetWorth,
         years,
         goal.annualReturn,
+        goal.monthlyDeposits,
         goal.depositIncreasePercentage
       );
     });
 
     return result;
-  }, [goal.amount, currentNetWorth, goal.annualReturn, goal.depositIncreasePercentage]);
+  }, [goal.amount, currentNetWorth, goal.annualReturn, goal.monthlyDeposits, goal.depositIncreasePercentage]);
 
   const actualReturns = useMemo(() => {
     return currentNetWorth - totalActualContributions;
