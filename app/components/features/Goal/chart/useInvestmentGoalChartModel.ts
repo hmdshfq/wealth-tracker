@@ -854,15 +854,12 @@ export function useInvestmentGoalChartModel(
 
     // Find first point where monthlyReturn >= monthlyContribution in raw data
     let rawCrossoverDate: string | undefined;
-    let rawCrossoverEndDate: string | undefined;
 
     for (const point of projectionData) {
       if (point.monthlyReturn !== undefined && point.monthlyContribution !== undefined) {
         if (point.monthlyReturn >= point.monthlyContribution && !rawCrossoverDate) {
           rawCrossoverDate = point.date;
-        }
-        if (point.monthlyReturn < point.monthlyContribution && rawCrossoverDate && !rawCrossoverEndDate) {
-          rawCrossoverEndDate = point.date;
+          break;
         }
       }
     }
@@ -876,7 +873,6 @@ export function useInvestmentGoalChartModel(
     // This ensures ReferenceArea gets a valid x1 value that exists in the chart data
     const adjustedDates = currencyAdjustedData.map((d) => d.date);
     let renderStartDate = rawCrossoverDate;
-    let renderEndDate = rawCrossoverEndDate;
 
     // If exact date not in sampled data, find the next available date
     if (!adjustedDates.includes(rawCrossoverDate)) {
@@ -886,14 +882,7 @@ export function useInvestmentGoalChartModel(
       }
     }
 
-    if (rawCrossoverEndDate && !adjustedDates.includes(rawCrossoverEndDate)) {
-      const nextDate = adjustedDates.find((d) => d >= rawCrossoverEndDate);
-      if (nextDate) {
-        renderEndDate = nextDate;
-      }
-    }
-
-    return { startDate: renderStartDate, endDate: renderEndDate };
+    return { startDate: renderStartDate, endDate: undefined };
   }, [projectionData, currencyAdjustedData]);
 
   const handleYAxisZoomIn = useCallback(() => {
