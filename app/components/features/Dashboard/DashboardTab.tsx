@@ -1,14 +1,15 @@
 'use client';
 import React from 'react';
 import { motion } from 'motion/react';
-import { StatCard, ChartLoadingSkeleton } from '@/components/ui';
+import { StatCard, ChartLoadingSkeleton, SectionTitle } from '@/components/ui';
 import { useIdleRender } from '@/lib/hooks';
 import { staggerContainerVariants, fadeVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
 import { AllocationChart } from './AllocationChart';
 import { LivePrices } from './LivePrices';
+import { TickerSummaryCards } from './TickerSummaryCards';
 
 import { formatPercent, convertCurrency, formatCurrency } from '@/lib/formatters';
-import { AllocationItem, CashBalance, TickerInfo, PreferredCurrency } from '@/lib/types';
+import { AllocationItem, CashBalance, TickerInfo, PreferredCurrency, HoldingWithDetails } from '@/lib/types';
 import styles from './Dashboard.module.css';
 
 interface DashboardTabProps {
@@ -19,6 +20,8 @@ interface DashboardTabProps {
   cash: CashBalance[];
   totalNetWorth: number;
   allocationData: AllocationItem[];
+  holdingsData: HoldingWithDetails[];
+  allTickers: Record<string, TickerInfo>;
   prices: Record<string, {
     price: number;
     change: number;
@@ -42,6 +45,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
   cash,
   totalNetWorth,
   allocationData,
+  holdingsData,
+  allTickers = {},
   prices,
   etfData = {},
   preferredCurrency = 'PLN',
@@ -121,6 +126,14 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
         </motion.div>
       </motion.div>
 
+
+      {/* Holdings Overview Section */}
+      <SectionTitle>Holdings Overview</SectionTitle>
+      <TickerSummaryCards
+        holdingsData={holdingsData}
+        allTickers={allTickers}
+        isLoading={pricesLoading}
+      />
 
       {/* Main Content: 2-column layout on large screens */}
       <motion.div 
