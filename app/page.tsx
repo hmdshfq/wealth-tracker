@@ -864,6 +864,7 @@ export default function InvestmentTracker() {
                 allocationData={allocationData}
                 prices={prices}
                 etfData={allTickers}
+                holdingsData={holdingsData}
                 preferredCurrency={preferredCurrency}
                 pricesLoading={pricesLoading}
                 isEditingPrices={isEditingPrices}
