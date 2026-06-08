@@ -21,7 +21,6 @@ interface DashboardTabProps {
   totalNetWorth: number;
   allocationData: AllocationItem[];
   holdingsData: HoldingWithDetails[];
-  allTickers: Record<string, TickerInfo>;
   prices: Record<string, {
     price: number;
     change: number;
@@ -46,7 +45,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
   totalNetWorth,
   allocationData,
   holdingsData,
-  allTickers = {},
   prices,
   etfData = {},
   preferredCurrency = 'PLN',
@@ -131,7 +129,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = React.memo(({
       <SectionTitle>Holdings Overview</SectionTitle>
       <TickerSummaryCards
         holdingsData={holdingsData}
-        allTickers={allTickers}
+        allTickers={etfData}
         isLoading={pricesLoading}
       />
 
