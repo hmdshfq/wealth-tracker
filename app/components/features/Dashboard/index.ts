@@ -3,3 +3,4 @@ export { GoalProgress } from './GoalProgress';
 export { GoalChartMini } from './GoalChartMini';
 export { LivePrices } from './LivePrices';
 export { DashboardTab } from './DashboardTab';
+export { TickerSummaryCards } from './TickerSummaryCards';
