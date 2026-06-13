@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  overflow: hidden;
 }
 
 .header {
@@ -11,11 +12,13 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .titleBar {
   height: 1.5rem;
   width: 40%;
+  min-width: 120px;
 }
 
 .controls {
@@ -64,6 +67,7 @@
 
 .legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-secondary);
@@ -72,6 +76,7 @@
 .legendItem {
   height: 1rem;
   width: 8rem;
+  min-width: 80px;
 }
 
 /* Cards variant */
@@ -148,17 +153,76 @@
   width: 80%;
 }
 
+@media (max-width: 768px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr 1fr 80px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .titleBar {
+    width: 60%;
+    min-width: 100px;
+  }
+
+  .chartArea {
+    min-height: 200px;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .yAxis {
+    width: 100%;
+    height: 1rem;
+  }
+
+  .chartLines {
+    height: 100%;
+    min-height: 160px;
+  }
+
+  .legend {
+    gap: 0.75rem;
+  }
+
+  .legendItem {
+    width: 6rem;
+  }
+}
+
+/* Table: stack on mobile */
+@media (max-width: 500px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .tableHeaderCell {
+    height: 12px;
+    width: 40%;
+  }
+
+  .tableCell {
+    height: 14px;
+  }
+
+  .tableCellNarrow {
+    width: 60%;
+  }
+}
+
 /* Respect user's motion preference */
 @media (prefers-reduced-motion: reduce) {
   .cardsSkeleton,
   .tableSkeleton {
     opacity: var(--loading-reduced-opacity);
-  }
-}
-
-@media (max-width: 768px) {
-  .tableHeader,
-  .tableRow {
-    grid-template-columns: 1fr 1fr 80px;
   }
 }

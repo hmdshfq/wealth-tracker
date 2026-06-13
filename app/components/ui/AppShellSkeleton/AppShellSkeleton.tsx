@@ -13,9 +13,14 @@ export const AppShellSkeleton: React.FC = () => {
           <Skeleton className={styles.subtitle} rounded="full" />
         </div>
         <div className={styles.actions}>
-          <Skeleton className={styles.actionButton} rounded="full" />
-          <Skeleton className={styles.actionButton} rounded="full" />
-          <Skeleton className={styles.actionButton} rounded="full" />
+          <div className={styles.actionsDesktop}>
+            <Skeleton className={styles.actionButton} rounded="full" />
+            <Skeleton className={styles.actionButton} rounded="full" />
+            <Skeleton className={styles.actionButton} rounded="full" />
+          </div>
+          <div className={styles.actionsMobile}>
+            <Skeleton className={styles.menuSkeleton} rounded="full" />
+          </div>
         </div>
       </header>
 

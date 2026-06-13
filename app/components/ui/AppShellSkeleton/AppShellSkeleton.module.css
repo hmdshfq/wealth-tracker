@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: var(--gradient-bg);
   padding: 24px;
+  overflow: hidden;
 }
 
 .header {
@@ -9,6 +10,9 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+  padding-bottom: var(--spacing-md, 16px);
+  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: var(--spacing-xxl, 48px);
 }
 
 .titleWrap {
@@ -18,17 +22,21 @@
 
 .title {
   width: 220px;
-  height: 24px;
+  max-width: 60%;
+  height: 28px;
 }
 
 .subtitle {
   width: 320px;
+  max-width: 80%;
   height: 14px;
 }
 
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .actionButton {
@@ -36,14 +44,36 @@
   height: 36px;
 }
 
-.nav {
-  margin-top: 20px;
+.menuSkeleton {
+  width: 80px;
+  height: 36px;
+}
+
+.actionsDesktop {
   display: flex;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.actionsMobile {
+  display: none;
+}
+
+.nav {
+  margin-bottom: 24px;
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--border-secondary);
 }
 
 .navItem {
-  width: 140px;
+  width: 100px;
   height: 38px;
 }
 
@@ -55,7 +85,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
@@ -66,7 +96,7 @@
 
 .contentGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -80,42 +110,50 @@
   min-height: 400px;
 }
 
-@media (max-width: 1024px) {
-  .statsGrid,
+@media (min-width: 1024px) {
   .contentGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 16px;
-  }
-
+@media (max-width: 768px) {
   .header {
     flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
   }
 
-  .subtitle {
-    width: 260px;
+  .actionsDesktop {
+    display: none;
   }
 
-  .actions {
+  .actionsMobile {
+    display: flex;
+    justify-content: flex-end;
     width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .actionButton {
-    flex: 1;
-    min-width: 88px;
   }
 
   .nav {
-    flex-wrap: wrap;
+    width: 100%;
+  }
+}
+
+@media (max-width: 530px) {
+  .navItem {
+    width: 70px;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    padding: 12px;
   }
 
-  .navItem {
-    flex: 1;
-    min-width: 88px;
+  .title {
+    max-width: 70%;
+  }
+
+  .subtitle {
+    max-width: 90%;
   }
 }
