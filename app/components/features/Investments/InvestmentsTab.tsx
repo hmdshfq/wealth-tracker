@@ -55,11 +55,10 @@ interface InvestmentsTabProps {
   onTempGoalChange: (updates: Partial<Goal>) => void;
 
   // Goal feature settings
-  enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
   enableWhatIfScenarios: boolean;
   enableBenchmarkComparison: boolean;
-  onGoalFeaturesChange: (feature: 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
+  onGoalFeaturesChange: (feature: 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
 export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
@@ -96,7 +95,6 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   onTempGoalChange,
 
   // Goal feature settings
-  enableTimeAnalysis,
   enableScenarioAnalysis,
   enableWhatIfScenarios,
   enableBenchmarkComparison,
@@ -164,7 +162,6 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               portfolioValue={portfolioValue}
               exchangeRates={exchangeRates}
               preferredCurrency={preferredCurrency}
-              enableTimeAnalysis={enableTimeAnalysis}
               enableScenarioAnalysis={enableScenarioAnalysis}
               enableWhatIfScenarios={enableWhatIfScenarios}
               enableBenchmarkComparison={enableBenchmarkComparison}
@@ -242,7 +239,6 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
               onEditCancel={onEditCancel}
               onEditSave={onEditSave}
               onTempGoalChange={onTempGoalChange}
-              enableTimeAnalysis={enableTimeAnalysis}
               enableScenarioAnalysis={enableScenarioAnalysis}
               enableWhatIfScenarios={enableWhatIfScenarios}
               enableBenchmarkComparison={enableBenchmarkComparison}

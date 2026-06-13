@@ -11,10 +11,3 @@ export type { ExtendedProjectionDataPoint, ActualPortfolioDataPoint } from './ba
 export { runScenarioAnalysis, getDefaultScenarios } from './scenarioAnalysis';
 
 export { calculateRiskMetrics, getRiskRating, formatRiskMetrics } from './riskMetrics';
-
-export {
-  analyzeSeasonalPatterns,
-  calculateYearOverYearProgress,
-  generatePerformanceHeatmap,
-  performTimeBasedAnalysis,
-} from './timeAnalysis';

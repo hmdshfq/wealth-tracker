@@ -1,7 +1,7 @@
 // WebWorker for heavy financial calculations
 // This runs in a separate thread to avoid blocking the main UI
 
-import { Goal, ProjectionDataPoint, InvestmentScenario, ScenarioAnalysisResult, TimeBasedAnalysisResult, SeasonalPattern, YoYComparison } from '../types';
+import { Goal, ProjectionDataPoint, InvestmentScenario, ScenarioAnalysisResult } from '../types';
 import { FinancialWorkerMessage, FinancialWorkerResponse, FinancialWorkerRequestPayloadMap } from './financialWorkerTypes';
 
 // Import the calculation functions we need
@@ -90,103 +90,6 @@ function runScenarioAnalysis(
   };
 }
 
-// Simplified time-based analysis
-function performTimeBasedAnalysis(projectionData: ProjectionDataPoint[]): TimeBasedAnalysisResult {
-  if (projectionData.length === 0) {
-    return {
-      seasonalPatterns: [],
-      yearOverYearComparisons: [],
-      bestMonths: [],
-      worstMonths: [],
-      performanceHeatmap: {},
-    };
-  }
-  
-  // Simplified seasonal patterns
-  const seasonalPatterns: SeasonalPattern[] = [];
-  for (let month = 1; month <= 12; month++) {
-    const monthData = projectionData.filter(p => p.month === month);
-    if (monthData.length > 0) {
-      const startValue = monthData[0].value - monthData[0].cumulativeContributions;
-      const endValue = monthData[monthData.length - 1].value - monthData[monthData.length - 1].cumulativeContributions;
-      const averageReturn = startValue > 0 ? (endValue - startValue) / startValue : 0;
-      
-      seasonalPatterns.push({
-        month,
-        averageReturn,
-        bestYear: monthData[monthData.length - 1].year,
-        worstYear: monthData[0].year,
-        patternStrength: 0.5, // Simplified
-      });
-    }
-  }
-  
-  // Simplified year-over-year comparisons
-  const years = new Set(projectionData.map(p => p.year));
-  const yearOverYearComparisons: YoYComparison[] = [];
-  
-  years.forEach(year => {
-    const yearData = projectionData.filter(p => p.year === year);
-    if (yearData.length > 0) {
-      const startPoint = yearData[0];
-      const endPoint = yearData[yearData.length - 1];
-      
-      const startValue = startPoint.value;
-      const endValue = endPoint.value;
-      const annualContributions = endPoint.cumulativeContributions - startPoint.cumulativeContributions;
-      
-      const investmentStartValue = startValue - startPoint.cumulativeContributions;
-      const investmentEndValue = endValue - endPoint.cumulativeContributions;
-      const annualReturn = investmentStartValue > 0
-        ? (investmentEndValue - investmentStartValue) / investmentStartValue
-        : 0;
-      const annualGrowth = endValue - startValue;
-      
-      yearOverYearComparisons.push({
-        year,
-        startValue,
-        endValue,
-        annualReturn,
-        annualContributions,
-        annualGrowth,
-      });
-    }
-  });
-  
-  // Simplified heatmap
-  const performanceHeatmap: Record<string, number> = {};
-  for (let i = 1; i < projectionData.length; i++) {
-    const prevPoint = projectionData[i - 1];
-    const currPoint = projectionData[i];
-    
-    const investmentValue = prevPoint.value - prevPoint.cumulativeContributions;
-    const newInvestmentValue = currPoint.value - currPoint.cumulativeContributions;
-    
-    if (investmentValue > 0) {
-      const monthlyReturn = (newInvestmentValue - investmentValue) / investmentValue;
-      const monthKey = `${currPoint.year}-${String(currPoint.month).padStart(2, '0')}`;
-      performanceHeatmap[monthKey] = monthlyReturn * 100;
-    }
-  }
-  
-  // Best and worst months
-  const bestMonths = [...seasonalPatterns]
-    .sort((a, b) => b.averageReturn - a.averageReturn)
-    .slice(0, 3);
-  
-  const worstMonths = [...seasonalPatterns]
-    .sort((a, b) => a.averageReturn - b.averageReturn)
-    .slice(0, 3);
-  
-  return {
-    seasonalPatterns,
-    yearOverYearComparisons,
-    bestMonths,
-    worstMonths,
-    performanceHeatmap,
-  };
-}
-
 // Worker message handler
 self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
   const message = e.data;
@@ -201,12 +104,6 @@ self.onmessage = function(e: MessageEvent<FinancialWorkerMessage>) {
       case 'scenario-analysis': {
         const payload = message.data as FinancialWorkerRequestPayloadMap['scenario-analysis'];
         response.result = runScenarioAnalysis(payload.goal, payload.currentNetWorth, payload.scenarios);
-        break;
-      }
-      
-      case 'time-based-analysis': {
-        const payload = message.data as FinancialWorkerRequestPayloadMap['time-based-analysis'];
-        response.result = performTimeBasedAnalysis(payload.projectionData);
         break;
       }
       

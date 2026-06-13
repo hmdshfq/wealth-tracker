@@ -19,9 +19,5 @@ export {
   calculateRiskMetrics,
   getRiskRating,
   formatRiskMetrics,
-  analyzeSeasonalPatterns,
-  calculateYearOverYearProgress,
-  generatePerformanceHeatmap,
-  performTimeBasedAnalysis,
 } from './projectionCalculations';
 export type * from './types';

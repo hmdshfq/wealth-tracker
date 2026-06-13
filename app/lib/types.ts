@@ -114,32 +114,6 @@ export interface RiskAnalysisResult {
   }[];
 }
 
-// Time-Based Analysis Types
-export interface SeasonalPattern {
-  month: number; // 1-12
-  averageReturn: number;
-  bestYear: number;
-  worstYear: number;
-  patternStrength: number; // 0-1 scale
-}
-
-export interface YoYComparison {
-  year: number;
-  startValue: number;
-  endValue: number;
-  annualReturn: number;
-  annualContributions: number;
-  annualGrowth: number;
-}
-
-export interface TimeBasedAnalysisResult {
-  seasonalPatterns: SeasonalPattern[];
-  yearOverYearComparisons: YoYComparison[];
-  bestMonths: SeasonalPattern[];
-  worstMonths: SeasonalPattern[];
-  performanceHeatmap: Record<string, number>; // "YYYY-MM" -> return percentage
-}
-
 // Behavioral Finance Types
 export interface BehavioralBias {
   type: 'overconfidence' | 'lossAversion' | 'herdBehavior' | 'recencyBias' | 'confirmationBias';

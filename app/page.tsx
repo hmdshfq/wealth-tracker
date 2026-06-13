@@ -75,12 +75,10 @@ export default function InvestmentTracker() {
   
   // Goal feature settings
   const [goalFeatures, setGoalFeatures] = useState<{
-    timeAnalysis: boolean;
     scenarioAnalysis: boolean;
     whatIfScenarios: boolean;
     benchmarkComparison: boolean;
   }>({
-    timeAnalysis: true,
     scenarioAnalysis: true,
     whatIfScenarios: true,
     benchmarkComparison: true,
@@ -142,7 +140,6 @@ export default function InvestmentTracker() {
       try {
         const parsed = JSON.parse(stored);
         setGoalFeatures({
-          timeAnalysis: parsed.timeAnalysis ?? true,
           scenarioAnalysis: parsed.scenarioAnalysis ?? true,
           whatIfScenarios: parsed.whatIfScenarios ?? true,
           benchmarkComparison: parsed.benchmarkComparison ?? true,
@@ -765,7 +762,7 @@ export default function InvestmentTracker() {
 
   // Goal feature settings handlers
   const handleGoalFeaturesChange = useCallback((
-    feature: 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison',
+    feature: 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison',
     enabled: boolean
   ) => {
     setGoalFeatures((prev) => {
@@ -855,7 +852,6 @@ export default function InvestmentTracker() {
                 onEditSave={handleGoalEditSave}
                 onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
                 // Goal feature settings
-                enableTimeAnalysis={goalFeatures.timeAnalysis}
                 enableScenarioAnalysis={goalFeatures.scenarioAnalysis}
                 enableWhatIfScenarios={goalFeatures.whatIfScenarios}
                 enableBenchmarkComparison={goalFeatures.benchmarkComparison}

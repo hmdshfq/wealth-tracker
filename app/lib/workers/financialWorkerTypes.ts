@@ -3,12 +3,10 @@ import {
   ProjectionDataPoint,
   InvestmentScenario,
   ScenarioAnalysisResult,
-  TimeBasedAnalysisResult,
 } from '@/lib/types';
 
 export type FinancialWorkerRequestType =
   | 'scenario-analysis'
-  | 'time-based-analysis'
   | 'projection-data';
 
 export interface FinancialWorkerRequestPayloadMap {
@@ -16,9 +14,6 @@ export interface FinancialWorkerRequestPayloadMap {
     goal: Goal;
     currentNetWorth: number;
     scenarios: InvestmentScenario[];
-  };
-  'time-based-analysis': {
-    projectionData: ProjectionDataPoint[];
   };
   'projection-data': {
     goal: Goal;
@@ -28,7 +23,6 @@ export interface FinancialWorkerRequestPayloadMap {
 
 export type FinancialWorkerResponsePayloadMap = {
   'scenario-analysis': ScenarioAnalysisResult;
-  'time-based-analysis': TimeBasedAnalysisResult;
   'projection-data': ProjectionDataPoint[];
 };
 

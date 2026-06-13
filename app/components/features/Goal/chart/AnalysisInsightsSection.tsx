@@ -5,17 +5,11 @@ import { formatPreferredCurrency } from '@/lib/formatters';
 import {
   BehavioralAnalysisResult,
   PreferredCurrency,
-  TimeBasedAnalysisResult,
 } from '@/lib/types';
 import { HelpTooltip } from '../InvestmentGoalChartHelp';
 import styles from './AnalysisInsightsSection.module.css';
 
 interface AnalysisInsightsSectionProps {
-  timeBasedAnalysisResult?: TimeBasedAnalysisResult;
-  timeBasedAnalysisResultLocal: TimeBasedAnalysisResult | null;
-  showTimeBasedAnalysisLocal: boolean;
-  setShowTimeBasedAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
-  showTimeBasedAnalysis?: boolean;
   behavioralAnalysisResult?: BehavioralAnalysisResult;
   showBehavioralAnalysisLocal: boolean;
   setShowBehavioralAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,11 +22,6 @@ interface AnalysisInsightsSectionProps {
 }
 
 export function AnalysisInsightsSection({
-  timeBasedAnalysisResult,
-  timeBasedAnalysisResultLocal,
-  showTimeBasedAnalysisLocal,
-  setShowTimeBasedAnalysisLocal,
-  showTimeBasedAnalysis,
   behavioralAnalysisResult,
   showBehavioralAnalysisLocal,
   setShowBehavioralAnalysisLocal,
@@ -40,178 +29,8 @@ export function AnalysisInsightsSection({
   preferredCurrency,
   getHeatmapColor,
 }: AnalysisInsightsSectionProps) {
-  if (showTimeBasedAnalysis === false) {
-    return null;
-  }
-
   return (
     <>
-      <div className={styles.timeBasedAnalysisControls}>
-        <div className={styles.timeBasedAnalysisHeader}>
-          <h4>Time-Based Analysis</h4>
-          <button
-            onClick={() => setActiveHelpOverlay('scenario-analysis')}
-            className={styles.helpButton}
-            aria-label="Learn about time-based analysis"
-          >
-            ⓘ Help
-          </button>
-        </div>
-        <div className={styles.timeBasedAnalysisToggle}>
-          <label>
-            <input
-              type="checkbox"
-              checked={showTimeBasedAnalysisLocal}
-              onChange={() => setShowTimeBasedAnalysisLocal(!showTimeBasedAnalysisLocal)}
-            />
-            Show Time-Based Analysis
-            <HelpTooltip content="Analyze seasonal patterns and year-over-year performance trends">
-              <span className={styles.helpIcon} aria-label="Help">
-                ⓘ
-              </span>
-            </HelpTooltip>
-          </label>
-        </div>
-
-        {showTimeBasedAnalysisLocal && (
-            <div className={styles.timeBasedAnalysisContent}>
-              <div className={styles.seasonalPatterns}>
-                <h5>Seasonal Patterns</h5>
-                <div className={styles.patternsGrid}>
-                  {(timeBasedAnalysisResultLocal?.seasonalPatterns ||
-                    timeBasedAnalysisResult?.seasonalPatterns ||
-                    []).map((pattern) => (
-                    <div key={`pattern-${pattern.month}`} className={styles.patternItem}>
-                      <div className={styles.patternHeader}>
-                        <span className={styles.patternMonth}>
-                          {new Date(0, pattern.month - 1).toLocaleString('default', {
-                            month: 'short',
-                          })}
-                        </span>
-                        <span
-                          className={styles.patternReturn}
-                          style={{ color: pattern.averageReturn >= 0 ? '#10b981' : '#ef4444' }}
-                        >
-                          {(pattern.averageReturn * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className={styles.patternStrength}>
-                        <div
-                          className={styles.patternStrengthBar}
-                          style={{ width: `${pattern.patternStrength * 100}%` }}
-                        />
-                        <span>Strength: {Math.round(pattern.patternStrength * 100)}%</span>
-                      </div>
-                      <div className={styles.patternDetails}>
-                        <span>Best: {pattern.bestYear}</span>
-                        <span>Worst: {pattern.worstYear}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.bestWorstMonths}>
-                <div className={styles.bestMonths}>
-                  <h5>Best Months</h5>
-                  {(timeBasedAnalysisResultLocal?.bestMonths ||
-                    timeBasedAnalysisResult?.bestMonths ||
-                    []).map((month) => (
-                    <div key={`best-${month.month}`} className={styles.monthItem}>
-                      <span className={styles.monthName}>
-                        {new Date(0, month.month - 1).toLocaleString('default', {
-                          month: 'long',
-                        })}
-                      </span>
-                      <span className={styles.monthValue} style={{ color: '#10b981' }}>
-                        +{(month.averageReturn * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={styles.worstMonths}>
-                  <h5>Worst Months</h5>
-                  {(timeBasedAnalysisResultLocal?.worstMonths ||
-                    timeBasedAnalysisResult?.worstMonths ||
-                    []).map((month) => (
-                    <div key={`worst-${month.month}`} className={styles.monthItem}>
-                      <span className={styles.monthName}>
-                        {new Date(0, month.month - 1).toLocaleString('default', {
-                          month: 'long',
-                        })}
-                      </span>
-                      <span className={styles.monthValue} style={{ color: '#ef4444' }}>
-                        {(month.averageReturn * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.yoyComparison}>
-                <h5>Year-over-Year Performance</h5>
-                <table className={styles.yoyTable}>
-                  <thead>
-                    <tr>
-                      <th>Year</th>
-                      <th>Start Value</th>
-                      <th>End Value</th>
-                      <th>Annual Return</th>
-                      <th>Annual Growth</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(timeBasedAnalysisResultLocal?.yearOverYearComparisons ||
-                      timeBasedAnalysisResult?.yearOverYearComparisons ||
-                      []).map((yoy) => (
-                      <tr key={`yoy-${yoy.year}`}>
-                        <td>{yoy.year}</td>
-                        <td>{formatPreferredCurrency(yoy.startValue, preferredCurrency)}</td>
-                        <td>{formatPreferredCurrency(yoy.endValue, preferredCurrency)}</td>
-                        <td style={{ color: yoy.annualReturn >= 0 ? '#10b981' : '#ef4444' }}>
-                          {(yoy.annualReturn * 100).toFixed(1)}%
-                        </td>
-                        <td style={{ color: yoy.annualGrowth >= 0 ? '#10b981' : '#ef4444' }}>
-                          {formatPreferredCurrency(yoy.annualGrowth, preferredCurrency)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className={styles.performanceHeatmap}>
-                <h5>Performance Heatmap</h5>
-                <div className={styles.heatmapLegend}>
-                  <span>Low Performance</span>
-                  <div className={styles.heatmapGradient} />
-                  <span>High Performance</span>
-                </div>
-                <div className={styles.heatmapGrid}>
-                  {Object.entries(
-                    timeBasedAnalysisResultLocal?.performanceHeatmap ||
-                      timeBasedAnalysisResult?.performanceHeatmap ||
-                      {}
-                  ).map(([monthKey, returnPercent]) => (
-                    <div
-                      key={`heatmap-${monthKey}`}
-                      className={styles.heatmapCell}
-                      style={{
-                        backgroundColor: getHeatmapColor(returnPercent),
-                        color: Math.abs(returnPercent) > 5 ? '#ffffff' : '#1e293b',
-                      }}
-                      title={`${monthKey}: ${returnPercent.toFixed(1)}%`}
-                    >
-                      {returnPercent.toFixed(1)}%
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
       {behavioralAnalysisResult && (
         <div className={styles.behavioralAnalysisControls}>
           <div className={styles.behavioralAnalysisHeader}>

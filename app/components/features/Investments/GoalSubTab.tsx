@@ -6,13 +6,12 @@ import { ChartLoadingSkeleton } from '@/components/ui';
 import { useIdleRender } from '@/lib/hooks';
 import { InvestmentGoalChart } from '../Goal';
 import { staggerContainerVariants, slideFromBottomVariants, transitions } from '@/lib/animations';
-import { Transaction, Goal, PreferredCurrency, TimeBasedAnalysisResult } from '@/lib/types';
+import { Transaction, Goal, PreferredCurrency } from '@/lib/types';
 import {
   generateProjectionData,
   mergeProjectedWithActual,
   calculateCumulativeContributions,
   calculateActualPortfolioValues,
-  performTimeBasedAnalysis,
 } from '@/lib/projectionCalculations';
 
 function useWindowWidth() {
@@ -38,7 +37,6 @@ interface GoalSubTabProps {
     USD_PLN: number;
   };
   preferredCurrency: PreferredCurrency;
-  enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
   enableWhatIfScenarios: boolean;
   enableBenchmarkComparison: boolean;
@@ -51,7 +49,6 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
   portfolioValue,
   exchangeRates,
   preferredCurrency,
-  enableTimeAnalysis,
   enableScenarioAnalysis,
   enableWhatIfScenarios,
   enableBenchmarkComparison,
@@ -81,37 +78,6 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
     if (transactions.length === 0) return undefined;
     return transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date);
   }, [transactions]);
-
-  // Calculate actual portfolio values from transactions for time-based analysis
-  const actualPortfolioData = useMemo(() => {
-    if (transactions.length === 0) return [];
-    return calculateActualPortfolioValues(
-      transactions,
-      exchangeRates,
-      portfolioValue,
-      goal.annualReturn
-    );
-  }, [transactions, exchangeRates, portfolioValue, goal.annualReturn]);
-
-  // Run time-based analysis on actual portfolio data (disabled on mobile and feature flag)
-  const timeBasedAnalysisResult = useMemo((): TimeBasedAnalysisResult | undefined => {
-    if (!enableTimeAnalysis || isMobile || actualPortfolioData.length === 0) return undefined;
-    
-    const projectionDataForAnalysis = actualPortfolioData.map((point) => ({
-      year: point.year,
-      month: point.month,
-      date: point.date,
-      value: point.portfolioValue,
-      goal: goal.amount,
-      monthlyContribution: point.contributions,
-      cumulativeContributions: point.cumulativeContributions,
-      monthlyReturn: 0,
-      cumulativeReturns: point.portfolioValue - point.cumulativeContributions,
-      principalValue: point.cumulativeContributions,
-    }));
-
-    return performTimeBasedAnalysis(projectionDataForAnalysis);
-  }, [enableTimeAnalysis, isMobile, actualPortfolioData, goal.amount]);
 
   // Merge projected data with actual transaction history
   const chartData = useMemo(() => {
@@ -144,10 +110,7 @@ export const GoalSubTab: React.FC<GoalSubTabProps> = ({
               totalActualContributions={totalActualContributions}
               firstTransactionDate={firstTransactionDate}
               preferredCurrency={preferredCurrency}
-              timeBasedAnalysisResult={timeBasedAnalysisResult}
-              showTimeBasedAnalysis={!isMobile && enableTimeAnalysis}
               enableScenarioAnalysis={enableScenarioAnalysis}
-              enableTimeBasedAnalysis={enableTimeAnalysis}
               enableWhatIfScenarios={enableWhatIfScenarios}
               enableBenchmarkComparison={enableBenchmarkComparison}
             />

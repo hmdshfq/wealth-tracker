@@ -58,10 +58,8 @@ export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.mem
       />
 
       <AnalysisInsightsSection
-        timeBasedAnalysisResult={props.timeBasedAnalysisResult}
         behavioralAnalysisResult={props.behavioralAnalysisResult}
         preferredCurrency={props.preferredCurrency}
-        showTimeBasedAnalysis={props.showTimeBasedAnalysis}
         {...insightsModel}
       />
 

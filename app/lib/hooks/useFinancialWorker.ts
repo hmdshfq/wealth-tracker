@@ -10,7 +10,6 @@ import {
 
 type PendingRequestCallback = (result: FinancialWorkerResponsePayload) => void;
 type ScenarioPayload = FinancialWorkerRequestPayloadMap['scenario-analysis'];
-type TimeBasedPayload = FinancialWorkerRequestPayloadMap['time-based-analysis'];
 type ProjectionPayload = FinancialWorkerRequestPayloadMap['projection-data'];
 
 export function useFinancialWorker() {
@@ -139,11 +138,6 @@ export function useFinancialWorker() {
     return sendWorkerMessage('scenario-analysis', { goal, currentNetWorth, scenarios });
   }, [sendWorkerMessage]);
 
-  // Perform time-based analysis
-  const performTimeBasedAnalysis = useCallback((projectionData: TimeBasedPayload['projectionData']) => {
-    return sendWorkerMessage('time-based-analysis', { projectionData });
-  }, [sendWorkerMessage]);
-
   // Generate projection data
   const generateProjectionData = useCallback((goal: ProjectionPayload['goal'], currentNetWorth: ProjectionPayload['currentNetWorth']) => {
     return sendWorkerMessage('projection-data', { goal, currentNetWorth });
@@ -171,7 +165,6 @@ export function useFinancialWorker() {
     error,
     sendWorkerMessage,
     runScenarioAnalysis,
-    performTimeBasedAnalysis,
     generateProjectionData,
     withFallback,
   };

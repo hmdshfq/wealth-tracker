@@ -17,11 +17,10 @@ interface SettingsSubTabProps {
   onEditCancel: () => void;
   onEditSave: () => void;
   onTempGoalChange: (updates: Partial<Goal>) => void;
-  enableTimeAnalysis: boolean;
   enableScenarioAnalysis: boolean;
   enableWhatIfScenarios: boolean;
   enableBenchmarkComparison: boolean;
-  onGoalFeaturesChange: (feature: 'timeAnalysis' | 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
+  onGoalFeaturesChange: (feature: 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
 export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
@@ -34,7 +33,6 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
   onEditCancel,
   onEditSave,
   onTempGoalChange,
-  enableTimeAnalysis,
   enableScenarioAnalysis,
   enableWhatIfScenarios,
   enableBenchmarkComparison,
@@ -120,13 +118,6 @@ export const SettingsSubTab: React.FC<SettingsSubTabProps> = ({
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <ToggleSwitch
-            checked={enableTimeAnalysis}
-            onChange={(enabled: boolean) => onGoalFeaturesChange('timeAnalysis', enabled)}
-            label="Time-Based Analysis"
-            description="Analyze seasonal patterns and year-over-year performance"
-          />
-          
           <ToggleSwitch
             checked={enableScenarioAnalysis}
             onChange={(enabled: boolean) => onGoalFeaturesChange('scenarioAnalysis', enabled)}

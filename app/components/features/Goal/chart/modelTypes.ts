@@ -6,7 +6,6 @@ import {
   PreferredCurrency,
   ProjectionDataPoint,
   ScenarioAnalysisResult,
-  TimeBasedAnalysisResult,
 } from '@/lib/types';
 import { ExtendedProjectionDataPoint } from '@/lib/projectionCalculations';
 import { CHART_COLORS, ChartProjectionPoint, LegendEntry } from './types';
@@ -25,12 +24,9 @@ export interface InvestmentGoalChartProps {
   scenarioAnalysisResult?: ScenarioAnalysisResult;
   showScenarioAnalysis?: boolean;
   scenarios?: InvestmentScenario[];
-  timeBasedAnalysisResult?: TimeBasedAnalysisResult;
-  showTimeBasedAnalysis?: boolean;
   behavioralAnalysisResult?: BehavioralAnalysisResult;
   showBehavioralAnalysis?: boolean;
   enableScenarioAnalysis?: boolean;
-  enableTimeBasedAnalysis?: boolean;
   enableWhatIfScenarios?: boolean;
   enableBenchmarkComparison?: boolean;
 }
@@ -90,10 +86,6 @@ export interface CanvasModel {
 }
 
 export interface InsightsModel {
-  timeBasedAnalysisResult?: TimeBasedAnalysisResult;
-  timeBasedAnalysisResultLocal: TimeBasedAnalysisResult | null;
-  showTimeBasedAnalysisLocal: boolean;
-  setShowTimeBasedAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
   showBehavioralAnalysisLocal: boolean;
   setShowBehavioralAnalysisLocal: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveHelpOverlay: React.Dispatch<

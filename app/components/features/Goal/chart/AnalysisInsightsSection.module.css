@@ -1,4 +1,3 @@
-.timeBasedAnalysisControls,
 .behavioralAnalysisControls,
 .confidenceBandsControls {
   margin: 24px 0;
@@ -8,7 +7,6 @@
   border: 1px solid var(--border-secondary);
 }
 
-.timeBasedAnalysisHeader,
 .behavioralAnalysisHeader,
 .confidenceBandsHeader {
   display: flex;
@@ -17,7 +15,6 @@
   margin-bottom: 20px;
 }
 
-.timeBasedAnalysisHeader h4,
 .behavioralAnalysisHeader h4,
 .confidenceBandsHeader h4 {
   margin: 0;
@@ -26,13 +23,11 @@
   color: var(--text-primary);
 }
 
-.timeBasedAnalysisToggle,
 .behavioralAnalysisToggle,
 .confidenceBandsToggle {
   margin-bottom: 20px;
 }
 
-.timeBasedAnalysisToggle label,
 .behavioralAnalysisToggle label,
 .confidenceBandsToggle label {
   display: flex;
@@ -75,36 +70,28 @@
   cursor: help;
 }
 
-.timeBasedAnalysisContent,
 .behavioralAnalysisContent {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.seasonalPatterns h5,
-.yoyComparison h5,
-.performanceHeatmap h5,
-.progressMilestones h5,
 .behavioralBiases h5,
 .motivationalMessages h5,
-.achievementBadges h5,
-.bestMonths h5,
-.worstMonths h5 {
+.achievementBadges h5 {
   margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.patternsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+.progressMilestones h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.patternItem,
-.monthItem,
 .milestoneItem,
 .biasItem,
 .messageItem {
@@ -113,33 +100,15 @@
   border: 1px solid var(--border-secondary);
 }
 
-.patternItem,
 .milestoneItem,
 .biasItem {
   padding: 12px;
 }
 
-.monthItem,
 .messageItem {
   padding: 8px 12px;
 }
 
-.visualizationModeToggle {
-  margin-bottom: 16px;
-}
-
-.visualizationModeToggle label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.patternHeader,
-.patternDetails,
-.monthItem,
 .milestoneHeader,
 .biasHeader {
   display: flex;
@@ -147,41 +116,12 @@
   align-items: center;
 }
 
-.patternHeader {
-  margin-bottom: 8px;
-}
-
-.patternMonth,
 .milestonePercentage,
 .biasType {
   color: var(--text-primary);
   font-weight: 600;
 }
 
-.patternMonth {
-  font-size: 14px;
-}
-
-.patternReturn,
-.monthValue {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.patternStrength {
-  margin-bottom: 8px;
-}
-
-.patternStrengthBar {
-  height: 6px;
-  background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-blue) 100%);
-  border-radius: 3px;
-  margin-bottom: 4px;
-}
-
-.patternDetails,
-.monthName,
-.heatmapLegend,
 .milestoneDate,
 .biasRecommendation,
 .noBiases,
@@ -191,75 +131,11 @@
   color: var(--text-muted);
 }
 
-.bestWorstMonths {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.monthName,
 .messageText,
 .milestoneMessage,
 .biasDescription {
   color: var(--text-primary);
   font-size: 13px;
-}
-
-.yoyTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.yoyTable th,
-.yoyTable td {
-  padding: 8px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-secondary);
-}
-
-.yoyTable th {
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-card);
-}
-
-.yoyTable td {
-  color: var(--text-primary);
-}
-
-.heatmapLegend {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.heatmapGradient {
-  flex: 1;
-  height: 8px;
-  background: linear-gradient(90deg, #ef4444 0%, #f87171 25%, #fca5a5 50%, #fecaca 75%, #a7f3d0 100%);
-  border-radius: 4px;
-}
-
-.heatmapGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: 4px;
-}
-
-.heatmapCell {
-  padding: 6px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.heatmapCell:hover {
-  transform: scale(1.05);
-  z-index: 1;
 }
 
 .milestonesGrid {
@@ -747,18 +623,6 @@
 }
 
 @media (max-width: 768px) {
-  .timeBasedAnalysisControls {
-    display: none;
-  }
-  
-  .bestWorstMonths {
-    grid-template-columns: 1fr;
-  }
-  
-  .patternsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  }
-
   .scenariosGrid {
     grid-template-columns: 1fr;
   }
@@ -772,21 +636,21 @@
   .confidenceBandsControls {
     padding: 12px;
   }
-  
+
   .bandsTable th,
   .bandsTable td {
     padding: 8px 10px;
     font-size: 13px;
   }
-  
+
   .statItem {
     padding: 8px;
   }
-  
+
   .statLabel {
     font-size: 11px;
   }
-  
+
   .statValue {
     font-size: 14px;
   }

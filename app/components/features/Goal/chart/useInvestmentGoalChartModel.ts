@@ -17,14 +17,12 @@ import {
 } from '@/lib/dataSampling';
 import {
   generateProjectionData as generateProjectionDataMain,
-  performTimeBasedAnalysis as performTimeBasedAnalysisMain,
   runScenarioAnalysis as runScenarioAnalysisMain,
 } from '@/lib/projectionCalculations';
 import {
   InvestmentScenario,
   ProjectionDataPoint,
   ScenarioAnalysisResult,
-  TimeBasedAnalysisResult,
 } from '@/lib/types';
 import {
   ChartProjectionPoint,
@@ -194,10 +192,9 @@ export function useInvestmentGoalChartModel(
     scenarioAnalysisResult,
     showScenarioAnalysis,
     scenarios,
-    timeBasedAnalysisResult,
+    behavioralAnalysisResult,
     showBehavioralAnalysis,
     enableScenarioAnalysis = true,
-    enableTimeBasedAnalysis = true,
     enableWhatIfScenarios = true,
     enableBenchmarkComparison = true,
     theme,
@@ -206,7 +203,6 @@ export function useInvestmentGoalChartModel(
 
   const {
     runScenarioAnalysis,
-    performTimeBasedAnalysis,
     generateProjectionData,
     isLoading: workerLoading,
     error: workerError,
@@ -238,12 +234,9 @@ export function useInvestmentGoalChartModel(
   const [showScenarioAnalysisLocal, setShowScenarioAnalysisLocal] = useState(
     Boolean(showScenarioAnalysis)
   );
-  const [showTimeBasedAnalysisLocal, setShowTimeBasedAnalysisLocal] = useState(false);
   const [showBehavioralAnalysisLocal, setShowBehavioralAnalysisLocal] = useState(
     Boolean(showBehavioralAnalysis)
   );
-  const [timeBasedAnalysisResultLocal, setTimeBasedAnalysisResultLocal] =
-    useState<TimeBasedAnalysisResult | null>(null);
 
   const defaultScenarios = useMemo<InvestmentScenario[]>(
     () => [
@@ -487,22 +480,6 @@ export function useInvestmentGoalChartModel(
       ]);
     });
   }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData, enableBenchmarkComparison]);
-
-  useEffect(() => {
-    if (isMobile) return;
-    if (!enableTimeBasedAnalysis) {
-      setTimeBasedAnalysisResultLocal(null);
-      return;
-    }
-    if (projectionData && projectionData.length > 0 && showTimeBasedAnalysisLocal) {
-      withFallback(
-        () => performTimeBasedAnalysis(projectionData),
-        () => performTimeBasedAnalysisMain(projectionData)
-      ).then(setTimeBasedAnalysisResultLocal);
-    } else {
-      setTimeBasedAnalysisResultLocal(null);
-    }
-  }, [isMobile, enableTimeBasedAnalysis, projectionData, showTimeBasedAnalysisLocal, withFallback, performTimeBasedAnalysis]);
 
   const filteredDataWithBenchmarks = useMemo(() => {
     if (isMobile) return [];
@@ -938,10 +915,6 @@ export function useInvestmentGoalChartModel(
       crossoverEndDate: crossoverZone.endDate,
     },
     insightsModel: {
-      timeBasedAnalysisResult,
-      timeBasedAnalysisResultLocal,
-      showTimeBasedAnalysisLocal,
-      setShowTimeBasedAnalysisLocal,
       showBehavioralAnalysisLocal,
       setShowBehavioralAnalysisLocal,
       setActiveHelpOverlay,
