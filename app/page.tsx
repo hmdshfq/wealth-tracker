@@ -740,6 +740,23 @@ export default function InvestmentTracker() {
     setEditingGoal(false);
   }, []);
 
+  // Stable form-change handlers so memoized tabs bail out when unrelated state
+  // (e.g. typing in another tab's form) changes the parent. All use functional
+  // setState so identity is stable across renders.
+  const handleTxChange = useCallback(
+    (updates: Partial<NewTransaction>) => setNewTx((prev) => ({ ...prev, ...updates })),
+    []
+  );
+  const handleCashChange = useCallback(
+    (updates: Partial<NewCash>) => setNewCash((prev) => ({ ...prev, ...updates })),
+    []
+  );
+  const handleTempGoalChange = useCallback(
+    (updates: Partial<Goal>) => setTempGoal((prev) => ({ ...prev, ...updates })),
+    []
+  );
+  const togglePricesEdit = useCallback(() => setIsEditingPrices((prev) => !prev), []);
+
   // ---------------------------------------------------------------------------
 
   // Currency preference handlers
@@ -811,7 +828,7 @@ export default function InvestmentTracker() {
                 pricesLoading={pricesLoading}
                 isEditingPrices={isEditingPrices}
                 tickerOrder={tickerOrder}
-                onTogglePricesEdit={() => setIsEditingPrices(!isEditingPrices)}
+                onTogglePricesEdit={togglePricesEdit}
                 onReorderTickers={setTickerOrder}
               />
             </div>
@@ -825,7 +842,7 @@ export default function InvestmentTracker() {
                 prices={prices}
                 etfData={allTickers}
                 newTx={newTx}
-                onTxChange={(updates) => setNewTx((prev) => ({ ...prev, ...updates }))}
+                onTxChange={handleTxChange}
                 onAddTransaction={addTransaction}
                 onEditTransaction={editTransaction}
                 onDeleteTransaction={deleteTransaction}
@@ -848,7 +865,7 @@ export default function InvestmentTracker() {
                 onEditStart={handleGoalEditStart}
                 onEditCancel={handleGoalEditCancel}
                 onEditSave={handleGoalEditSave}
-                onTempGoalChange={(updates) => setTempGoal((prev) => ({ ...prev, ...updates }))}
+                onTempGoalChange={handleTempGoalChange}
                 // Goal feature settings
                 enableScenarioAnalysis={goalFeatures.scenarioAnalysis}
                 enableWhatIfScenarios={goalFeatures.whatIfScenarios}
@@ -866,7 +883,7 @@ export default function InvestmentTracker() {
                 totalCashPLN={totalCashPLN}
                 newCash={newCash}
                 exchangeRates={exchangeRates}
-                onCashChange={(updates) => setNewCash((prev) => ({ ...prev, ...updates }))}
+                onCashChange={handleCashChange}
                 onAddCash={addCash}
                 onEditCashTransaction={editCashTransaction}
                 onDeleteCashTransaction={deleteCashTransaction}

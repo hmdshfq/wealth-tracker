@@ -61,7 +61,7 @@ interface InvestmentsTabProps {
   onGoalFeaturesChange: (feature: 'scenarioAnalysis' | 'whatIfScenarios' | 'benchmarkComparison', enabled: boolean) => void;
 }
 
-export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
+export const InvestmentsTab: React.FC<InvestmentsTabProps> = React.memo(function InvestmentsTab({
   // Transactions
   transactions,
   prices,
@@ -99,7 +99,7 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
   enableWhatIfScenarios,
   enableBenchmarkComparison,
   onGoalFeaturesChange,
-}) => {
+}) {
   const [activeSubTab, setActiveSubTab] = useState<InvestmentsSubTab>('goal');
 
   return (
@@ -249,6 +249,6 @@ export const InvestmentsTab: React.FC<InvestmentsTabProps> = ({
       </AnimatePresence>
     </motion.div>
   );
-};
+});
 
 export default InvestmentsTab;

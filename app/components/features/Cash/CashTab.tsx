@@ -80,7 +80,7 @@ const DeleteIcon = () => (
   </svg>
 );
 
-export const CashTab: React.FC<CashTabProps> = ({
+export const CashTab: React.FC<CashTabProps> = React.memo(function CashTab({
   cash,
   cashTransactions,
   totalCashPLN,
@@ -91,7 +91,7 @@ export const CashTab: React.FC<CashTabProps> = ({
   onEditCashTransaction,
   preferredCurrency = 'PLN',
   onDeleteCashTransaction,
-}) => {
+}) {
   const [editingTransaction, setEditingTransaction] = useState<CashTransaction | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [pageSize, setPageSize] = useState<string>('50');
@@ -421,6 +421,6 @@ export const CashTab: React.FC<CashTabProps> = ({
       </Modal>
     </motion.div>
   );
-};
+});
 
 export default CashTab;

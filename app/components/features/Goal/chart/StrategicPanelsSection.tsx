@@ -79,7 +79,7 @@ interface StrategicPanelsSectionProps {
   enableBenchmarkComparison?: boolean;
 }
 
-export function StrategicPanelsSection({
+export const StrategicPanelsSection = React.memo(function StrategicPanelsSection({
   effectiveScenarioAnalysisResult,
   setActiveHelpOverlay,
   showScenarioAnalysisLocal,
@@ -477,4 +477,4 @@ export function StrategicPanelsSection({
       )}
     </>
   );
-}
+});

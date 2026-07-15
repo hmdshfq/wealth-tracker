@@ -127,6 +127,12 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
 
 
 
+  // Compute once instead of per-Line (8 redundant matchMedia calls).
+  const shouldAnimate =
+    typeof window !== 'undefined'
+      ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : true;
+
   return (
     <>
       <CustomLegend payload={legendPayload} onToggle={handleLegendToggle} hiddenLines={hiddenLines} />
@@ -252,7 +258,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 strokeDasharray={goalLineStyle.strokeDasharray}
                 dot={goalLineStyle.dot}
                 activeDot={goalLineStyle.activeDot}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -266,7 +272,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 strokeDasharray={projectedContributionsLineStyle.strokeDasharray}
                 dot={projectedContributionsLineStyle.dot}
                 activeDot={projectedContributionsLineStyle.activeDot}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -280,7 +286,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 strokeDasharray={projectedValueLineStyle.strokeDasharray}
                 dot={projectedValueLineStyle.dot}
                 activeDot={projectedValueLineStyle.activeDot}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -312,7 +318,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                       strokeDasharray={scenarioLineStyle.strokeDasharray}
                       dot={scenarioLineStyle.dot}
                       activeDot={scenarioLineStyle.activeDot}
-                      isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                      isAnimationActive={shouldAnimate}
                     />
                   );
                 })}
@@ -327,7 +333,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 strokeDasharray={whatIfLineStyle.strokeDasharray}
                 dot={whatIfLineStyle.dot}
                 activeDot={whatIfLineStyle.activeDot}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -355,7 +361,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                     strokeDasharray={benchmarkLineStyle.strokeDasharray}
                     dot={benchmarkLineStyle.dot}
                     activeDot={benchmarkLineStyle.activeDot}
-                    isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                    isAnimationActive={shouldAnimate}
                   />
                 );
               })}
@@ -371,7 +377,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 dot={actualContributionsLineStyle.dot}
                 activeDot={actualContributionsLineStyle.activeDot}
                 connectNulls={false}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -385,7 +391,7 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
                 dot={actualValueLineStyle.dot}
                 activeDot={actualValueLineStyle.activeDot}
                 connectNulls={false}
-                isAnimationActive={typeof window !== 'undefined' ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches : true}
+                isAnimationActive={shouldAnimate}
               />
             )}
 
@@ -410,10 +416,10 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
               </tr>
             </thead>
             <tbody>
-              {currencyAdjustedData.slice(-12).map((point, index) => {
+              {currencyAdjustedData.slice(-12).map((point) => {
                 const progress = (point.value / convertedGoalAmount) * 100;
                 return (
-                  <tr key={index}>
+                  <tr key={point.date}>
                     <td>{point.date}</td>
                     <td>{formatChartValue(point.value)}</td>
                     <td>{formatChartValue(point.cumulativeContributions)}</td>

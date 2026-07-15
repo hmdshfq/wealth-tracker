@@ -3,7 +3,7 @@
 import React, { useId, useRef } from 'react';
 import styles from './InvestmentGoalChart.module.css';
 import { CHART_COLORS } from './chart/types';
-import { useTheme } from './chart/useTheme';
+import { useTheme } from '@/context';
 import { AnalysisInsightsSection } from './chart/AnalysisInsightsSection';
 import { StrategicPanelsSection } from './chart/StrategicPanelsSection';
 import { ChartCanvasSection } from './chart/ChartCanvasSection';
@@ -13,7 +13,7 @@ import { InvestmentGoalChartProps } from './chart/modelTypes';
 
 export const InvestmentGoalChart: React.FC<InvestmentGoalChartProps> = React.memo((props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const { theme } = useTheme();
   const colors = CHART_COLORS[theme];
   const gradientId = useId();
 
