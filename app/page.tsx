@@ -1,20 +1,12 @@
 'use client';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useUser } from '@clerk/nextjs';
 
 // Layout components
 import { Header, Footer, Navigation, TabName } from '@/components/layout';
 
-// Feature components
-import {
-  DashboardTab,
-  InvestmentsTab,
-  CashTab,
-  ExportModal,
-  ImportModal,
-} from '@/components/features';
-
-// UI components
+// UI components (static — small, used app-wide)
 import { Toast, LocalStorageBanner, AppShellSkeleton } from '@/components/ui';
 
 // Types and constants
@@ -32,12 +24,6 @@ import { ETF_DATA } from '@/lib/constants';
 import { calculateGoalAmount } from '@/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/lib/holdingsCalculations';
 import { generateProjectionData, calculateCumulativeContributions } from '@/lib/projectionCalculations';
-import { 
-  generateInvestmentReportPDF,
-  exportGoalProgressChartPDF,
-  exportSummaryReport,
-  downloadPDF 
-} from '@/lib/pdfExport';
 import {
   DEMO_CASH,
   DEMO_CASH_TRANSACTIONS,
@@ -59,6 +45,14 @@ import { usePortfolioMetrics } from '@/lib/hooks/usePortfolioMetrics';
 
 // Styles
 import styles from './page.module.css';
+
+// Feature tabs + modals are lazy-loaded via next/dynamic so recharts (~500KB gz),
+// motion, and the Goal chart only enter the bundle for the tab that's open.
+const DashboardTab = dynamic(() => import('@/components/features/Dashboard/DashboardTab'));
+const InvestmentsTab = dynamic(() => import('@/components/features/Investments/InvestmentsTab'));
+const CashTab = dynamic(() => import('@/components/features/Cash/CashTab'));
+const ExportModal = dynamic(() => import('@/components/features/Modals/ExportModal'));
+const ImportModal = dynamic(() => import('@/components/features/Modals/ImportModal'));
 
 // ============================================================================
 // MAIN COMPONENT
@@ -410,6 +404,10 @@ export default function InvestmentTracker() {
 
   // PDF Export Functions
   const exportToPDF = useCallback(async (type: 'full' | 'summary' | 'goal-chart') => {
+    // Dynamic import: keeps jspdf + jspdf-autotable (~600-900KB gz) out of the
+    // initial bundle; only loaded when the user actually clicks Export -> PDF.
+    const { generateInvestmentReportPDF, exportGoalProgressChartPDF, exportSummaryReport, downloadPDF } =
+      await import('@/lib/pdfExport');
     try {
       let blob: Blob | null = null;
       let filename = '';

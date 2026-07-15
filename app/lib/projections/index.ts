@@ -9,5 +9,3 @@ export {
 export type { ExtendedProjectionDataPoint, ActualPortfolioDataPoint } from './baseProjection';
 
 export { runScenarioAnalysis, getDefaultScenarios } from './scenarioAnalysis';
-
-export { calculateRiskMetrics, getRiskRating, formatRiskMetrics } from './riskMetrics';

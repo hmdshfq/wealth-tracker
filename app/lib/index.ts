@@ -16,8 +16,5 @@ export {
   calculateActualPortfolioValues,
   runScenarioAnalysis,
   getDefaultScenarios,
-  calculateRiskMetrics,
-  getRiskRating,
-  formatRiskMetrics,
 } from './projectionCalculations';
 export type * from './types';
