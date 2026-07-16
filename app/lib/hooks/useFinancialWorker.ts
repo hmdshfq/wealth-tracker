@@ -148,16 +148,19 @@ export function useFinancialWorker() {
     workerFn: () => Promise<T>,
     fallbackFn: () => T
   ): Promise<T> => {
-    if (!worker || error) {
-      console.warn('Using fallback calculation on main thread');
+    // Don't gate on `error`: sendWorkerMessage clears it on a successful post,
+    // so a single transient failure would otherwise permanently pin the chart
+    // to the main-thread fallback for the whole session.
+    if (!worker) {
+      console.warn('Using fallback calculation on main thread (no worker)');
       return Promise.resolve(fallbackFn());
     }
-    
+
     return workerFn().catch((e) => {
       console.warn('Worker failed, falling back to main thread:', e);
       return fallbackFn();
     });
-  }, [worker, error]);
+  }, [worker]);
 
   return {
     worker,

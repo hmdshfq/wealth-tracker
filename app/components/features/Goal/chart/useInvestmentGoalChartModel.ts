@@ -8,7 +8,7 @@ import {
   calculateRequiredContributions,
   calculateYearsToGoal,
 } from '@/lib/goalCalculations';
-import { useFinancialWorker } from '@/lib/hooks';
+import { useFinancialWorker, useDebouncedValue } from '@/lib/hooks';
 import {
   getRecommendedSamplingStrategy,
   sampleProjectionData,
@@ -305,6 +305,14 @@ export function useInvestmentGoalChartModel(
     announceToScreenReader
   );
 
+  // Debounce the inputs that drive expensive worker projections. Without this,
+  // dragging the what-if slider fires 4 worker round-trips per keystroke and
+  // every price tick re-runs the scenario/benchmark effects. useDebouncedValue
+  // was already in the codebase but unused; wiring it here is the intended use.
+  const debouncedGoal = useDebouncedValue(goal, 250);
+  const debouncedNetWorth = useDebouncedValue(currentNetWorth, 250);
+  const debouncedWhatIfParams = useDebouncedValue(whatIfParams, 250);
+
   useEffect(() => {
     setActiveScenarios(scenarioDefinitions);
   }, [scenarioDefinitions]);
@@ -325,8 +333,8 @@ export function useInvestmentGoalChartModel(
     let isCancelled = false;
 
     withFallback(
-      () => runScenarioAnalysis(goal, currentNetWorth, scenarioDefinitions),
-      () => runScenarioAnalysisMain(goal, currentNetWorth, scenarioDefinitions)
+      () => runScenarioAnalysis(debouncedGoal, debouncedNetWorth, scenarioDefinitions),
+      () => runScenarioAnalysisMain(debouncedGoal, debouncedNetWorth, scenarioDefinitions)
     ).then((result) => {
       if (!isCancelled) {
         setScenarioAnalysisResultLocal(result);
@@ -336,7 +344,7 @@ export function useInvestmentGoalChartModel(
     return () => {
       isCancelled = true;
     };
-  }, [isMobile, enableScenarioAnalysis, goal, currentNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
+  }, [isMobile, enableScenarioAnalysis, debouncedGoal, debouncedNetWorth, scenarioDefinitions, withFallback, runScenarioAnalysis]);
 
   const effectiveScenarioAnalysisResult = scenarioAnalysisResultLocal || scenarioAnalysisResult;
 
@@ -352,16 +360,16 @@ export function useInvestmentGoalChartModel(
     }
 
     const tempGoal = {
-      ...goal,
-      annualReturn: whatIfParams.annualReturn,
-      monthlyDeposits: whatIfParams.monthlyDeposits,
+      ...debouncedGoal,
+      annualReturn: debouncedWhatIfParams.annualReturn,
+      monthlyDeposits: debouncedWhatIfParams.monthlyDeposits,
     };
 
     withFallback(
-      () => generateProjectionData(tempGoal, currentNetWorth),
-      () => generateProjectionDataMain(tempGoal, currentNetWorth)
+      () => generateProjectionData(tempGoal, debouncedNetWorth),
+      () => generateProjectionDataMain(tempGoal, debouncedNetWorth)
     ).then(setWhatIfProjection);
-  }, [isMobile, enableWhatIfScenarios, showWhatIf, whatIfParams, goal, currentNetWorth, withFallback, generateProjectionData]);
+  }, [isMobile, enableWhatIfScenarios, showWhatIf, debouncedWhatIfParams, debouncedGoal, debouncedNetWorth, withFallback, generateProjectionData]);
 
   const yearsToGoal = useMemo(() => {
     return calculateYearsToGoal(
@@ -449,17 +457,17 @@ export function useInvestmentGoalChartModel(
       setBenchmarkData([]);
       return;
     }
-    const sp500Goal = { ...goal, annualReturn: 0.07 };
-    const industryGoal = { ...goal, annualReturn: 0.05 };
+    const sp500Goal = { ...debouncedGoal, annualReturn: 0.07 };
+    const industryGoal = { ...debouncedGoal, annualReturn: 0.05 };
 
     Promise.all([
       withFallback(
-        () => generateProjectionData(sp500Goal, currentNetWorth),
-        () => generateProjectionDataMain(sp500Goal, currentNetWorth)
+        () => generateProjectionData(sp500Goal, debouncedNetWorth),
+        () => generateProjectionDataMain(sp500Goal, debouncedNetWorth)
       ),
       withFallback(
-        () => generateProjectionData(industryGoal, currentNetWorth),
-        () => generateProjectionDataMain(industryGoal, currentNetWorth)
+        () => generateProjectionData(industryGoal, debouncedNetWorth),
+        () => generateProjectionDataMain(industryGoal, debouncedNetWorth)
       ),
     ]).then(([sp500Projection, industryProjection]) => {
       setBenchmarkData([
@@ -479,7 +487,7 @@ export function useInvestmentGoalChartModel(
         },
       ]);
     });
-  }, [isMobile, goal, currentNetWorth, withFallback, generateProjectionData, enableBenchmarkComparison]);
+  }, [isMobile, debouncedGoal, debouncedNetWorth, withFallback, generateProjectionData, enableBenchmarkComparison]);
 
   const filteredDataWithBenchmarks = useMemo(() => {
     if (isMobile) return [];

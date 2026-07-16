@@ -146,6 +146,9 @@ export function smartSampleData(
 
   // Always keep first and last points
   const sampled: SampledDataPoint[] = [data[0]];
+  // ponytail: Set-based dedup keeps the evenly-spaced loop near-linear instead
+  // of O(n²) over sampled.length — matters for long (>40yr) projection horizons.
+  const sampledDates = new Set<string>([data[0].date]);
   const dataLength = data.length;
 
   // Find and preserve local extrema
@@ -154,6 +157,7 @@ export function smartSampleData(
   // Add extrema points
   extremaIndices.forEach(index => {
     if (index > 0 && index < dataLength - 1) {
+      sampledDates.add(data[index].date);
       sampled.push(data[index]);
     }
   });
@@ -175,8 +179,8 @@ export function smartSampleData(
     }
 
     // Check if this point is already in sampled (extrema)
-    const alreadyIncluded = sampled.some(point => point.date === data[i].date);
-    if (!alreadyIncluded) {
+    if (!sampledDates.has(data[i].date)) {
+      sampledDates.add(data[i].date);
       sampled.push(data[i]);
     }
   }
@@ -227,6 +231,9 @@ export function adaptiveSampleData(
   }
 
   const sampled: SampledDataPoint[] = [data[0]];
+  // ponytail: Set-based dedup — see smartSampleData. The pointsToSample loop was
+  // O(maxPoints²) with the .some() scan over a growing sampled array.
+  const sampledDates = new Set<string>([data[0].date]);
   const dataLength = data.length;
 
   // Calculate volatility for each segment
@@ -259,8 +266,8 @@ export function adaptiveSampleData(
         const index = Math.min(i + 1, dataLength - 2); // +1 because volatility starts from index 1
         
         // Check if already sampled
-        const alreadySampled = sampled.some(point => point.date === data[index].date);
-        if (!alreadySampled) {
+        if (!sampledDates.has(data[index].date)) {
+          sampledDates.add(data[index].date);
           sampled.push(data[index]);
         }
         break;

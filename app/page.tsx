@@ -295,27 +295,29 @@ export default function InvestmentTracker() {
   useEffect(() => {
     if (!isDataLoaded) return;
 
-    if (isCloudMode) {
+    // Both cloud and local writes go through the same 800ms debounce so rapid
+    // edits don't synchronously JSON.stringify + setItem on every keystroke.
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      if (!isCloudMode) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(buildCloudPayload()));
+        } catch (error) {
+          console.error('Failed to save data to local storage:', error);
+        }
+      } else {
+        void saveToCloud(false);
+      }
+    }, 800);
+
+    return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-
-      saveTimeoutRef.current = setTimeout(() => {
-        void saveToCloud(false);
-      }, 800);
-
-      return () => {
-        if (saveTimeoutRef.current) {
-          clearTimeout(saveTimeoutRef.current);
-        }
-      };
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(buildCloudPayload()));
-    } catch (error) {
-      console.error('Failed to save data to local storage:', error);
-    }
+    };
   }, [buildCloudPayload, isDataLoaded, isCloudMode, saveToCloud]);
 
   const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers, preferredCurrency);
