@@ -1,3 +1,7 @@
+// Exchange rates change slowly and cache well cross-user. revalidate feeds the
+// Next.js data cache; Cache-Control lets the CDN serve stale-while-revalidate.
+export const revalidate = 600;
+
 import { NextRequest, NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
 
@@ -98,6 +102,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       rates,
       timestamp: new Date().toISOString(),
+    }, {
+      headers: { 'Cache-Control': 's-maxage=600, stale-while-revalidate=1200' },
     });
   } catch (error) {
     console.error('Exchange rates fetch error:', error);
@@ -106,6 +112,8 @@ export async function GET(request: NextRequest) {
       rates: FALLBACK_RATES,
       timestamp: new Date().toISOString(),
       fallback: true,
+    }, {
+      headers: { 'Cache-Control': 'no-store' },
     });
   }
 }

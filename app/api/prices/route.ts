@@ -1,3 +1,8 @@
+// Cacheable: prices are slow-moving. revalidate feeds the Next.js data cache;
+// the Cache-Control header lets the CDN serve stale-while-revalidate so cold
+// starts no longer bypass caching entirely.
+export const revalidate = 300;
+
 import { NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
 import type { Quote, QuoteResponseArray } from 'yahoo-finance2/modules/quote';
@@ -11,6 +16,9 @@ const CACHE_TTL = 300000; // 5 minute cache
 
 // Helper function to sleep/delay
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Transient errors worth retrying: rate limits, timeouts, dropped sockets, 5xx.
+const TRANSIENT_ERROR = /429|too many requests|timeout|timed out|econnreset|etimedout|socket hang|network|\b5\d{2}\b|503|502|504/i;
 
 // Retry with exponential backoff
 async function fetchWithRetry(
@@ -44,8 +52,10 @@ async function fetchWithRetry(
     } catch (error: unknown) {
       lastError = error;
       
-      // Check if it's a rate limit error
-      if (error instanceof Error && (error.message.includes('429') || error.message.includes('Too Many Requests'))) {
+      // Retry on rate limits OR transient network errors (not just 429).
+      // ponytail: regex match avoids an exhaustive error-class list; yahoo-finance2
+      // surfaces opaque Error messages, so substring matching is the robust path.
+      if (error instanceof Error && TRANSIENT_ERROR.test(error.message)) {
         const delay = baseDelay * Math.pow(2, attempt);
         console.log(`Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
         
@@ -112,6 +122,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       prices,
       timestamp: new Date().toISOString(),
+    }, {
+      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' },
     });
   } catch (error) {
     console.error('Yahoo Finance error:', error);
@@ -122,7 +134,7 @@ export async function GET(request: Request) {
         timestamp: new Date().toISOString(),
         fallback: true 
       },
-      { status: 200 }
+      { status: 200, headers: { 'Cache-Control': 'no-store' } }
     );
   }
 }

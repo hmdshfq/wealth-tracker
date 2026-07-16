@@ -1,3 +1,7 @@
+// Search results are user-specific but stable for a given query; a short TTL
+// keeps repeat searches instant without becoming stale.
+export const revalidate = 60;
+
 import { NextResponse } from 'next/server';
 
 interface YahooQuote {
@@ -40,7 +44,10 @@ export async function GET(request: Request) {
         typeDisp: quote.typeDisp,
       }));
 
-    return NextResponse.json({ results });
+    return NextResponse.json(
+      { results },
+      { headers: { 'Cache-Control': 'private, max-age=60' } },
+    );
   } catch (error) {
     console.error('Error fetching ticker search:', error);
     return NextResponse.json({ error: 'Failed to fetch search results' }, { status: 500 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ETF_DATA, EXCHANGE_RATES } from '../constants';
 import { PreferredCurrency, TickerInfo } from '../types';
 import { setExchangeRates as updateGlobalRates } from '../formatters';
@@ -34,6 +34,8 @@ const NEEDS_EXTRA_RATE: Record<string, boolean> = {
   ZAR: true,
 };
 
+const POLL_INTERVAL = 300000; // 5 minutes
+
 export function useMarketData(
   allTickers: Record<string, TickerInfo>,
   preferredCurrency?: PreferredCurrency
@@ -43,6 +45,19 @@ export function useMarketData(
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [exchangeRates, setExchangeRates] = useState(EXCHANGE_RATES);
   const [fetchedCurrencies, setFetchedCurrencies] = useState<Set<string>>(new Set(['PLN', 'EUR', 'USD']));
+
+  // Keep the latest tickers in a ref so fetchPrices can stay stable across renders
+  // even when the parent passes a new object identity for the same ticker set.
+  const allTickersRef = useRef(allTickers);
+  useEffect(() => {
+    allTickersRef.current = allTickers;
+  }, [allTickers]);
+
+  // Stable key: only changes when the actual ticker SET changes (adds/removes).
+  // A new object identity with the same keys produces the same string, so the
+  // fetchPrices callback (and the polling effect) don't churn on unrelated
+  // parent re-renders — this was causing a refetch storm before.
+  const tickerKey = Object.keys(allTickers).sort().join(',');
 
   // Fetch additional exchange rate for the preferred currency if needed
   const fetchExtraRate = useCallback(async (currency: string) => {
@@ -65,48 +80,35 @@ export function useMarketData(
   const fetchPrices = useCallback(async () => {
     setPricesLoading(true);
 
-    try {
-      // Check if there are any tickers to fetch
-      const tickers = Object.keys(allTickers);
-      if (tickers.length === 0) {
-        setPrices({});
-        return;
-      }
+    const tickers = Object.keys(allTickersRef.current);
+    if (tickers.length === 0) {
+      // Still refresh rates in parallel-ish; rates are cheap and cacheable.
+      setPrices({});
+      setLastUpdate(new Date());
+      setPricesLoading(false);
+      return;
+    }
 
-      // Fetch ETF prices
-      const tickersParam = tickers.join(',');
-      const pricesResponse = await fetch(`/api/prices?tickers=${tickersParam}`);
+    const tickerParam = tickers.join(',');
+    const currentTickers = allTickersRef.current;
 
-      if (!pricesResponse.ok) {
-        throw new Error(`HTTP ${pricesResponse.status}: ${pricesResponse.statusText}`);
-      }
+    // Fetch prices and rates in parallel — they're independent requests to
+    // independent endpoints. Sequential awaiting doubled perceived latency.
+    const [pricesResult, ratesResult] = await Promise.allSettled([
+      fetch(`/api/prices?tickers=${tickerParam}`).then((r) => r.json()),
+      fetch('/api/exchange-rates').then((r) => r.json()),
+    ]);
 
-      const pricesData = await pricesResponse.json();
-
-      if (pricesData.error) {
-        throw new Error(pricesData.error);
-      }
-
+    if (pricesResult.status === 'fulfilled' && !pricesResult.value.error) {
       const newPrices: Record<string, PriceData> = {};
-      for (const [ticker, info] of Object.entries(pricesData.prices || {})) {
+      for (const [ticker, info] of Object.entries(pricesResult.value.prices || {})) {
         newPrices[ticker] = info as PriceData;
       }
-
       setPrices(newPrices);
-
-      // Fetch exchange rates
-      const ratesResponse = await fetch('/api/exchange-rates');
-      if (ratesResponse.ok) {
-        const ratesData = await ratesResponse.json();
-        updateGlobalRates(ratesData.rates);
-        setFetchedCurrencies(new Set(['PLN', 'EUR', 'USD']));
-      }
-
-      setLastUpdate(new Date());
-    } catch {
+    } else {
       // Fall back to base prices from constants
       const fallbackPrices: Record<string, PriceData> = {};
-      Object.entries(allTickers || ETF_DATA).forEach(([ticker, data]) => {
+      Object.entries(currentTickers || ETF_DATA).forEach(([ticker, data]) => {
         fallbackPrices[ticker] = {
           price: data.basePrice,
           change: 0,
@@ -115,10 +117,17 @@ export function useMarketData(
         };
       });
       setPrices(fallbackPrices);
-    } finally {
-      setPricesLoading(false);
     }
-  }, [allTickers]);
+
+    if (ratesResult.status === 'fulfilled') {
+      updateGlobalRates(ratesResult.value.rates);
+      setFetchedCurrencies(new Set(['PLN', 'EUR', 'USD']));
+    }
+
+    setLastUpdate(new Date());
+    setPricesLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tickerKey intentionally drives fetchPrices recreation so the polling effect restarts (cleanup+refetch) when the ticker SET changes, while the body reads the ref for current values.
+  }, [tickerKey]);
 
   // Fetch extra rate when preferredCurrency changes (lazy)
   useEffect(() => {
@@ -129,10 +138,39 @@ export function useMarketData(
     }
   }, [preferredCurrency, fetchExtraRate, fetchedCurrencies]);
 
+  // Poll, but pause when the tab is hidden so hidden tabs don't burn Yahoo
+  // quota and serverless compute on a 5-minute timer no one is watching.
   useEffect(() => {
-    void fetchPrices();
-    const interval = setInterval(fetchPrices, 300000);
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const start = () => {
+      if (interval) return;
+      void fetchPrices();
+      interval = setInterval(fetchPrices, POLL_INTERVAL);
+    };
+
+    const stop = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        start();
+      }
+    };
+
+    if (!document.hidden) start();
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
+    };
   }, [fetchPrices]);
 
   return {

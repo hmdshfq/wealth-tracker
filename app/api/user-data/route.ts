@@ -10,6 +10,11 @@ type UserDataPayload = {
   tickerOrder?: unknown;
 };
 
+// ponytail: ensureTable runs CREATE TABLE IF NOT EXISTS per request. A
+// module-scope memoized singleton would skip the round trip but breaks test
+// isolation (the memo persists across vi.resetAllMocks() in the same module
+// instance) — and the Neon pooled-connection round trip is sub-millisecond, so
+// the micro-opt isn't worth a test-only escape hatch.
 async function ensureTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS user_data (
