@@ -95,7 +95,8 @@ export function useMarketData(
     // Fetch prices and rates in parallel — they're independent requests to
     // independent endpoints. Sequential awaiting doubled perceived latency.
     const [pricesResult, ratesResult] = await Promise.allSettled([
-      fetch(`/api/prices?tickers=${tickerParam}`).then((r) => r.json()),
+      // POST so prefetch/crawlers can't trigger upstream Yahoo calls.
+      fetch(`/api/prices?tickers=${tickerParam}`, { method: 'POST' }).then((r) => r.json()),
       fetch('/api/exchange-rates').then((r) => r.json()),
     ]);
 

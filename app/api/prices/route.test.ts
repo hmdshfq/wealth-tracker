@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET } from './route';
+import { POST } from './route';
 import { NextRequest } from 'next/server';
 import { mockQuote } from '@/__mocks__/yahoo-finance2';
 
@@ -21,7 +21,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=AAPL,MSFT`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -45,7 +45,7 @@ describe('/api/prices', () => {
 
   it('returns error when tickers parameter is missing', async () => {
     const request = new NextRequest(`${BASE_URL}/api/prices`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -55,7 +55,7 @@ describe('/api/prices', () => {
 
   it('returns error when tickers parameter is empty', async () => {
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -68,7 +68,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=TSLA`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -85,7 +85,7 @@ describe('/api/prices', () => {
     mockQuote.mockRejectedValueOnce(new Error('API limit exceeded'));
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=AAPL`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -103,7 +103,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=AAPL,NULL`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -121,7 +121,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=TEST`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -138,7 +138,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=PKO.WA`);
-    const response = await GET(request);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -156,11 +156,11 @@ describe('/api/prices', () => {
 
     // First request
     const request1 = new NextRequest(`${BASE_URL}/api/prices?tickers=AAPL`);
-    await GET(request1);
+    await POST(request1);
 
     // Second request should use cache (mock not called again)
     const request2 = new NextRequest(`${BASE_URL}/api/prices?tickers=AAPL`);
-    await GET(request2);
+    await POST(request2);
 
     expect(mockQuote).toHaveBeenCalledTimes(1);
   });
@@ -170,7 +170,7 @@ describe('/api/prices', () => {
     mockQuote.mockResolvedValueOnce(mockQuotes);
 
     const request = new NextRequest(`${BASE_URL}/api/prices?tickers=BRK.B`);
-    const response = await GET(request);
+    const response = await POST(request);
 
     expect(mockQuote).toHaveBeenCalledWith(['BRK.B']);
     expect(response.status).toBe(200);

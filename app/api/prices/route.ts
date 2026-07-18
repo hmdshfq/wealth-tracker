@@ -73,7 +73,11 @@ async function fetchWithRetry(
   throw lastError;
 }
 
-export async function GET(request: Request) {
+// POST, not GET: a cache miss triggers an upstream Yahoo Finance call and a
+// write to the module-level cache. GET would let browsers prefetch, link
+// previews, and crawlers fire those upstream calls without user intent and
+// exhaust the Yahoo rate limit for everyone. POST is only sent on real intent.
+export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const tickersParam = searchParams.get('tickers');
 
