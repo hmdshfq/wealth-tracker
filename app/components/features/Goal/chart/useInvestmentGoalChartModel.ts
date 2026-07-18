@@ -700,18 +700,21 @@ export function useInvestmentGoalChartModel(
 
     const scenarioLegendEntries =
       showScenarioAnalysisLocal && effectiveScenarioAnalysisResult
-        ? activeScenarios
-            .filter((s) => s.isActive && s.id !== 'base')
-            .map((scenario, index) =>
-              legendEntryFromStyle({
-                value: scenario.name,
-                dataKey: scenario.id,
-                type: 'scenario',
-                seriesKind: 'scenario',
-                colorHint: scenario.color,
-                index,
-              })
-            )
+        ? activeScenarios.reduce<LegendEntry[]>((entries, scenario, index) => {
+            if (scenario.isActive && scenario.id !== 'base') {
+              entries.push(
+                legendEntryFromStyle({
+                  value: scenario.name,
+                  dataKey: scenario.id,
+                  type: 'scenario',
+                  seriesKind: 'scenario',
+                  colorHint: scenario.color,
+                  index,
+                })
+              );
+            }
+            return entries;
+          }, [])
         : [];
 
     const whatIfLegendEntries =

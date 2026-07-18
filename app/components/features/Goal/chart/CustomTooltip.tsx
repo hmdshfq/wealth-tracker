@@ -88,8 +88,7 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
     }, []);
 
     return uniqueEntries
-      .map((entry, index) => ({ entry, index }))
-      .map(({ entry, index }) => {
+      .map((entry, index) => {
         const key = entry.dataKey ?? entry.name ?? 'value';
         const legendEntry =
           legendLookup.get(entry.dataKey ?? '') ??

@@ -51,30 +51,30 @@ export const EditableLiveGrid: React.FC<EditableLiveGridProps> = ({
 
   return (
     <div className={styles.pricesGrid}>
-      {tempOrder
-        .filter((ticker) => etfData[ticker])
-        .map((ticker) => {
-          const data = etfData[ticker];
-          const priceInfo = prices[ticker];
-          const hasPrice = priceInfo?.price !== undefined && priceInfo?.price !== null;
-          const displayPrice = hasPrice ? `€${priceInfo.price.toFixed(2)}` : 'Not available';
-          const changePercent = hasPrice ? priceInfo.changePercent : 0;
+      {tempOrder.reduce<React.ReactNode[]>((cards, ticker) => {
+        if (!etfData[ticker]) return cards;
+        const data = etfData[ticker];
+        const priceInfo = prices[ticker];
+        const hasPrice = priceInfo?.price !== undefined && priceInfo?.price !== null;
+        const displayPrice = hasPrice ? `€${priceInfo.price.toFixed(2)}` : 'Not available';
+        const changePercent = hasPrice ? priceInfo.changePercent : 0;
 
-          return (
-            <DraggableTickerCard
-              key={ticker}
-              ticker={ticker}
-              name={data.name}
-              price={displayPrice}
-              change={formatPercent(changePercent)}
-              changeType={changePercent >= 0 ? 'positive' : 'negative'}
-              isDragging={draggedTicker === ticker}
-              onDragStart={() => handleDragStart(ticker)}
-              onDragOver={() => handleDragOver(ticker)}
-              onDragEnd={handleDragEnd}
-            />
-          );
-        })}
+        cards.push(
+          <DraggableTickerCard
+            key={ticker}
+            ticker={ticker}
+            name={data.name}
+            price={displayPrice}
+            change={formatPercent(changePercent)}
+            changeType={changePercent >= 0 ? 'positive' : 'negative'}
+            isDragging={draggedTicker === ticker}
+            onDragStart={() => handleDragStart(ticker)}
+            onDragOver={() => handleDragOver(ticker)}
+            onDragEnd={handleDragEnd}
+          />
+        );
+        return cards;
+      }, [])}
     </div>
   );
 };

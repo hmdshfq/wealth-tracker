@@ -35,14 +35,23 @@ export async function GET(request: Request) {
     const data = await response.json();
     
     // Transform the response to a simpler format
-    const results = (data.quotes || [])
-      .filter((quote: YahooQuote) => quote.isYahooFinance) // Filter out irrelevant results if needed
-      .map((quote: YahooQuote) => ({
+    const quotes: YahooQuote[] = data.quotes || [];
+    const results = quotes.reduce<{
+      symbol: string;
+      shortname: string;
+      exchDisp?: string;
+      typeDisp?: string;
+    }[]>((acc, quote) => {
+      // Filter out irrelevant results if needed
+      if (!quote.isYahooFinance) return acc;
+      acc.push({
         symbol: quote.symbol,
         shortname: quote.shortname || quote.longname || quote.symbol,
         exchDisp: quote.exchDisp,
         typeDisp: quote.typeDisp,
-      }));
+      });
+      return acc;
+    }, []);
 
     return NextResponse.json(
       { results },

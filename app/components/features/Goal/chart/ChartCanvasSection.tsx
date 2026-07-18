@@ -292,36 +292,34 @@ export const ChartCanvasSection = React.memo(function ChartCanvasSection({
 
             {showScenarioAnalysisLocal &&
               effectiveScenarioAnalysisResult &&
-              activeScenarios
-                .filter((s) => s.isActive && s.id !== 'base')
-                .map((scenario, index) => {
-                  if (hiddenLines.has(scenario.id)) {
-                    return null;
-                  }
-                  const scenarioLineStyle = resolveChartLineStyle({
-                    dataKey: scenario.id,
-                    seriesKind: 'scenario',
-                    theme,
-                    colors,
-                    background: colors.background,
-                    colorHint: scenario.color,
-                    index,
-                  });
-                  return (
-                    <Line
-                      key={scenario.id}
-                      type="monotone"
-                      dataKey={scenario.id}
-                      name={scenario.name}
-                      stroke={scenarioLineStyle.stroke}
-                      strokeWidth={scenarioLineStyle.strokeWidth}
-                      strokeDasharray={scenarioLineStyle.strokeDasharray}
-                      dot={scenarioLineStyle.dot}
-                      activeDot={scenarioLineStyle.activeDot}
-                      isAnimationActive={shouldAnimate}
-                    />
-                  );
-                })}
+              activeScenarios.reduce<React.ReactNode[]>((lines, scenario, index) => {
+                if (!(scenario.isActive && scenario.id !== 'base')) return lines;
+                if (hiddenLines.has(scenario.id)) return lines;
+                const scenarioLineStyle = resolveChartLineStyle({
+                  dataKey: scenario.id,
+                  seriesKind: 'scenario',
+                  theme,
+                  colors,
+                  background: colors.background,
+                  colorHint: scenario.color,
+                  index,
+                });
+                lines.push(
+                  <Line
+                    key={scenario.id}
+                    type="monotone"
+                    dataKey={scenario.id}
+                    name={scenario.name}
+                    stroke={scenarioLineStyle.stroke}
+                    strokeWidth={scenarioLineStyle.strokeWidth}
+                    strokeDasharray={scenarioLineStyle.strokeDasharray}
+                    dot={scenarioLineStyle.dot}
+                    activeDot={scenarioLineStyle.activeDot}
+                    isAnimationActive={shouldAnimate}
+                  />
+                );
+                return lines;
+              }, [])}
 
             {showWhatIf && whatIfProjection && (
               <Line

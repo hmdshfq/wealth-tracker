@@ -134,15 +134,18 @@ export async function exportGoalProgressChartPDF(
     { align: 'center' }
   );
 
-  // Data table
-  const dataTable = projectionData
-    .filter((_, i) => i % 12 === 0) // Sample every 12 months for PDF
-    .map((p) => [
-      p.date,
-      formatPLN(p.value),
-      formatPLN(p.cumulativeContributions),
-      `${((p.value / goal.amount) * 100).toFixed(1)}%`,
-    ]);
+  // Data table — sample every 12 months for PDF, single pass over the list.
+  const dataTable = projectionData.reduce<string[][]>((acc, p, i) => {
+    if (i % 12 === 0) {
+      acc.push([
+        p.date,
+        formatPLN(p.value),
+        formatPLN(p.cumulativeContributions),
+        `${((p.value / goal.amount) * 100).toFixed(1)}%`,
+      ]);
+    }
+    return acc;
+  }, []);
 
   autoTable(
     doc,

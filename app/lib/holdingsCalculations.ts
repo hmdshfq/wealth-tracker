@@ -25,12 +25,15 @@ export function calculateHoldingsFromTransactions(transactions: Transaction[]): 
     holdingsMap.set(tx.ticker, existing);
   });
 
-  // Convert to Holding[] and remove zero positions
-  return Array.from(holdingsMap.entries())
-    .filter(([, data]) => data.shares > 0)
-    .map(([ticker, data]) => ({
-      ticker,
-      shares: data.shares,
-      avgCost: data.shares > 0 ? data.totalCost / data.shares : 0,
-    }));
+  // Convert to Holding[] and remove zero positions — single pass
+  return Array.from(holdingsMap.entries()).reduce<Holding[]>((acc, [ticker, data]) => {
+    if (data.shares > 0) {
+      acc.push({
+        ticker,
+        shares: data.shares,
+        avgCost: data.totalCost / data.shares,
+      });
+    }
+    return acc;
+  }, []);
 }

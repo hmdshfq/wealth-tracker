@@ -58,25 +58,25 @@ export const LivePrices: React.FC<LivePricesProps> = ({
         />
       ) : (
         <div className={styles.pricesGrid}>
-          {tickerOrder
-            .filter((ticker) => etfData[ticker])
-            .map((ticker) => {
-              const data = etfData[ticker];
-              const priceInfo = prices[ticker];
-              const hasPrice = priceInfo?.price !== undefined && priceInfo?.price !== null;
-              const displayPrice = hasPrice ? `€${priceInfo.price.toFixed(2)}` : 'Not available';
-              const changePercent = hasPrice ? priceInfo.changePercent : 0;
-              return (
-                <PriceCard
-                  key={ticker}
-                  ticker={ticker}
-                  name={data.name}
-                  price={displayPrice}
-                  change={formatPercent(changePercent)}
-                  changeType={changePercent >= 0 ? 'positive' : 'negative'}
-                />
-              );
-            })}
+          {tickerOrder.reduce<React.ReactNode[]>((cards, ticker) => {
+            if (!etfData[ticker]) return cards;
+            const data = etfData[ticker];
+            const priceInfo = prices[ticker];
+            const hasPrice = priceInfo?.price !== undefined && priceInfo?.price !== null;
+            const displayPrice = hasPrice ? `€${priceInfo.price.toFixed(2)}` : 'Not available';
+            const changePercent = hasPrice ? priceInfo.changePercent : 0;
+            cards.push(
+              <PriceCard
+                key={ticker}
+                ticker={ticker}
+                name={data.name}
+                price={displayPrice}
+                change={formatPercent(changePercent)}
+                changeType={changePercent >= 0 ? 'positive' : 'negative'}
+              />
+            );
+            return cards;
+          }, [])}
         </div>
       )}
     </Card>

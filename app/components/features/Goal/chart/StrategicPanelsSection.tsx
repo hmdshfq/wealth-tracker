@@ -178,24 +178,23 @@ export const StrategicPanelsSection = React.memo(function StrategicPanelsSection
                     </tr>
                   </thead>
                   <tbody>
-                    {activeScenarios
-                      .filter((s) => s.isActive)
-                      .map((scenario) => {
-                        const scenarioData = effectiveScenarioAnalysisResult.scenarios[scenario.id];
-                        const finalValue = scenarioData?.[scenarioData.length - 1]?.value || 0;
-                        const baseFinalValue =
-                          effectiveScenarioAnalysisResult.baseScenario[
-                            effectiveScenarioAnalysisResult.baseScenario.length - 1
-                          ]?.value || 0;
-                        const difference = finalValue - baseFinalValue;
-                        const differencePercent =
-                          baseFinalValue > 0 ? (difference / baseFinalValue) * 100 : 0;
-                        const successProbability =
-                          finalValue >= goal.amount
-                            ? 100
-                            : Math.min(100, (finalValue / goal.amount) * 100);
+                    {activeScenarios.reduce<React.ReactNode[]>((rows, scenario) => {
+                      if (!scenario.isActive) return rows;
+                      const scenarioData = effectiveScenarioAnalysisResult.scenarios[scenario.id];
+                      const finalValue = scenarioData?.[scenarioData.length - 1]?.value || 0;
+                      const baseFinalValue =
+                        effectiveScenarioAnalysisResult.baseScenario[
+                          effectiveScenarioAnalysisResult.baseScenario.length - 1
+                        ]?.value || 0;
+                      const difference = finalValue - baseFinalValue;
+                      const differencePercent =
+                        baseFinalValue > 0 ? (difference / baseFinalValue) * 100 : 0;
+                      const successProbability =
+                        finalValue >= goal.amount
+                          ? 100
+                          : Math.min(100, (finalValue / goal.amount) * 100);
 
-                        return (
+                      rows.push(
                           <tr key={scenario.id}>
                             <td>
                               <span
@@ -236,7 +235,8 @@ export const StrategicPanelsSection = React.memo(function StrategicPanelsSection
                             </td>
                           </tr>
                         );
-                      })}
+                        return rows;
+                      }, [])}
                   </tbody>
                 </table>
               </div>
