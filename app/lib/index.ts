@@ -15,6 +15,5 @@ export {
   calculateCumulativeContributions,
   calculateActualPortfolioValues,
   runScenarioAnalysis,
-  getDefaultScenarios,
 } from './projectionCalculations';
 export type * from './types';

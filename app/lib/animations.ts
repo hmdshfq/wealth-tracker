@@ -13,13 +13,6 @@ export const fadeVariants: Variants = {
   exit: { opacity: 0 },
 };
 
-/** Slide from top */
-export const slideFromTopVariants: Variants = {
-  initial: { y: -20, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  exit: { y: -20, opacity: 0 },
-};
-
 /** Slide from bottom */
 export const slideFromBottomVariants: Variants = {
   initial: { y: 20, opacity: 0 },
@@ -32,18 +25,6 @@ export const scaleVariants: Variants = {
   initial: { x: "-50%", y: "-50%",scale: 0.95, opacity: 0 },
   animate: { x: "-50%", y: "-50%",scale: 1, opacity: 1 },
   exit: { x: "-50%", y: "-50%",scale: 0.95, opacity: 0 },
-};
-
-/** List item height collapse */
-export const collapseVariants: Variants = {
-  initial: { height: 0, opacity: 0 },
-  animate: { height: 'auto', opacity: 1 },
-  exit: { height: 0, opacity: 0 },
-};
-
-/** Button press scale */
-export const buttonPressVariants = {
-  whileTap: { scale: 0.97 },
 };
 
 /** Stagger children animation */

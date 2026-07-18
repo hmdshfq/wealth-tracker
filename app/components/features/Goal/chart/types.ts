@@ -25,15 +25,6 @@ export interface TimeRangeOption {
   months: number | null;
 }
 
-export const TIME_RANGES: TimeRangeOption[] = [
-  { label: '6M', value: '6m', months: 6 },
-  { label: '1Y', value: '1y', months: 12 },
-  { label: '3Y', value: '3y', months: 36 },
-  { label: '5Y', value: '5y', months: 60 },
-  { label: '10Y', value: '10y', months: 120 },
-  { label: 'All', value: 'all', months: null },
-];
-
 // Theme-aware color palette using CSS variable values.
 export const CHART_COLORS = {
   dark: {

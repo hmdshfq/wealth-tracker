@@ -69,10 +69,3 @@ export function runScenarioAnalysis(
     scenarios: result,
   };
 }
-
-/**
- * Get default scenarios for scenario analysis.
- */
-export function getDefaultScenarios(): InvestmentScenario[] {
-  return [...DEFAULT_SCENARIOS];
-}

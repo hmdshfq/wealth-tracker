@@ -8,4 +8,4 @@ export {
 } from './baseProjection';
 export type { ExtendedProjectionDataPoint, ActualPortfolioDataPoint } from './baseProjection';
 
-export { runScenarioAnalysis, getDefaultScenarios } from './scenarioAnalysis';
+export { runScenarioAnalysis } from './scenarioAnalysis';

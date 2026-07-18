@@ -8,8 +8,6 @@ export const setExchangeRates = (rates: Record<string, number>) => {
   dynamicRates = { ...EXCHANGE_RATES, ...rates };
 };
 
-export const getExchangeRates = (): Record<string, number> => dynamicRates;
-
 export const formatPLN = (val: number | undefined | null): string => {
   if (typeof val !== 'number' || isNaN(val)) {
     return '0,00 zł';
