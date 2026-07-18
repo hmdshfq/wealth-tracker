@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.37.3",
