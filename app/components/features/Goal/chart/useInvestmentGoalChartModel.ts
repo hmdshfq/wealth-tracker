@@ -807,22 +807,19 @@ export function useInvestmentGoalChartModel(
     };
   }, [currencyAdjustedData]);
 
-  // Calculate crossover zone where returns exceed contributions
-  // Use raw projectionData (before sampling) to ensure accuracy
+  // Calculate crossover zone where cumulative returns exceed cumulative contributions.
+  // Monthly returns can be smaller than deposits even after total returns overtake deposits.
   const crossoverZone = useMemo(() => {
     if (!projectionData || projectionData.length === 0) {
       return { startDate: undefined, endDate: undefined };
     }
 
-    // Find first point where monthlyReturn >= monthlyContribution in raw data
     let rawCrossoverDate: string | undefined;
 
     for (const point of projectionData) {
-      if (point.monthlyReturn !== undefined && point.monthlyContribution !== undefined) {
-        if (point.monthlyReturn >= point.monthlyContribution && !rawCrossoverDate) {
-          rawCrossoverDate = point.date;
-          break;
-        }
+      if (point.cumulativeReturns > point.cumulativeContributions) {
+        rawCrossoverDate = point.date;
+        break;
       }
     }
 
