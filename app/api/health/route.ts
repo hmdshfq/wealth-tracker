@@ -9,15 +9,15 @@ export async function GET() {
   try {
     await sql`SELECT 1`;
     dbOk = true;
-  } catch (error) {
-    console.error("Health check DB error:", error);
+  } catch {
+    // Failure is reflected in the response's dbOk field
   }
 
   try {
     const { userId } = await auth();
     authOk = Boolean(userId);
-  } catch (error) {
-    console.error("Health check auth error:", error);
+  } catch {
+    // Failure is reflected in the response's authOk field
   }
 
   return Response.json({

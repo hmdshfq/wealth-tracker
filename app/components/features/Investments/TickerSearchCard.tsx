@@ -53,9 +53,8 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
       if (data.results && data.results.length === 0) {
         setError('No results found');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to fetch results');
-      console.error(err);
     } finally {
       setLoading(false);
     }

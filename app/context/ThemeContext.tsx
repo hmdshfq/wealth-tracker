@@ -43,8 +43,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     try {
       localStorage.setItem('theme', theme);
-    } catch (error) {
-      console.warn('Unable to persist theme preference', error);
+    } catch {
+      // Best-effort persistence; theme still applies for the session
     }
   }, [theme, isThemeInitialized]);
 

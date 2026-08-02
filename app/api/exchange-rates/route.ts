@@ -105,8 +105,7 @@ export async function GET(request: NextRequest) {
     }, {
       headers: { 'Cache-Control': 's-maxage=600, stale-while-revalidate=1200' },
     });
-  } catch (error) {
-    console.error('Exchange rates fetch error:', error);
+  } catch {
     // Return fallback rates on error
     return NextResponse.json({
       rates: FALLBACK_RATES,

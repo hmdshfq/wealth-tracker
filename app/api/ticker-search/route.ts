@@ -57,8 +57,7 @@ export async function GET(request: Request) {
       { results },
       { headers: { 'Cache-Control': 'private, max-age=60' } },
     );
-  } catch (error) {
-    console.error('Error fetching ticker search:', error);
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch search results' }, { status: 500 });
   }
 }

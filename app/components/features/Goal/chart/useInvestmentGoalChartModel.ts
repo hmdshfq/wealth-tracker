@@ -73,8 +73,8 @@ function useRealtimeNetWorth(
             if (data.type === 'portfolio_update' && typeof data.netWorth === 'number') {
               setLiveNetWorth(data.netWorth);
             }
-          } catch (error) {
-            console.error('WebSocket message parse error:', error);
+          } catch {
+            // Ignore malformed messages
           }
         };
         ws.onclose = () => {

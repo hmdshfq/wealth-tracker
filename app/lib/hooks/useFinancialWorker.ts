@@ -23,14 +23,12 @@ export function useFinancialWorker() {
     }
 
     if (!window.Worker) {
-      console.warn('Web Workers not supported in this environment');
       return { worker: null, error: 'Web Workers not supported in this environment' };
     }
 
     try {
       return { worker: new Worker(new URL('../workers/financialWorker.ts', import.meta.url)), error: null };
-    } catch (creationError) {
-      console.error('Failed to create worker:', creationError);
+    } catch {
       return { worker: null, error: 'Failed to initialize WebWorker' };
     }
   };
@@ -55,7 +53,6 @@ export function useFinancialWorker() {
       const callback = pendingRequests.current.get(response.id);
       if (callback) {
         if (response.error) {
-          console.error('Worker error:', response.error);
           setError(response.error);
         } else {
           callback(response.result as FinancialWorkerResponsePayload);
@@ -67,7 +64,6 @@ export function useFinancialWorker() {
     };
 
     const handleError = (event: ErrorEvent) => {
-      console.error('Worker error:', event);
       setError('WebWorker error: ' + event.message);
       setIsLoading(false);
     };
@@ -152,14 +148,10 @@ export function useFinancialWorker() {
     // so a single transient failure would otherwise permanently pin the chart
     // to the main-thread fallback for the whole session.
     if (!worker) {
-      console.warn('Using fallback calculation on main thread (no worker)');
       return Promise.resolve(fallbackFn());
     }
 
-    return workerFn().catch((e) => {
-      console.warn('Worker failed, falling back to main thread:', e);
-      return fallbackFn();
-    });
+    return workerFn().catch(() => fallbackFn());
   }, [worker]);
 
   return {

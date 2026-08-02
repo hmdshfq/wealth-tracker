@@ -185,8 +185,7 @@ export default function InvestmentTracker() {
           setCloudSaveToast(true);
           setTimeout(() => setCloudSaveToast(false), 2500);
         }
-      } catch (error) {
-        console.error('Failed to save data to database:', error);
+      } catch {
         setCloudSaveStatus('error');
         if (showToast) {
           setCloudErrorToast(true);
@@ -223,8 +222,6 @@ export default function InvestmentTracker() {
             credentials: 'include',
           });
           if (!response.ok) {
-            const details = await response.text();
-            console.error('Failed to load user data:', response.status, details);
             setCloudSaveStatus('error');
             return;
           }
@@ -239,8 +236,7 @@ export default function InvestmentTracker() {
             if (data.customTickers) setCustomTickers(data.customTickers);
             if (data.tickerOrder) setTickerOrder(data.tickerOrder);
           }
-        } catch (error) {
-          console.error('Failed to load data from database:', error);
+        } catch {
           setCloudSaveStatus('error');
         } finally {
           if (isActive) setIsDataLoaded(true);
@@ -273,8 +269,7 @@ export default function InvestmentTracker() {
           setCustomTickers(DEMO_CUSTOM_TICKERS);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(demoPayload));
         }
-      } catch (error) {
-        console.error('Failed to load data from local storage:', error);
+      } catch {
         setGoal(DEMO_GOAL);
         setTransactions(DEMO_TRANSACTIONS);
         setCash(DEMO_CASH);
@@ -305,8 +300,8 @@ export default function InvestmentTracker() {
       if (!isCloudMode) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(buildCloudPayload()));
-        } catch (error) {
-          console.error('Failed to save data to local storage:', error);
+        } catch {
+          // Best-effort persistence; state is still held in memory
         }
       } else {
         void saveToCloud(false);
@@ -450,8 +445,7 @@ export default function InvestmentTracker() {
       downloadPDF(blob, filename);
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 3000);
-    } catch (error) {
-      console.error('PDF export failed:', error);
+    } catch {
       setImportError('Failed to generate PDF report');
       setTimeout(() => setImportError(''), 3000);
     }

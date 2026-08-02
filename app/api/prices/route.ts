@@ -35,7 +35,6 @@ async function fetchWithRetry(
       const cached = cache.get(cacheKey);
       
       if (cached && cached.expiry > Date.now()) {
-        console.log(`Cache hit for: ${cacheKey}`);
         return cached.data;
       }
       
@@ -57,8 +56,7 @@ async function fetchWithRetry(
       // surfaces opaque Error messages, so substring matching is the robust path.
       if (error instanceof Error && TRANSIENT_ERROR.test(error.message)) {
         const delay = baseDelay * Math.pow(2, attempt);
-        console.log(`Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
-        
+
         if (attempt < maxRetries - 1) {
           await sleep(delay);
           continue;
@@ -129,8 +127,7 @@ export async function POST(request: Request) {
     }, {
       headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' },
     });
-  } catch (error) {
-    console.error('Yahoo Finance error:', error);
+  } catch {
     return NextResponse.json(
       { 
         error: 'Failed to fetch prices',

@@ -72,8 +72,8 @@ export function useMarketData(
         updateGlobalRates(data.rates);
         setFetchedCurrencies((prev) => new Set([...prev, currency]));
       }
-    } catch (error) {
-      console.error('Failed to fetch extra exchange rate:', error);
+    } catch {
+      // Best-effort fetch; base fallback rates remain in effect
     }
   }, []);
 

@@ -44,8 +44,7 @@ export async function GET() {
 
     const row = rows[0];
     return Response.json({ data: row?.data ?? null });
-  } catch (error) {
-    console.error("Failed to load user data:", error);
+  } catch {
     return new Response("Failed to load user data", { status: 500 });
   }
 }
@@ -75,8 +74,7 @@ export async function PUT(request: Request) {
     `;
 
     return Response.json({ ok: true });
-  } catch (error) {
-    console.error("Failed to save user data:", error);
+  } catch {
     return new Response("Failed to save user data", { status: 500 });
   }
 }
