@@ -192,7 +192,6 @@ export function useInvestmentGoalChartModel(
     scenarioAnalysisResult,
     showScenarioAnalysis,
     scenarios,
-    behavioralAnalysisResult,
     showBehavioralAnalysis,
     enableScenarioAnalysis = true,
     enableWhatIfScenarios = true,
