@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Card, Input, Select, Button, SectionTitle } from '@/components/ui';
+import { TickerCombobox } from './TickerCombobox';
 import { NewTransaction, TickerInfo } from '@/lib/types';
 import styles from './Transactions.module.css';
 
@@ -9,6 +10,7 @@ interface TransactionFormProps {
   onChange: (updates: Partial<NewTransaction>) => void;
   onSubmit: () => void;
   etfData: Record<string, TickerInfo>;
+  onAddTicker: (symbol: string, info: TickerInfo) => void;
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({
@@ -16,12 +18,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onChange,
   onSubmit,
   etfData,
+  onAddTicker,
 }) => {
-  const tickerOptions = Object.keys(etfData).map((t) => ({
-    value: t,
-    label: t,
-  }));
-
   const actionOptions = [
     { value: 'Buy', label: 'Buy' },
     { value: 'Sell', label: 'Sell' },
@@ -38,11 +36,12 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           onChange={(e) => onChange({ date: e.target.value })}
           wrapperStyle={{ minWidth: '150px', flex: '1 1 160px' }}
         />
-        <Select
+        <TickerCombobox
           label="Ticker"
-          options={tickerOptions}
           value={newTx.ticker}
-          onChange={(e) => onChange({ ticker: e.target.value })}
+          onChange={(ticker) => onChange({ ticker })}
+          onRegister={onAddTicker}
+          allTickers={etfData}
           wrapperStyle={{ minWidth: '140px', flex: '1 1 160px' }}
         />
         <Select

@@ -1,9 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, Badge, SectionTitle, IconButton, AnimatedModal, Button, Input, Select } from '@/components/ui';
-import { ETF_DATA } from '@/lib/constants';
+import { TickerCombobox } from './TickerCombobox';
 import { useMediaQuery } from '@/lib/hooks';
-import { Transaction } from '@/lib/types';
+import { Transaction, TickerInfo } from '@/lib/types';
 import styles from './Transactions.module.css';
 
 interface TransactionListProps {
@@ -14,8 +14,10 @@ interface TransactionListProps {
     changePercent: number;
     currency: string;
   }>;
+  allTickers: Record<string, TickerInfo>;
   onEdit: (transaction: Transaction) => void;
   onDelete: (id: number) => void;
+  onAddTicker: (symbol: string, info: TickerInfo) => void;
 }
 
 // Simple SVG icons
@@ -33,11 +35,6 @@ const DeleteIcon = () => (
   </svg>
 );
 
-const tickerOptions = Object.keys(ETF_DATA).map((t) => ({
-  value: t,
-  label: t,
-}));
-
 const actionOptions = [
   { value: 'Buy', label: 'Buy' },
   { value: 'Sell', label: 'Sell' },
@@ -54,14 +51,17 @@ const PAGE_SIZE_OPTIONS = [
 export const TransactionList: React.FC<TransactionListProps> = ({
   transactions,
   prices,
+  allTickers,
   onEdit,
   onDelete,
+  onAddTicker,
 }) => {
   const isMobile = useMediaQuery('(max-width: 800px)');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [pageSize, setPageSize] = useState<string>('50');
   const [currentPage, setCurrentPage] = useState(1);
+
 
   // Pagination logic
   const itemsPerPage = pageSize === 'all' ? transactions.length : parseInt(pageSize, 10);
@@ -98,7 +98,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const getTransactionGainLoss = (tx: Transaction) => {
-    const currentPrice = prices[tx.ticker]?.price || ETF_DATA[tx.ticker]?.basePrice || tx.price;
+    const currentPrice = prices[tx.ticker]?.price || allTickers[tx.ticker]?.basePrice || tx.price;
     const purchaseValue = tx.shares * tx.price;
     const currentValue = tx.shares * currentPrice;
     const gainLoss = currentValue - purchaseValue;
@@ -282,11 +282,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               value={editingTransaction.date}
               onChange={(e) => setEditingTransaction({ ...editingTransaction, date: e.target.value })}
             />
-            <Select
+            <TickerCombobox
               label="Ticker"
-              options={tickerOptions}
               value={editingTransaction.ticker}
-              onChange={(e) => setEditingTransaction({ ...editingTransaction, ticker: e.target.value })}
+              onChange={(ticker) => setEditingTransaction({ ...editingTransaction, ticker })}
+              onRegister={onAddTicker}
+              allTickers={allTickers}
             />
             <Select
               label="Action"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ETF_DATA, EXCHANGE_RATES } from '../constants';
+import { EXCHANGE_RATES } from '../constants';
 import { PreferredCurrency, TickerInfo } from '../types';
 import { setExchangeRates as updateGlobalRates } from '../formatters';
 
@@ -107,9 +107,9 @@ export function useMarketData(
       }
       setPrices(newPrices);
     } else {
-      // Fall back to base prices from constants
+      // Fall back to base prices from the ticker metadata
       const fallbackPrices: Record<string, PriceData> = {};
-      Object.entries(currentTickers || ETF_DATA).forEach(([ticker, data]) => {
+      Object.entries(currentTickers).forEach(([ticker, data]) => {
         fallbackPrices[ticker] = {
           price: data.basePrice,
           change: 0,

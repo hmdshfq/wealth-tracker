@@ -20,7 +20,6 @@ import {
   TickerInfo,
   PreferredCurrency,
 } from '@/lib/types';
-import { ETF_DATA } from '@/lib/constants';
 import { calculateGoalAmount } from '@/lib/goalCalculations';
 import { calculateHoldingsFromTransactions } from '@/lib/holdingsCalculations';
 import { generateProjectionData, calculateCumulativeContributions } from '@/lib/projectionCalculations';
@@ -90,7 +89,27 @@ export default function InvestmentTracker() {
 
   // Compute holdings from transactions
   const holdings = useMemo(() => calculateHoldingsFromTransactions(transactions), [transactions]);
-  const allTickers = useMemo(() => ({ ...ETF_DATA, ...customTickers }), [customTickers]);
+  // The ticker universe is user-driven instead of a hardcoded seed list:
+  // customTickers holds symbols the user added/selected, and any ticker
+  // referenced by a transaction is derived automatically. A ticker therefore
+  // becomes known the moment you trade it.
+  const allTickers = useMemo(() => {
+    const derived: Record<string, TickerInfo> = {};
+
+    // Transactions are stored newest-first, so the first hit for a symbol
+    // carries its most recent currency.
+    for (const tx of transactions) {
+      if (!tx.ticker || derived[tx.ticker]) continue;
+      derived[tx.ticker] = {
+        name: tx.ticker,
+        currency: tx.currency || 'EUR',
+        basePrice: 0,
+      };
+    }
+
+    // User-curated entries win over derived placeholders.
+    return { ...derived, ...customTickers };
+  }, [transactions, customTickers]);
 
   // ---------------------------------------------------------------------------
   // Data Persistence
@@ -317,13 +336,17 @@ export default function InvestmentTracker() {
 
   const { prices, pricesLoading, lastUpdate, exchangeRates, fetchPrices } = useMarketData(allTickers, preferredCurrency);
 
-  // Initialize ticker order from allTickers if not already set
+  // Keep the display order stable while making room for tickers discovered
+  // later (new transactions, newly added/selected tickers). The old version
+  // only initialized once, so later tickers never appeared in the price grid.
   useEffect(() => {
-    if (tickerOrder.length === 0 && Object.keys(allTickers).length > 0) {
-      const initialOrder = Object.keys(allTickers);
-      setTickerOrder(initialOrder);
-    }
-  }, [allTickers, tickerOrder.length]);
+    const tickers = Object.keys(allTickers);
+    if (tickers.length === 0) return;
+    setTickerOrder((prev) => {
+      const missing = tickers.filter((t) => !prev.includes(t));
+      return missing.length === 0 ? prev : [...prev, ...missing];
+    });
+  }, [allTickers]);
 
   // ---------------------------------------------------------------------------
   // Modal State

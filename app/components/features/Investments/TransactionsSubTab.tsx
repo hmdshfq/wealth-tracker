@@ -84,6 +84,7 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
           onChange={onTxChange}
           onSubmit={onAddTransaction}
           etfData={etfData}
+          onAddTicker={onAddTicker}
         />
       </motion.div>
 
@@ -95,8 +96,10 @@ export const TransactionsSubTab: React.FC<TransactionsSubTabProps> = ({
         <TransactionList
           transactions={transactions}
           prices={prices}
+          allTickers={allTickers}
           onEdit={onEditTransaction}
           onDelete={onDeleteTransaction}
+          onAddTicker={onAddTicker}
         />
       </motion.div>
     </motion.div>

@@ -24,6 +24,7 @@ interface TickerSearchCardProps {
 export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
   onAddTicker,
   existingTickers,
+  customTickers,
   onEditTicker,
   onDeleteTicker,
   allTickers,
@@ -162,7 +163,7 @@ export const TickerSearchCard: React.FC<TickerSearchCardProps> = ({
                   </div>
                   <div className={styles.tickerResultActions}>
                     <Button size="small" variant="secondary" onClick={() => startEdit(symbol, info)} className={styles.tickerResultButton}>Edit</Button>
-                    {!isHeld && (
+                    {!isHeld && customTickers[symbol] && (
                       <Button 
                         size="small" 
                         variant="red" 
