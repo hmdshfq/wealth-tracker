@@ -7,7 +7,7 @@ export const EXCHANGE_RATES = {
 
 // ETF data with simulated prices
 export const ETF_DATA: Record<string, { name: string; currency: string; basePrice: number }> = {
-
+  'WEBN.DE': { name: 'Amundi Prime All Country World UCITS ETF Acc', currency: 'EUR', basePrice: 13.05 },
 };
 
 export const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];

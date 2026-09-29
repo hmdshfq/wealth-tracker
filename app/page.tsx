@@ -339,7 +339,7 @@ export default function InvestmentTracker() {
   // ---------------------------------------------------------------------------
   const [newTx, setNewTx] = useState<NewTransaction>({
     date: new Date().toISOString().split('T')[0],
-    ticker: 'FWIA.DE',
+    ticker: 'WEBN.DE',
     action: 'Buy',
     shares: '',
     price: '',
