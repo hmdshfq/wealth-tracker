@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TickerInfo } from '@/lib/types';
 import styles from './Transactions.module.css';
 
@@ -26,6 +27,10 @@ const MAX_OPTIONS = 12;
 // instant results; anything else is looked up against /api/ticker-search as you
 // type. Selecting a symbol that isn't registered yet auto-registers it, so the
 // ticker universe grows from use instead of a hardcoded seed list.
+//
+// The dropdown is rendered in a portal with fixed positioning because the
+// surrounding cards are animated (transform/opacity) and therefore create
+// stacking contexts a plain z-index can't escape.
 export const TickerCombobox: React.FC<TickerComboboxProps> = ({
   value,
   onChange,
@@ -39,7 +44,10 @@ export const TickerCombobox: React.FC<TickerComboboxProps> = ({
   const [results, setResults] = useState<TickerSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
   const listboxId = useId();
 
   // Reflect external value changes (e.g. form reset) in the input text.
@@ -47,16 +55,41 @@ export const TickerCombobox: React.FC<TickerComboboxProps> = ({
     setQuery(value);
   }, [value]);
 
-  // Dismiss the dropdown when clicking outside the field.
+  // Dismiss the dropdown when clicking outside the field or its dropdown.
   useEffect(() => {
     const onDocMouseDown = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
+      const target = e.target as Node;
+      if (containerRef.current?.contains(target) || dropdownRef.current?.contains(target)) {
+        return;
       }
+      setOpen(false);
     };
     document.addEventListener('mousedown', onDocMouseDown);
     return () => document.removeEventListener('mousedown', onDocMouseDown);
   }, []);
+
+  // Keep the portaled dropdown anchored under the input as the layout moves.
+  const updatePosition = useCallback(() => {
+    const rect = inputRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setDropdownStyle({
+      position: 'fixed',
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [open, updatePosition]);
 
   // Debounced remote lookup. Only fires while the dropdown is open so we don't
   // hit Yahoo for a value the user never intends to change.
@@ -149,10 +182,13 @@ export const TickerCombobox: React.FC<TickerComboboxProps> = ({
     }
   };
 
+  const showDropdown = open && (options.length > 0 || loading);
+
   return (
     <div className={styles.comboboxWrapper} style={wrapperStyle} ref={containerRef}>
       {label && <label className={styles.comboboxLabel}>{label}</label>}
       <input
+        ref={inputRef}
         className={styles.comboboxInput}
         value={query}
         placeholder="Search ticker (e.g. VWCE, WEBN.DE)"
@@ -168,8 +204,14 @@ export const TickerCombobox: React.FC<TickerComboboxProps> = ({
         onKeyDown={handleKeyDown}
       />
 
-      {open && (options.length > 0 || loading) && (
-        <ul className={styles.comboboxDropdown} role="listbox" id={listboxId}>
+      {showDropdown && typeof document !== 'undefined' && createPortal(
+        <ul
+          ref={dropdownRef}
+          className={styles.comboboxDropdown}
+          style={dropdownStyle}
+          role="listbox"
+          id={listboxId}
+        >
           {loading && options.length === 0 && (
             <li className={styles.comboboxHint}>Searching…</li>
           )}
@@ -192,7 +234,8 @@ export const TickerCombobox: React.FC<TickerComboboxProps> = ({
               </span>
             </li>
           ))}
-        </ul>
+        </ul>,
+        document.body
       )}
     </div>
   );

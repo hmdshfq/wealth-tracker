@@ -57,11 +57,7 @@
 }
 
 .comboboxDropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 20;
+  z-index: 1050;
   margin: 0;
   padding: var(--spacing-xxs);
   list-style: none;
