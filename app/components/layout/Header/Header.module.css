@@ -16,7 +16,7 @@
   font-size: 28px;
   font-weight: 700;
   margin: 0;
-  background: var(--gradient-title);
+  background: linear-gradient(90deg, oklch(0.62 0.19 259), oklch(0.72 0.15 163), oklch(0.85 0.17 95));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
